@@ -116,13 +116,20 @@ document.addEventListener('DOMContentLoaded', () => {
         `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     // Interactive elements
-    document.addEventListener('keypress', () => {
+    const handleInteraction = (event) => {
         const blinkingElement = document.querySelector('.blinking');
         blinkingElement.style.animation = 'none';
-        blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">█</span>';
+        blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">&#9608;</span>';
         
-        // Add keypress effect
-        const keypressElement = document.querySelector('.terminal-footer .terminal-text:last-child');
-        keypressElement.innerHTML = `> USER_INPUT: ${String.fromCharCode(event.keyCode).toUpperCase()}<span class="cursor">_</span>`;
-    });
+        // Add interaction effect
+        const inputElement = document.querySelector('.terminal-footer .terminal-text:last-child');
+        if (event.type === 'keypress') {
+            inputElement.innerHTML = `> USER_INPUT: ${String.fromCharCode(event.keyCode).toUpperCase()}<span class="cursor">_</span>`;
+        } else {
+            inputElement.innerHTML = '> USER_INPUT: CLICK<span class="cursor">_</span>';
+        }
+    };
+
+    document.addEventListener('keypress', handleInteraction);
+    document.querySelector('.clickable').addEventListener('click', handleInteraction);
 });
