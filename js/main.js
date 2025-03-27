@@ -95,7 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Interactive elements
     document.addEventListener('keypress', () => {
-        document.querySelector('.blinking').style.animation = 'none';
-        document.querySelector('.blinking').textContent = '> System ready...';
+        const blinkingElement = document.querySelector('.blinking');
+        blinkingElement.style.animation = 'none';
+        blinkingElement.innerHTML = '> SYSTEM_READY_<span class="cursor">_</span>';
+        
+        // Add keypress effect
+        const keypressElement = document.querySelector('.terminal-footer .terminal-text:last-child');
+        keypressElement.innerHTML = `> USER_INPUT: ${String.fromCharCode(event.keyCode).toUpperCase()}<span class="cursor">_</span>`;
     });
 });

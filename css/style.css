@@ -128,10 +128,36 @@ body {
     animation: blink 1s infinite;
 }
 
+.cursor {
+    animation: blink 0.7s infinite;
+}
+
+.loading-dots::after {
+    content: '...';
+    animation: dot-pulse 1.5s infinite;
+}
+
+.status-ready {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
 @keyframes blink {
     0% { opacity: 1; }
     50% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+@keyframes dot-pulse {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.terminal-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
 /* Terminal Elements */
