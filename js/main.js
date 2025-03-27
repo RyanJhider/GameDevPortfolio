@@ -31,21 +31,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const projects = [
         {
             title: "HAUNTED MANSION",
-            description: "A first-person horror exploration game with puzzle elements",
-            skills: ["Unity", "C#", "Shader Graph"],
-            link: "project1.html"
+            description: "A first-person horror exploration game with puzzle elements set in a decaying Victorian mansion filled with supernatural phenomena.",
+            skills: ["Unity", "C#", "Shader Graph", "AI Behavior", "Lighting"],
+            link: "project1.html",
+            image: "images/haunted-mansion.jpg",
+            year: "2023"
         },
         {
             title: "RETRO ZOMBIE",
-            description: "Top-down survival shooter with PS1-style graphics",
-            skills: ["Godot", "GDScript", "Pixel Art"],
-            link: "project2.html"
+            description: "Top-down survival shooter with PS1-style graphics and a dynamic day/night cycle that affects zombie behavior.",
+            skills: ["Godot", "GDScript", "Pixel Art", "Procedural Generation", "Sound Design"],
+            link: "project2.html",
+            image: "images/retro-zombie.jpg",
+            year: "2022"
         },
         {
             title: "THE LOST TAPE",
-            description: "Found footage horror experience with VHS effects",
-            skills: ["Unreal Engine", "Blueprints", "Post-processing"],
-            link: "project3.html"
+            description: "Found footage horror experience with authentic VHS effects, where players must solve mysteries while managing limited battery life.",
+            skills: ["Unreal Engine", "Blueprints", "Post-processing", "Cinematics", "Audio"],
+            link: "project3.html",
+            image: "images/lost-tape.jpg",
+            year: "2024"
         }
     ];
 
@@ -54,7 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const projectElement = document.createElement('div');
         projectElement.className = 'terminal-box project';
         projectElement.innerHTML = `
-            <h2 class="glitch-text" data-text="${project.title}">${project.title}</h2>
+            <div class="project-header">
+                <h2 class="glitch-text" data-text="${project.title}">${project.title}</h2>
+                <span class="project-year">${project.year}</span>
+            </div>
+            <img src="${project.image}" alt="${project.title}" class="project-image">
             <p class="terminal-text">${project.description}</p>
             <div class="skills-used">
                 ${project.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
