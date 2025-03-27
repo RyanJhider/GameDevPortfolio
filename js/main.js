@@ -30,6 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load projects dynamically
     const projects = [
         {
+            title: "ROCKET LANDING",
+            description: "A mobile game where players must safely land a rocket on a moving platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
+            skills: ["Unity", "C#", "Mobile Development", "Game Design", "UI/UX"],
+            link: "https://play.google.com/store/apps/details?id=com.Rakemy.RocketLanding",
+            image: "images/RocketLanding.png",
+            year: "2022",
+            trailer: "https://www.youtube.com/watch?v=Ar9nVtMJKYs"
+        },
+        {
             title: "HAUNTED MANSION",
             description: "A first-person horror exploration game with puzzle elements set in a decaying Victorian mansion filled with supernatural phenomena.",
             skills: ["Unity", "C#", "Shader Graph", "AI Behavior", "Lighting"],
@@ -69,7 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="skills-used">
                 ${project.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
             </div>
-            <a href="${project.link}" class="terminal-link">[EXPLORE]</a>
+            <div class="project-links">
+                <a href="${project.link}" class="terminal-link" target="_blank">[PLAY STORE]</a>
+                ${project.trailer ? `<a href="${project.trailer}" class="terminal-link" target="_blank">[WATCH TRAILER]</a>` : ''}
+            </div>
         `;
         projectsSection.appendChild(projectElement);
     });

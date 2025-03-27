@@ -290,6 +290,18 @@ body {
     background: rgba(0, 255, 0, 0.2);
 }
 
+.project-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.project-links .terminal-link {
+    margin-top: 0;
+    flex: 1;
+    text-align: center;
+}
+
 /* New Animations */
 @keyframes float {
     0% { transform: translateY(0px); }
@@ -300,6 +312,42 @@ body {
 @keyframes scan {
     0% { background-position: 0 0; }
     100% { background-position: 0 100%; }
+}
+
+.project-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.detail-section {
+    border-left: 2px solid #00ff00;
+    padding-left: 1rem;
+}
+
+.detail-section h3 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.detail-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.detail-section li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.2rem;
+}
+
+.detail-section li::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00ff00;
 }
 
 /* Responsive Design */
