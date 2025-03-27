@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keypress', () => {
         const blinkingElement = document.querySelector('.blinking');
         blinkingElement.style.animation = 'none';
-        blinkingElement.innerHTML = '> SYSTEM_READY_<span class="cursor">_</span>';
+        blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">█</span>';
         
         // Add keypress effect
         const keypressElement = document.querySelector('.terminal-footer .terminal-text:last-child');

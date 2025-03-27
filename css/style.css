@@ -130,6 +130,8 @@ body {
 
 .cursor {
     animation: blink 0.7s infinite;
+    color: #00ff00;
+    font-weight: bold;
 }
 
 .loading-dots::after {
