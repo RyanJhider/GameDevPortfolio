@@ -79,7 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${project.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
             </div>
             <div class="project-links">
-                <a href="${project.link}" class="terminal-link" target="_blank">[PLAY STORE]</a>
+                ${project.link.includes('play.google.com') ? 
+                    `<a href="${project.link}" class="terminal-link blinking" target="_blank">[PLAY STORE]</a>` : 
+                    `<a href="${project.link}" class="terminal-link" target="_blank">[VIEW PROJECT]</a>`}
                 ${project.trailer ? `<a href="${project.trailer}" class="terminal-link" target="_blank">[WATCH TRAILER]</a>` : ''}
             </div>
         `;
