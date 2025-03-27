@@ -349,6 +349,13 @@ body {
     color: #00ff00;
     margin-bottom: 0.5rem;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    position: relative;
+    display: inline-block;
+}
+
+.detail-section h3 .cursor {
+    position: absolute;
+    right: -15px;
 }
 
 .detail-section ul {
