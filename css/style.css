@@ -141,6 +141,11 @@ body {
     animation: blink 0.7s infinite;
     color: #00ff00;
     font-weight: bold;
+    display: inline-block;
+    margin-left: 2px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
 }
 
 .loading-dots::after {
@@ -194,6 +199,10 @@ body {
 .terminal-text {
     margin: 0.5rem 0;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .project-header {
