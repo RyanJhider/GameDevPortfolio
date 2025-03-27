@@ -219,6 +219,25 @@ body {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
 }
 
+.featured-project {
+    border: 2px solid #00ff00;
+    animation: featured-pulse 4s infinite;
+}
+
+.featured-project .project-image {
+    filter: grayscale(50%) contrast(110%);
+}
+
+.featured-project:hover .project-image {
+    filter: grayscale(0%) contrast(100%);
+}
+
+@keyframes featured-pulse {
+    0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.9); }
+    100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+}
+
 .project::after {
     content: '';
     position: absolute;
@@ -348,6 +367,55 @@ body {
     position: absolute;
     left: 0;
     color: #00ff00;
+}
+
+/* Rocket Landing Specific Styles */
+.rocket-landing-section {
+    background: rgba(0, 20, 0, 0.3);
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.rocket-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.rocket-screenshot {
+    width: 80%;
+    max-width: 400px;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.rocket-screenshot:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
+}
+
+.rocket-trailer {
+    text-align: center;
+}
+
+.rocket-details {
+    background: rgba(0, 10, 0, 0.2);
+    padding: 1rem;
+    border: 1px dashed #00ff00;
+}
+
+.rocket-details .detail-section {
+    border-left: 2px solid #00ff00;
+    animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+    0% { border-left-color: #00ff00; }
+    50% { border-left-color: #00cc00; }
+    100% { border-left-color: #00ff00; }
 }
 
 /* Responsive Design */
