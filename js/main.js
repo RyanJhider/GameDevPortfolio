@@ -88,6 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsSection.appendChild(skillElement);
     });
 
+    // Set current date in footer
+    const now = new Date();
+    document.getElementById('current-date').textContent = 
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
     // Interactive elements
     document.addEventListener('keypress', () => {
         document.querySelector('.blinking').style.animation = 'none';
