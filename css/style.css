@@ -61,6 +61,7 @@ body {
     background: transparent;
     opacity: 0;
     z-index: 9996;
+    pointer-events: none;
 }
 
 .glitch-text {
