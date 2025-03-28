@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             '../images/RocketLanding/RocketLandingStorePage.png',
             '../images/RocketLanding/RocketLandingLevels.png',
             '../images/RocketLanding/RocketLandingTuto.png',
-            '../images/RocketLanding/RocketLandingTuto.jpg'
         ];
 
         // Create slides
