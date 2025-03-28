@@ -78,6 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
             link: "project3.html",
             image: "images/Heistgaard/Heistgaard.png",
             year: "2025"
+        },
+        {
+            title: "Mislender",
+            description: "A multiplayer horror game with proximity chat where players must work together to escape a haunted mansion. The twist? One player is secretly the killer. Built with Unity and Mirror networking.",
+            skills: ["Unity", "C#", "Mirror Networking", "Steam Integration", "Proximity Chat", "MultiPlayer", "AI Behavior", "Horror Design"],
+            link: "mislender.html",
+            image: "images/Mislender/Mislender.png",
+            year: "2024",
+            trailer: "https://www.youtube.com/watch?v=example"
         }
     ];
 
