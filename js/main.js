@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function nextSlide() {
         console.log('Carousel: nextSlide called');
         goToSlide(currentIndex + 1);
+        alert("Now showing slide " + (currentIndex + 1));
     }
 
     function prevSlide() {
@@ -207,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
+            alert("Moving to next slide...");
             nextSlide();
         });
     }
