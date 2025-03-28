@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const slides = document.querySelectorAll('.carousel-slide');
         const prevBtn = document.querySelector('.carousel-prev');
         const nextBtn = document.querySelector('.carousel-next');
+        const slidesContainer = document.querySelector('.carousel-slides');
         const indicatorsContainer = document.querySelector('.carousel-indicators');
         let currentIndex = 0;
         let intervalId;
@@ -136,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function updateCarousel() {
             const slideWidth = slides[0].clientWidth;
-            document.querySelector('.carousel-slides').style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+            slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
         
             // Update active classes
             slides.forEach((slide, index) => {
@@ -171,8 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Event listeners
-        nextBtn.addEventListener('click', nextSlide);
-        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+        });
 
         // Start auto-rotation
         startInterval();
