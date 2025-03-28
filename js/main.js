@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "ROCKET LANDING",
             description: "A mobile game where players must safely land a rocket on a moving platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
             skills: ["Unity", "C#", "Mobile Development", "Game Design", "UI/UX"],
-            link: "https://play.google.com/store/apps/details?id=com.Rakemy.RocketLanding",
+            link: "rocket-landing.html",
             image: "images/RocketLanding/RocketLandingStorePage.png",
             year: "2022",
             trailer: "https://www.youtube.com/watch?v=Ar9nVtMJKYs"
