@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 
+    // Add random animation delays to glitch text elements
+    document.querySelectorAll('.glitch-text').forEach((el, index) => {
+        el.style.setProperty('--animation-order', index);
+    });
+
     // Load projects dynamically
     const projects = [
         {
