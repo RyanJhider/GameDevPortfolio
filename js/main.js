@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.setProperty('--animation-order', index);
     });
 
+    // Set random blink delays for buttons
+    document.querySelectorAll('.blinking').forEach((el, index) => {
+        el.style.setProperty('--blink-delay', Math.random() * 5);
+    });
+
     // Load projects dynamically
     const projects = [
         {
@@ -85,9 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="project-links">
                 ${project.title === "ROCKET LANDING" ? 
-                    `<a href="rocket-landing.html" class="terminal-link blinking">[VIEW DETAILS]</a>` : 
+                    `<a href="rocket-landing.html" class="terminal-link blinking" data-text="[VIEW DETAILS]">[VIEW DETAILS]</a>` : 
                     project.link.includes('play.google.com') ? 
-                    `<a href="${project.link}" class="terminal-link blinking" target="_blank">[PLAY STORE]</a>` : 
+                    `<a href="${project.link}" class="terminal-link blinking" data-text="[PLAY STORE]" target="_blank">[PLAY STORE]</a>` : 
                     `<a href="${project.link}" class="terminal-link" target="_blank">[VIEW PROJECT]</a>`}
                 ${project.trailer ? `<a href="${project.trailer}" class="terminal-link" target="_blank">[WATCH TRAILER]</a>` : ''}
             </div>
