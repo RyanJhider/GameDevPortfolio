@@ -131,21 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsSection.appendChild(skillElement);
     });
 
-    // Initialize Carousel (only for rocket-landing.html)
+    // Initialize Terminal Carousel
     function initCarousel() {
-        // Only initialize if we're on the rocket-landing page
-        if (!document.querySelector('.rocket-landing-section')) return;
+        const carousel = document.querySelector('.terminal-carousel');
+        if (!carousel) return;
 
-        const carouselContainer = document.querySelector('.carousel-container');
-        if (!carouselContainer) return;
+        const viewport = carousel.querySelector('.carousel-viewport');
+        const dotsContainer = carousel.querySelector('.carousel-dots');
+        const prevBtn = carousel.querySelector('.prev');
+        const nextBtn = carousel.querySelector('.next');
 
-        const slidesContainer = carouselContainer.querySelector('.carousel-slides');
-        const indicatorsContainer = carouselContainer.querySelector('.carousel-indicators');
-        const prevBtn = document.querySelector('.carousel-prev');
-        const nextBtn = document.querySelector('.carousel-next');
-
-        // Add project images to carousel
-        const rocketImages = [
+        const images = [
             '../images/RocketLanding/RocketLandingStorePage.png',
             '../images/RocketLanding/RocketLandingLevels.png',
             '../images/RocketLanding/RocketLandingTuto.png',
@@ -153,44 +149,40 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         // Create slides
-        rocketImages.forEach((imgSrc, index) => {
+        images.forEach((imgSrc, index) => {
             const slide = document.createElement('div');
             slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+            
             const img = document.createElement('img');
             img.src = imgSrc;
             img.alt = `Rocket Landing Screenshot ${index + 1}`;
             img.onerror = () => {
                 console.error(`Failed to load image: ${imgSrc}`);
-                img.src = '../images/placeholder.png'; // Fallback image
+                img.src = '../images/placeholder.png';
                 img.alt = 'Placeholder image';
             };
+            
             slide.appendChild(img);
-            slidesContainer.appendChild(slide);
+            viewport.appendChild(slide);
+
+            // Create dot
+            const dot = document.createElement('div');
+            dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
         });
 
-        // Create indicators
-        rocketImages.forEach((_, index) => {
-            const indicator = document.createElement('div');
-            indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
-            indicator.addEventListener('click', () => goToSlide(index));
-            indicatorsContainer.appendChild(indicator);
-        });
-
-        const slides = document.querySelectorAll('.carousel-slide');
-        const indicators = document.querySelectorAll('.carousel-indicator');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const dots = carousel.querySelectorAll('.carousel-dot');
         let currentIndex = 0;
         let intervalId;
 
         function updateCarousel() {
-            slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            // Update active states
             slides.forEach((slide, index) => {
                 slide.classList.toggle('active', index === currentIndex);
             });
-            
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentIndex);
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
             });
         }
 
@@ -209,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function startInterval() {
-            intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
+            intervalId = setInterval(nextSlide, 5000);
         }
 
         function resetInterval() {
@@ -228,19 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
             nextSlide();
         });
 
-        // Start auto-rotation
+        // Auto-rotation
         if (slides.length > 1) {
             startInterval();
+            carousel.addEventListener('mouseenter', () => clearInterval(intervalId));
+            carousel.addEventListener('mouseleave', startInterval);
         }
-
-        // Pause on hover
-        carouselContainer.addEventListener('mouseenter', () => {
-            clearInterval(intervalId);
-        });
-
-        carouselContainer.addEventListener('mouseleave', () => {
-            startInterval();
-        });
     }
 
     initCarousel();
