@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load projects dynamically
     const projects = [
         {
-            title: "ROCKET LANDING",
+            title: "Rocket Landing",
             description: "A mobile game where players must safely land a rocket on a moving platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
             skills: ["Unity", "C#", "Mobile Development", "Game Design", "UI/UX"],
             link: "rocket-landing.html",
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trailer: "https://www.youtube.com/watch?v=Ar9nVtMJKYs"
         },
         {
-            title: "HAUNTED MANSION",
+            title: "Haunted Mansion",
             description: "A first-person horror exploration game with puzzle elements set in a decaying Victorian mansion filled with supernatural phenomena.",
             skills: ["Unity", "C#", "Shader Graph", "AI Behavior", "Lighting"],
             link: "project1.html",
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             year: "2023"
         },
         {
-            title: "RETRO ZOMBIE",
+            title: "Retro Zombie",
             description: "Top-down survival shooter with PS1-style graphics and a dynamic day/night cycle that affects zombie behavior.",
             skills: ["Godot", "GDScript", "Pixel Art", "Procedural Generation", "Sound Design"],
             link: "project2.html",
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             year: "2022"
         },
         {
-            title: "THE LOST TAPE",
+            title: "The Lost Tape",
             description: "Found footage horror experience with authentic VHS effects, where players must solve mysteries while managing limited battery life.",
             skills: ["Unreal Engine", "Blueprints", "Post-processing", "Cinematics", "Audio"],
             link: "project3.html",
