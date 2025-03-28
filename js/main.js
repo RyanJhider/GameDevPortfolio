@@ -154,8 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicators = document.querySelectorAll('.carousel-indicator');
 
     function updateCarousel() {
-        if (!slides || slides.length === 0 || !slides[0]) return; // Add this check
+        if (!slides || slides.length === 0 || !slides[0]) {
+            console.warn('Carousel: No slides found.');
+            return;
+        }
         const slideWidth = slides[0].clientWidth;
+        console.log(`Carousel: Moving to slide ${currentIndex}`);
         slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
 
         // Update active classes
@@ -168,24 +172,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function goToSlide(index) {
+        console.log(`Carousel: goToSlide(${index}) called`);
         currentIndex = (index + slides.length) % slides.length;
         updateCarousel();
         resetInterval();
     }
 
     function nextSlide() {
+        console.log('Carousel: nextSlide called');
         goToSlide(currentIndex + 1);
     }
 
     function prevSlide() {
+        console.log('Carousel: prevSlide called');
         goToSlide(currentIndex - 1);
     }
 
     function startInterval() {
+        console.log('Carousel: startInterval called');
         intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
     }
 
     function resetInterval() {
+        console.log('Carousel: resetInterval called');
         clearInterval(intervalId);
         startInterval();
     }
