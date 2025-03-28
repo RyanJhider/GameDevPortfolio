@@ -131,121 +131,108 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsSection.appendChild(skillElement);
     });
 
-    // Carousel functionality
-    // Initialize carousel only if elements exist
-    const carouselContainer = document.querySelector('.carousel-container');
-    let slides, prevBtn, nextBtn, slidesContainer, indicatorsContainer;
-    let currentIndex = 0;
-    let intervalId;
+    // Initialize Carousel
+    function initCarousel() {
+        const carouselContainer = document.querySelector('.carousel-container');
+        if (!carouselContainer) return;
 
-    if (carouselContainer) {
-        slides = carouselContainer.querySelectorAll('.carousel-slide');
-        prevBtn = carouselContainer.querySelector('.carousel-prev');
-        nextBtn = carouselContainer.querySelector('.carousel-next');
-        slidesContainer = carouselContainer.querySelector('.carousel-slides');
-        indicatorsContainer = carouselContainer.querySelector('.carousel-indicators');
-    }
+        const slidesContainer = carouselContainer.querySelector('.carousel-slides');
+        const indicatorsContainer = carouselContainer.querySelector('.carousel-indicators');
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
 
-    // Create indicators
-    if (indicatorsContainer && slides.length > 0) { // Add this check
-        slides.forEach((_, index) => {
+        // Add project images to carousel
+        const rocketImages = [
+            'images/RocketLanding/RocketLandingStorePage.png',
+            'images/RocketLanding/gameplay1.jpg',
+            'images/RocketLanding/gameplay2.jpg',
+            'images/RocketLanding/gameplay3.jpg'
+        ];
+
+        // Create slides
+        rocketImages.forEach((imgSrc, index) => {
+            const slide = document.createElement('div');
+            slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+            slide.innerHTML = `<img src="${imgSrc}" alt="Rocket Landing Screenshot ${index + 1}">`;
+            slidesContainer.appendChild(slide);
+        });
+
+        // Create indicators
+        rocketImages.forEach((_, index) => {
             const indicator = document.createElement('div');
-            indicator.classList.add('carousel-indicator');
-            if (index === 0) indicator.classList.add('active');
+            indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
             indicator.addEventListener('click', () => goToSlide(index));
             indicatorsContainer.appendChild(indicator);
         });
-    }
 
-    const indicators = document.querySelectorAll('.carousel-indicator');
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+        let currentIndex = 0;
+        let intervalId;
 
-    function updateCarousel() {
-        if (!slides || slides.length === 0 || !slides[0]) {
-            console.warn('Carousel: No slides found.');
-            return;
+        function updateCarousel() {
+            slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            // Update active states
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentIndex);
+            });
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
         }
-        const slideWidth = slides[0].clientWidth;
-        console.log(`Carousel: Moving to slide ${currentIndex}`);
-        slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
 
-        // Update active classes
-        slides.forEach((slide, index) => {
-            slide.classList.toggle('active', index === currentIndex);
-        });
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === currentIndex);
-        });
-    }
+        function goToSlide(index) {
+            currentIndex = (index + slides.length) % slides.length;
+            updateCarousel();
+            resetInterval();
+        }
 
-    function goToSlide(index) {
-        console.log(`Carousel: goToSlide(${index}) called`);
-        currentIndex = (index + slides.length) % slides.length;
-        updateCarousel();
-        resetInterval();
-    }
+        function nextSlide() {
+            goToSlide(currentIndex + 1);
+        }
 
-    function nextSlide() {
-        console.log('Carousel: nextSlide called');
-        const newIndex = (currentIndex + 1) % slides.length;
-        goToSlide(newIndex);
-        
-        // Create terminal-style alert
-        const alertBox = document.createElement('div');
-        alertBox.className = 'terminal-alert';
-        alertBox.innerHTML = `
-            <div class="terminal-box">
-                <p class="terminal-text">> CAROUSEL_NAVIGATION:</p>
-                <p class="terminal-text">> MOVING_TO_SLIDE_${newIndex + 1}</p>
-                <p class="terminal-text">> [PRESS_ANY_KEY_TO_CONTINUE]</p>
-            </div>
-        `;
-        document.body.appendChild(alertBox);
-        
-        // Remove alert after delay or click
-        setTimeout(() => {
-            alertBox.remove();
-        }, 2000);
-    }
+        function prevSlide() {
+            goToSlide(currentIndex - 1);
+        }
 
-    function prevSlide() {
-        console.log('Carousel: prevSlide called');
-        goToSlide(currentIndex - 1);
-    }
+        function startInterval() {
+            intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
+        }
 
-    function startInterval() {
-        console.log('Carousel: startInterval called');
-        intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
-    }
+        function resetInterval() {
+            clearInterval(intervalId);
+            startInterval();
+        }
 
-    function resetInterval() {
-        console.log('Carousel: resetInterval called');
-        clearInterval(intervalId);
-        startInterval();
-    }
-
-    // Initialize carousel if elements exist
-    if (carouselContainer && slides && slides.length > 0) {
         // Event listeners
-        if (prevBtn) {
-            prevBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                prevSlide();
-            });
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                nextSlide();
-            });
-        }
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prevSlide();
+        });
 
-        // Start auto-rotation if multiple slides
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            nextSlide();
+        });
+
+        // Start auto-rotation
         if (slides.length > 1) {
             startInterval();
         }
-    } else {
-        console.warn('Carousel elements not found or no slides available');
+
+        // Pause on hover
+        carouselContainer.addEventListener('mouseenter', () => {
+            clearInterval(intervalId);
+        });
+
+        carouselContainer.addEventListener('mouseleave', () => {
+            startInterval();
+        });
     }
+
+    initCarousel();
 
     // Set current date in footer
     const now = new Date();
