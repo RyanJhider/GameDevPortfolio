@@ -738,15 +738,24 @@ body {
 
 .rocket-trailer {
     display: flex;
-    gap: 1rem;
     justify-content: center;
-    margin-top: 1rem;
+    margin: 2rem 0;
 }
 
 .rocket-trailer .terminal-link {
     flex: 1;
     max-width: 200px;
     text-align: center;
+}
+
+.trailer-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
 }
 
 .rocket-details {
