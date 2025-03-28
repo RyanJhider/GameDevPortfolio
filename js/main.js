@@ -132,16 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Carousel functionality
-    function initCarousel() {
-        const slides = document.querySelectorAll('.carousel-slide');
-        const prevBtn = document.querySelector('.carousel-prev');
-        const nextBtn = document.querySelector('.carousel-next');
-        const slidesContainer = document.querySelector('.carousel-slides');
-        const indicatorsContainer = document.querySelector('.carousel-indicators');
-        let currentIndex = 0;
-        let intervalId;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    const slidesContainer = document.querySelector('.carousel-slides');
+    const indicatorsContainer = document.querySelector('.carousel-indicators');
+    let currentIndex = 0;
+    let intervalId;
 
-        // Create indicators
+    // Create indicators
+    if (indicatorsContainer && slides.length > 0) { // Add this check
         slides.forEach((_, index) => {
             const indicator = document.createElement('div');
             indicator.classList.add('carousel-indicator');
@@ -149,64 +149,67 @@ document.addEventListener('DOMContentLoaded', () => {
             indicator.addEventListener('click', () => goToSlide(index));
             indicatorsContainer.appendChild(indicator);
         });
+    }
 
-        const indicators = document.querySelectorAll('.carousel-indicator');
+    const indicators = document.querySelectorAll('.carousel-indicator');
 
-        function updateCarousel() {
-            const slideWidth = slides[0].clientWidth;
-            slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-        
-            // Update active classes
-            slides.forEach((slide, index) => {
-                slide.classList.toggle('active', index === currentIndex);
-            });
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentIndex);
-            });
-        }
+    function updateCarousel() {
+        if (!slides || slides.length === 0 || !slides[0]) return; // Add this check
+        const slideWidth = slides[0].clientWidth;
+        slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
 
-        function goToSlide(index) {
-            currentIndex = (index + slides.length) % slides.length;
-            updateCarousel();
-            resetInterval();
-        }
-
-        function nextSlide() {
-            goToSlide(currentIndex + 1);
-        }
-
-        function prevSlide() {
-            goToSlide(currentIndex - 1);
-        }
-
-        function startInterval() {
-            intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
-        }
-
-        function resetInterval() {
-            clearInterval(intervalId);
-            startInterval();
-        }
-
-        // Event listeners
-        nextBtn.addEventListener('click', () => {
-            nextSlide();
+        // Update active classes
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('active', index === currentIndex);
         });
-
-        prevBtn.addEventListener('click', () => {
-            prevSlide();
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
         });
+    }
 
-        // Start auto-rotation
+    function goToSlide(index) {
+        currentIndex = (index + slides.length) % slides.length;
+        updateCarousel();
+        resetInterval();
+    }
+
+    function nextSlide() {
+        goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+        goToSlide(currentIndex - 1);
+    }
+
+    function startInterval() {
+        intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
+    }
+
+    function resetInterval() {
+        clearInterval(intervalId);
         startInterval();
     }
 
-    // Initialize carousel when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initCarousel);
+    // Event listeners
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+        });
+    }
+
+    // Start auto-rotation
+    if (slides.length > 1) {
+        startInterval();
+    }
 
     // Set current date in footer
     const now = new Date();
-    document.getElementById('current-date').textContent = 
+    document.getElementById('current-date').textContent =
         `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     // Interactive elements
@@ -214,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blinkingElement = document.querySelector('.blinking');
         blinkingElement.style.animation = 'none';
         blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">&#9608;</span>';
-        
+
         // Add interaction effect
         const inputElement = document.querySelector('.terminal-footer .terminal-text:last-child');
         if (event.type === 'keypress') {
