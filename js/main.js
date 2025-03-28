@@ -27,9 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 
-    // Add random animation delays to glitch text elements
-    document.querySelectorAll('.glitch-text').forEach((el, index) => {
-        el.style.setProperty('--animation-order', index);
+    // Set random flicker patterns for each text element
+    document.querySelectorAll('.glitch-text').forEach(el => {
+        const duration = 3 + Math.random() * 5; // Random duration between 3-8 seconds
+        const delay = Math.random() * 5; // Random delay up to 5 seconds
+        el.style.setProperty('--flicker-duration', `${duration}s`);
+        el.style.setProperty('--flicker-delay', `${delay}s`);
     });
 
     // Set random blink delays for buttons
