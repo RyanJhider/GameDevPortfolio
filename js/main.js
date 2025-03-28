@@ -186,8 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Button events
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', (e) => {
+        console.log('Next button clicked');
+        nextSlide();
+    });
+    prevBtn.addEventListener('click', (e) => {
+        console.log('Prev button clicked');
+        prevSlide();
+    });
 
     // Indicator events
     indicators.forEach(indicator => {
