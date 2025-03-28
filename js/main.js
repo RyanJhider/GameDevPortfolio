@@ -141,16 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let intervalId;
 
     // Create indicators
-    if (indicatorsContainer) { // Add this check
-        if (slides.length > 0) {
-            slides.forEach((_, index) => {
-                const indicator = document.createElement('div');
-                indicator.classList.add('carousel-indicator');
-                if (index === 0) indicator.classList.add('active');
-                indicator.addEventListener('click', () => goToSlide(index));
-                indicatorsContainer.appendChild(indicator);
-            });
-        }
+    if (indicatorsContainer && slides.length > 0) { // Add this check
+        slides.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.classList.add('carousel-indicator');
+            if (index === 0) indicator.classList.add('active');
+            indicator.addEventListener('click', () => goToSlide(index));
+            indicatorsContainer.appendChild(indicator);
+        });
     }
 
     const indicators = document.querySelectorAll('.carousel-indicator');
@@ -214,21 +212,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('current-date').textContent =
         `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-    // Interactive elements
-    const handleInteraction = (event) => {
+    // Interactive elements - Trigger on load
+    const handleInteraction = () => {
         const blinkingElement = document.querySelector('.blinking');
-        blinkingElement.style.animation = 'none';
-        blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">&#9608;</span>';
+        if (blinkingElement) {
+            blinkingElement.style.animation = 'none';
+            blinkingElement.innerHTML = '> SYSTEM_READY<span class="cursor">&#9608;</span>';
+        }
 
         // Add interaction effect
         const inputElement = document.querySelector('.terminal-footer .terminal-text:last-child');
-        if (event.type === 'keypress') {
-            inputElement.innerHTML = `> USER_INPUT: ${String.fromCharCode(event.keyCode).toUpperCase()}<span class="cursor">_</span>`;
-        } else {
-            inputElement.innerHTML = '> USER_INPUT: CLICK<span class="cursor">_</span>';
+        if (inputElement) {
+            inputElement.innerHTML = '> USER_INPUT: READY<span class="cursor">_</span>';
         }
     };
 
-    document.addEventListener('keypress', handleInteraction);
-    document.querySelector('.clickable').addEventListener('click', handleInteraction);
+    handleInteraction(); // Call the function immediately on load
 });
