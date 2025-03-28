@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const carousel = document.querySelector('.terminal-carousel');
         if (!carousel) return;
 
-        const viewport = carousel.querySelector('.carousel-viewport');
-        const dotsContainer = carousel.querySelector('.carousel-dots');
+        const track = carousel.querySelector('.carousel-track');
+        const indicatorsContainer = carousel.querySelector('.carousel-indicators');
         const prevBtn = carousel.querySelector('.prev');
         const nextBtn = carousel.querySelector('.next');
 
@@ -147,10 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
             '../images/RocketLanding/RocketLandingTuto.png',
         ];
 
-        // Create slides
+        // Create slides and indicators
         images.forEach((imgSrc, index) => {
+            // Create slide
             const slide = document.createElement('div');
-            slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+            slide.className = 'carousel-slide';
             
             const img = document.createElement('img');
             img.src = imgSrc;
@@ -162,26 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             
             slide.appendChild(img);
-            viewport.appendChild(slide);
+            track.appendChild(slide);
 
-            // Create dot
-            const dot = document.createElement('div');
-            dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
-            dot.addEventListener('click', () => goToSlide(index));
-            dotsContainer.appendChild(dot);
+            // Create indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'carousel-indicator';
+            indicator.addEventListener('click', () => goToSlide(index));
+            indicatorsContainer.appendChild(indicator);
         });
 
         const slides = carousel.querySelectorAll('.carousel-slide');
-        const dots = carousel.querySelectorAll('.carousel-dot');
+        const indicators = carousel.querySelectorAll('.carousel-indicator');
         let currentIndex = 0;
         let intervalId;
 
         function updateCarousel() {
-            slides.forEach((slide, index) => {
-                slide.classList.toggle('active', index === currentIndex);
-            });
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
+            const slideWidth = slides[0].clientWidth;
+            track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+            
+            // Update active indicator
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
             });
         }
 
@@ -207,6 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(intervalId);
             startInterval();
         }
+
+        // Initialize
+        updateCarousel();
+        indicators[0].classList.add('active');
 
         // Event listeners
         prevBtn.addEventListener('click', (e) => {
