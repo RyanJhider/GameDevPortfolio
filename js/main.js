@@ -153,4 +153,54 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     handleInteraction(); // Call the function immediately on load
+
+    // Carousel functionality
+    const carouselSlides = document.querySelector('.carousel-slides');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    const indicators = document.querySelectorAll('.carousel-indicator');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+        carouselSlides.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        // Update active states
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('active', index === currentIndex);
+        });
+        
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateCarousel();
+    }
+
+    // Button events
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    // Indicator events
+    indicators.forEach(indicator => {
+        indicator.addEventListener('click', () => {
+            currentIndex = parseInt(indicator.dataset.index);
+            updateCarousel();
+        });
+    });
+
+    // Auto-advance (optional)
+    setInterval(() => {
+        if (Math.random() > 0.7) { // Random glitch effect
+            nextSlide();
+        }
+    }, 5000);
 });
