@@ -114,6 +114,73 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsSection.appendChild(skillElement);
     });
 
+    // Carousel functionality
+    function initCarousel() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
+        const indicatorsContainer = document.querySelector('.carousel-indicators');
+        let currentIndex = 0;
+        let intervalId;
+
+        // Create indicators
+        slides.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.classList.add('carousel-indicator');
+            if (index === 0) indicator.classList.add('active');
+            indicator.addEventListener('click', () => goToSlide(index));
+            indicatorsContainer.appendChild(indicator);
+        });
+
+        const indicators = document.querySelectorAll('.carousel-indicator');
+
+        function updateCarousel() {
+            const slideWidth = slides[0].clientWidth;
+            document.querySelector('.carousel-slides').style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+        
+            // Update active classes
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentIndex);
+            });
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function goToSlide(index) {
+            currentIndex = (index + slides.length) % slides.length;
+            updateCarousel();
+            resetInterval();
+        }
+
+        function nextSlide() {
+            goToSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentIndex - 1);
+        }
+
+        function startInterval() {
+            intervalId = setInterval(nextSlide, 5000); // Rotate every 5 seconds
+        }
+
+        function resetInterval() {
+            clearInterval(intervalId);
+            startInterval();
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Start auto-rotation
+        startInterval();
+    }
+
+    // Initialize carousel when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initCarousel);
+
     // Set current date in footer
     const now = new Date();
     document.getElementById('current-date').textContent = 
