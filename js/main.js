@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const projects = [
         {
             title: "Rocket Landing",
-            description: "A mobile game where players must safely land a rocket on a moving platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
+            description: "A mobile game where players must safely land a rocket on a platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
             skills: ["Unity", "C#", "Mobile Development", "Game Design", "UI/UX"],
             link: "rocket-landing.html",
             image: "images/RocketLanding/RocketLandingStorePage.png",
@@ -56,28 +56,28 @@ document.addEventListener('DOMContentLoaded', () => {
             trailer: "https://www.youtube.com/watch?v=Ar9nVtMJKYs"
         },
         {
-            title: "Haunted Mansion",
-            description: "A first-person horror exploration game with puzzle elements set in a decaying Victorian mansion filled with supernatural phenomena.",
+            title: "Silent Pit",
+            description: "A first-person horror game set in a deep pit and a rusted underground facility. Restore power and escape… but the monster hears you.",
             skills: ["Unity", "C#", "Shader Graph", "AI Behavior", "Lighting"],
-            link: "project1.html",
-            image: "images/haunted-mansion.jpg",
-            year: "2023"
-        },
-        {
-            title: "Retro Zombie",
-            description: "Top-down survival shooter with PS1-style graphics and a dynamic day/night cycle that affects zombie behavior.",
-            skills: ["Godot", "GDScript", "Pixel Art", "Procedural Generation", "Sound Design"],
-            link: "project2.html",
-            image: "images/retro-zombie.jpg",
-            year: "2022"
-        },
-        {
-            title: "The Lost Tape",
-            description: "Found footage horror experience with authentic VHS effects, where players must solve mysteries while managing limited battery life.",
-            skills: ["Unreal Engine", "Blueprints", "Post-processing", "Cinematics", "Audio"],
-            link: "project3.html",
-            image: "images/lost-tape.jpg",
+            link: "Silent-Pit.html",
+            image: "images/SilentPit/SilentPitMonster.png",
             year: "2024"
+        },
+        {
+            title: "ZombieX",
+            description: "A co-op isometric shooter where you and your team fight endless waves of zombies. Survive, upgrade, and push back the horde—before it’s too late.",
+            skills: ["Unity", "C#", "Isometric", "MultiPlayer", "Steam"],
+            link: "ZombieX.html",
+            image: "images/ZombieX/ZombieX.png",
+            year: "2024"
+        },
+        {
+            title: "Heistgaard",
+            description: "A 2D platformer where you play as a skilled thief working for Loki. Your mission: steal Thor’s relic while evading traps and enemies. A relentless boss pursues you throughout the heist, adding tension to every move. ",
+            skills: ["Unity", "C#", "Post-processing", "Cinematics", "Audio", "Team of 12","Level Design","Git control"],
+            link: "project3.html",
+            image: "images/Heistgaard/Heistgaard.png",
+            year: "2025"
         }
     ];
 
@@ -106,12 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load skills
     const skills = [
         { name: "Unity", level: 90 },
-        { name: "Unreal Engine", level: 80 },
+        { name: "Godot", level: 80 },
         { name: "C#", level: 85 },
-        { name: "C++", level: 75 },
-        { name: "Shader Programming", level: 70 },
-        { name: "3D Modeling", level: 65 },
-        { name: "Sound Design", level: 60 }
+        { name: "Blender", level: 75 },
+        { name: "MultiPlayer", level: 70 },
+        { name: "Texturing", level: 65 },
+        { name: "Video Editing", level: 60 }
     ];
 
     const skillsSection = document.getElementById('skills');
