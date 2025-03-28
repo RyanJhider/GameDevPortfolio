@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Landing - Dev Horror Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+</head>
+<body class="crt">
+    <div class="scanlines"></div>
+    <div class="flicker"></div>
+    <div class="glitch"></div>
+    
+    <header class="terminal-header">
+        <h1 class="glitch-text" data-text=">_DEV_HORROR_">>_DEV_HORROR_<span class="cursor">&#9608;</span></h1>
+        <nav>
+            <ul class="terminal-nav">
+                <li><a href="index.html" class="typewriter">[HOME]</a></li>
+                <li><a href="index.html#projects" class="typewriter">[PROJECTS]</a></li>
+                <li><a href="index.html#skills" class="typewriter">[SKILLS]</a></li>
+                <li><a href="index.html#contact" class="typewriter">[CONTACT]</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="terminal-box rocket-landing-section">
+            <h2 class="glitch-text" data-text="ROCKET_LANDING_DETAILS">ROCKET LANDING DETAILS</h2>
+            <div class="rocket-preview">
+                <img src="images/RocketLanding/RocketLandingStorePage.png" alt="Rocket Landing Game" class="rocket-screenshot">
+                <div class="rocket-trailer">
+                    <a href="https://www.youtube.com/watch?v=Ar9nVtMJKYs" target="_blank" class="terminal-link blinking">[WATCH_TRAILER]</a>
+                </div>
+            </div>
+            <div class="project-details rocket-details">
+                <div class="detail-section">
+                    <h3>GAME OVERVIEW</h3>
+                    <p>A mobile game where players must safely land a rocket on a moving platform, testing their reflexes and precision.</p>
+                    <ul>
+                        <li><strong>Release Date:</strong> March 2022</li>
+                        <li><strong>Platform:</strong> Android (Play Store)</li>
+                        <li><strong>Downloads:</strong> Over 1k downloads</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>KEY FEATURES</h3>
+                    <ul>
+                        <li>Challenging rocket landing mechanics</li>
+                        <li>Engaging physics-based gameplay</li>
+                        <li>Simple but effective controls</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>> TOOLS_&_TECHNOLOGIES<span class="cursor">&#9608;</span></h3>
+                    <ul>
+                        <li><strong>Game Engine:</strong> Unity</li>
+                        <li><strong>Programming:</strong> C#</li>
+                        <li><strong>Graphics:</strong> Unity's built-in tools</li>
+                        <li><strong>Sound:</strong> Custom sound effects</li>
+                        <li><strong>Publishing:</strong> Google Play Store</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="terminal-footer">
+        <div class="terminal-messages">
+            <p class="terminal-text">> SYSTEM_STATUS: <span class="status-ready">[READY]</span><span class="cursor">&#9608;</span></p>
+            <p class="terminal-text">> LAST_UPDATE: <span id="current-date"></span><span class="cursor">&#9608;</span></p>
+            <p class="terminal-text">> USER_INPUT: <span class="cursor">&#9608;</span></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/glitch.js"></script>
+</body>
+</html>
