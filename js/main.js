@@ -142,13 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create indicators
     if (indicatorsContainer) { // Add this check
-        slides.forEach((_, index) => {
-            const indicator = document.createElement('div');
-            indicator.classList.add('carousel-indicator');
-            if (index === 0) indicator.classList.add('active');
-            indicator.addEventListener('click', () => goToSlide(index));
-            indicatorsContainer.appendChild(indicator);
-        });
+        if (slides.length > 0) {
+            slides.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.classList.add('carousel-indicator');
+                if (index === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => goToSlide(index));
+                indicatorsContainer.appendChild(indicator);
+            });
+        }
     }
 
     const indicators = document.querySelectorAll('.carousel-indicator');
