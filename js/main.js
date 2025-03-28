@@ -131,8 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
         skillsSection.appendChild(skillElement);
     });
 
-    // Initialize Carousel
+    // Initialize Carousel (only for rocket-landing.html)
     function initCarousel() {
+        // Only initialize if we're on the rocket-landing page
+        if (!document.querySelector('.rocket-landing-section')) return;
+
         const carouselContainer = document.querySelector('.carousel-container');
         if (!carouselContainer) return;
 
@@ -144,9 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add project images to carousel
         const rocketImages = [
             'images/RocketLanding/RocketLandingStorePage.png',
-            'images/RocketLanding/gameplay1.jpg',
-            'images/RocketLanding/gameplay2.jpg',
-            'images/RocketLanding/gameplay3.jpg'
+            'images/RocketLanding/RocketLandingLevels.png',
+            'images/RocketLanding/RocketLandingTuto.png',
+            'images/RocketLanding/RocketLandingTuto.jpg'
         ];
 
         // Create slides
