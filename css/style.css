@@ -80,7 +80,7 @@ body {
 
 .glitch-text span {
     display: inline-block;
-    animation: desync-blink 4s infinite both;
+    animation: blink 1s infinite steps(1);
     animation-delay: calc(var(--char-index) * 0.1s);
 }
 
