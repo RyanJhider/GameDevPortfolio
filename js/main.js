@@ -156,7 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carousel functionality
     const carouselSlides = document.querySelector('.carousel-slides');
+    if (!carouselSlides) {
+        console.error('Carousel slides container not found');
+        return;
+    }
     const slides = document.querySelectorAll('.carousel-slide');
+    if (slides.length === 0) {
+        console.error('No carousel slides found');
+        return;
+    }
     const prevBtn = document.querySelector('.carousel-prev');
     const nextBtn = document.querySelector('.carousel-next');
     const indicators = document.querySelectorAll('.carousel-indicator');
@@ -185,15 +193,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCarousel();
     }
 
-    // Button events
-    nextBtn.addEventListener('click', (e) => {
-        console.log('Next button clicked');
-        nextSlide();
-    });
-    prevBtn.addEventListener('click', (e) => {
-        console.log('Prev button clicked');
-        prevSlide();
-    });
+    // Button events with error handling
+    if (nextBtn && prevBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Next button clicked');
+            nextSlide();
+        });
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Prev button clicked');
+            prevSlide();
+        });
+    } else {
+        console.error('Carousel buttons not found');
+    }
 
     // Indicator events
     indicators.forEach(indicator => {

@@ -661,12 +661,26 @@ body {
 .carousel-prev, .carousel-next {
     background: rgba(0, 20, 0, 0.7);
     border: 1px solid #00ff00;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     z-index: 100;
     pointer-events: auto;
+    font-family: 'VT323', monospace;
+    color: #00ff00;
+    font-size: 1.2rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    margin: 0 0.5rem;
+}
+
+.carousel-prev:hover, .carousel-next:hover {
+    background: rgba(0, 255, 0, 0.2);
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+.carousel-prev:active, .carousel-next:active {
+    transform: translateY(1px);
 }
 
 .carousel-prev:hover, .carousel-next:hover {
