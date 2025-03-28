@@ -27,12 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 
-    // Set random flicker patterns for each text element
+    // Apply desynchronized blinking to glitch text
     document.querySelectorAll('.glitch-text').forEach(el => {
-        const duration = 3 + Math.random() * 5; // Random duration between 3-8 seconds
-        const delay = Math.random() * 5; // Random delay up to 5 seconds
-        el.style.setProperty('--flicker-duration', `${duration}s`);
-        el.style.setProperty('--flicker-delay', `${delay}s`);
+        const text = el.textContent;
+        el.innerHTML = '';
+        text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.setProperty('--char-index', i);
+            el.appendChild(span);
+        });
     });
 
     // Set random blink delays for buttons
