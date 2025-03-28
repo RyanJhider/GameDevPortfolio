@@ -79,9 +79,18 @@ body {
 }
 
 @keyframes desync-blink {
-    0%, 100% { opacity: 1; }
-    25%, 75% { opacity: 0.98; }
-    50% { opacity: 0.95; }
+    0%, 100% { 
+        opacity: 1;
+        text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+    }
+    25%, 75% { 
+        opacity: 0.98;
+        text-shadow: 0 0 4px rgba(0, 255, 0, 0.7);
+    }
+    50% { 
+        opacity: 0.95;
+        text-shadow: 0 0 3px rgba(0, 255, 0, 0.6);
+    }
 }
 
 @keyframes text-flicker {
@@ -237,9 +246,11 @@ body {
 @keyframes blink {
     0%, 40% {
         opacity: 0;
+        text-shadow: none;
     }
     41%, 100% {
         opacity: 1;
+        text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
     }
 }
 
