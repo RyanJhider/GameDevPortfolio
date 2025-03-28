@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZombieX - Dev Horror Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+</head>
+<body class="crt">
+    <div class="scanlines"></div>
+    <div class="flicker"></div>
+    <div class="glitch"></div>
+    
+    <header class="terminal-header">
+        <h1 class="glitch-text" data-text=">_RYAN_JHIDER">>_RYAN_JHIDER<span class="cursor">_</span></h1>
+        <nav>
+            <ul class="terminal-nav">
+                <li><a href="index.html" class="typewriter">[HOME]</a></li>
+                <li><a href="index.html#projects" class="typewriter">[PROJECTS]</a></li>
+                <li><a href="index.html#skills" class="typewriter">[SKILLS]</a></li>
+                <li><a href="index.html#contact" class="typewriter">[CONTACT]</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="terminal-box zombiex-section">
+            <h2 class="glitch-text" data-text="ZOMBIEX_DETAILS">ZOMBIEX DETAILS</h2>
+            <div class="zombiex-preview">
+                <img src="images/ZombieX/ZombieX.png" alt="ZombieX Game Screenshot" class="project-image">
+                <div class="zombiex-trailer">
+                    <a href="https://store.steampowered.com/app/ZOMBIEX" target="_blank" class="terminal-link">[STEAM PAGE]</a>
+                    <a href="https://www.youtube.com/watch?v=example" target="_blank" class="terminal-link">[WATCH TRAILER]</a>
+                </div>
+            </div>
+            <div class="project-details zombiex-details">
+                <div class="detail-section">
+                    <h3>GAME OVERVIEW</h3>
+                    <p>A co-op isometric shooter where you and your team fight endless waves of zombies. Survive, upgrade, and push back the horde—before it's too late.</p>
+                    <ul>
+                        <li><strong>Release Date:</strong> 2024</li>
+                        <li><strong>Platform:</strong> PC (Steam)</li>
+                        <li><strong>Game Mode:</strong> Online Multiplayer (4 players)</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>KEY FEATURES</h3>
+                    <ul>
+                        <li>Intense isometric zombie shooter action</li>
+                        <li>Cooperative gameplay for up to 4 players</li>
+                        <li>Procedurally generated maps and enemy waves</li>
+                        <li>Weapon upgrade and progression system</li>
+                        <li>Special infected with unique abilities</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>> TOOLS_&_TECHNOLOGIES</h3>
+                    <ul>
+                        <li><strong>Game Engine:</strong> Unity</li>
+                        <li><strong>Programming:</strong> C#</li>
+                        <li><strong>Networking:</strong> Mirror Networking</li>
+                        <li><strong>Steam Integration:</strong> Steamworks API</li>
+                        <li><strong>Graphics:</strong> Custom shaders and effects</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="terminal-footer">
+        <div class="terminal-messages">
+            <p class="terminal-text">> SYSTEM_STATUS: <span class="status-ready">[READY]</span><span class="cursor">_</span></p>
+            <p class="terminal-text">> LAST_UPDATE: <span id="current-date"></span><span class="cursor">_</span></p>
+            <p class="terminal-text">> USER_INPUT: <span class="cursor">_</span></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/glitch.js"></script>
+</body>
+</html>
