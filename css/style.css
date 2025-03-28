@@ -66,6 +66,22 @@ body {
 
 .glitch-text {
     position: relative;
+    font-size: 2.5rem;
+    margin: 0.5rem 0;
+    text-align: center;
+    letter-spacing: 2px;
+    animation: text-flicker 3s infinite alternate;
+}
+
+@keyframes text-flicker {
+    0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    }
+    20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+        opacity: 0.8;
+        text-shadow: none;
+    }
 }
 
 .glitch-text::before, .glitch-text::after {
