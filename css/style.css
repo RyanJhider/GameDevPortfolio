@@ -143,9 +143,9 @@ body {
     font-weight: bold;
     display: inline-block;
     margin-left: 2px;
-    vertical-align: baseline;
+    vertical-align: text-bottom;
     position: relative;
-    top: 0;
+    height: 1em;
 }
 
 .loading-dots::after {
@@ -201,7 +201,7 @@ body {
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
     line-height: 1.3;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 2px;
 }
 
@@ -381,8 +381,9 @@ body {
 .detail-section h3 {
     position: relative;
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     gap: 2px;
+    line-height: 1;
 }
 
 .detail-section ul {
