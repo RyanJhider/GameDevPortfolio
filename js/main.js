@@ -154,91 +154,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handleInteraction(); // Call the function immediately on load
 
-    // Carousel functionality
-    const carouselSlides = document.querySelector('.carousel-slides');
-    if (!carouselSlides) {
-        console.error('Carousel slides container not found');
-        return;
-    }
-    const slides = document.querySelectorAll('.carousel-slide');
-    if (slides.length === 0) {
-        console.error('No carousel slides found');
-        return;
-    }
-    const prevBtn = document.querySelector('.carousel-prev');
-    const nextBtn = document.querySelector('.carousel-next');
-    const indicators = document.querySelectorAll('.carousel-indicator');
-    let currentIndex = 0;
+    // Simple Carousel Implementation
+    function initCarousel() {
+        const carousel = document.getElementById('rocket-carousel');
+        if (!carousel) return;
 
-    function updateCarousel() {
-        console.log('Updating carousel to index:', currentIndex);
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const prevBtn = carousel.querySelector('#carousel-prev');
+        const nextBtn = carousel.querySelector('#carousel-next');
+        const indicators = carousel.querySelectorAll('.carousel-indicator');
         
-        const transformValue = `translateX(-${currentIndex * 100}%)`;
-        console.log('Applying transform:', transformValue);
-        carouselSlides.style.transform = transformValue;
-        
-        // Update active states
-        slides.forEach((slide, index) => {
-            const isActive = index === currentIndex;
-            console.log(`Slide ${index} active:`, isActive);
-            slide.classList.toggle('active', isActive);
-        });
-        
-        indicators.forEach((indicator, index) => {
-            const isActive = index === currentIndex;
-            console.log(`Indicator ${index} active:`, isActive);
-            indicator.classList.toggle('active', isActive);
-        });
-    }
+        let currentIndex = 0;
+        const totalSlides = slides.length;
 
-    function nextSlide() {
-        currentIndex = (currentIndex + 1) % slides.length;
-        updateCarousel();
-    }
-
-    function prevSlide() {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        updateCarousel();
-    }
-
-    // Debug carousel elements
-    console.log('Carousel Debug:');
-    console.log('Slides container:', carouselSlides);
-    console.log('Slides:', slides);
-    console.log('Prev button:', prevBtn);
-    console.log('Next button:', nextBtn);
-    console.log('Indicators:', indicators);
-
-    // Button events with enhanced logging
-    if (nextBtn && prevBtn) {
-        nextBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Next button clicked - Current index before:', currentIndex);
-            nextSlide();
-            console.log('Current index after:', currentIndex);
-        });
-        prevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Prev button clicked - Current index before:', currentIndex);
-            prevSlide();
-            console.log('Current index after:', currentIndex);
-        });
-    } else {
-        console.error('Carousel buttons not found - Next:', nextBtn, 'Prev:', prevBtn);
-    }
-
-    // Indicator events
-    indicators.forEach(indicator => {
-        indicator.addEventListener('click', () => {
-            currentIndex = parseInt(indicator.dataset.index);
-            updateCarousel();
-        });
-    });
-
-    // Auto-advance (optional)
-    setInterval(() => {
-        if (Math.random() > 0.7) { // Random glitch effect
-            nextSlide();
+        function showSlide(index) {
+            // Wrap around if at ends
+            if (index >= totalSlides) index = 0;
+            if (index < 0) index = totalSlides - 1;
+            
+            // Update slide position
+            const offset = -index * 100;
+            carousel.querySelector('.carousel-slides').style.transform = `translateX(${offset}%)`;
+            
+            // Update active states
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+            
+            currentIndex = index;
         }
-    }, 5000);
+
+        // Button click handlers
+        nextBtn?.addEventListener('click', () => showSlide(currentIndex + 1));
+        prevBtn?.addEventListener('click', () => showSlide(currentIndex - 1));
+
+        // Indicator click handlers
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                showSlide(parseInt(indicator.dataset.index));
+            });
+        });
+
+        // Initialize first slide
+        showSlide(0);
+
+        // Auto-advance
+        setInterval(() => showSlide(currentIndex + 1), 5000);
+    }
+
+    initCarousel();
 });
