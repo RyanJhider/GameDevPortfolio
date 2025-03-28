@@ -87,6 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
             image: "images/Mislender/Mislender.png",
             year: "2024",
             trailer: "https://www.youtube.com/watch?v=example"
+        },
+        {
+            title: "SlenderMultiplayer",
+            description: "A multiplayer horror game where players work together to collect pages while being hunted by Slender. Features proximity chat and randomized map layouts for replayability.",
+            skills: ["Unity", "C#", "Mirror Networking", "Proximity Chat", "MultiPlayer", "AI Behavior", "Procedural Generation", "Horror Design"],
+            link: "slendermultiplayer.html",
+            image: "images/SlenderMultiplayer/SlenderMultiplayer.png",
+            year: "2024",
+            trailer: "https://www.youtube.com/watch?v=example"
         }
     ];
 
