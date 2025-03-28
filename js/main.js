@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "Silent Pit",
             description: "A first-person horror game set in a deep pit and a rusted underground facility. Restore power and escape… but the monster hears you.",
             skills: ["Unity", "C#", "Shader Graph", "AI Behavior", "Lighting"],
-            link: "Silent-Pit.html",
+            link: "silent-pit.html",
             image: "images/SilentPit/SilentPitMonster.png",
             year: "2024"
         },
