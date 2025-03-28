@@ -132,13 +132,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Carousel functionality
-    const slides = document.querySelectorAll('.carousel-slide');
-    const prevBtn = document.querySelector('.carousel-prev');
-    const nextBtn = document.querySelector('.carousel-next');
-    const slidesContainer = document.querySelector('.carousel-slides');
-    const indicatorsContainer = document.querySelector('.carousel-indicators');
+    // Initialize carousel only if elements exist
+    const carouselContainer = document.querySelector('.carousel-container');
+    let slides, prevBtn, nextBtn, slidesContainer, indicatorsContainer;
     let currentIndex = 0;
     let intervalId;
+
+    if (carouselContainer) {
+        slides = carouselContainer.querySelectorAll('.carousel-slide');
+        prevBtn = carouselContainer.querySelector('.carousel-prev');
+        nextBtn = carouselContainer.querySelector('.carousel-next');
+        slidesContainer = carouselContainer.querySelector('.carousel-slides');
+        indicatorsContainer = carouselContainer.querySelector('.carousel-indicators');
+    }
 
     // Create indicators
     if (indicatorsContainer && slides.length > 0) { // Add this check
@@ -217,19 +223,28 @@ document.addEventListener('DOMContentLoaded', () => {
         startInterval();
     }
 
-    // Event listeners
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            prevSlide();
-        });
-    }
-    if (nextBtn) {
-        nextBtn.addEventListener('click', nextSlide);
-    }
+    // Initialize carousel if elements exist
+    if (carouselContainer && slides && slides.length > 0) {
+        // Event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                prevSlide();
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                nextSlide();
+            });
+        }
 
-    // Start auto-rotation
-    if (slides.length > 1) {
-        startInterval();
+        // Start auto-rotation if multiple slides
+        if (slides.length > 1) {
+            startInterval();
+        }
+    } else {
+        console.warn('Carousel elements not found or no slides available');
     }
 
     // Set current date in footer
