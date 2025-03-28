@@ -381,6 +381,17 @@ body {
     margin-bottom: 1rem;
 }
 
+#skills h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 3px;
+}
+
+.skill {
+    margin-bottom: 1rem;
+}
+
 .project-year {
     color: rgba(0, 255, 0, 0.7);
     font-size: 0.9rem;
