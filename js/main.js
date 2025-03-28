@@ -146,17 +146,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add project images to carousel
         const rocketImages = [
-            'images/RocketLanding/RocketLandingStorePage.png',
-            'images/RocketLanding/RocketLandingLevels.png',
-            'images/RocketLanding/RocketLandingTuto.png',
-            'images/RocketLanding/RocketLandingTuto.jpg'
+            '../images/RocketLanding/RocketLandingStorePage.png',
+            '../images/RocketLanding/RocketLandingLevels.png',
+            '../images/RocketLanding/RocketLandingTuto.png',
+            '../images/RocketLanding/RocketLandingTuto.jpg'
         ];
 
         // Create slides
         rocketImages.forEach((imgSrc, index) => {
             const slide = document.createElement('div');
             slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
-            slide.innerHTML = `<img src="${imgSrc}" alt="Rocket Landing Screenshot ${index + 1}">`;
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.alt = `Rocket Landing Screenshot ${index + 1}`;
+            img.onerror = () => {
+                console.error(`Failed to load image: ${imgSrc}`);
+                img.src = '../images/placeholder.png'; // Fallback image
+                img.alt = 'Placeholder image';
+            };
+            slide.appendChild(img);
             slidesContainer.appendChild(slide);
         });
 

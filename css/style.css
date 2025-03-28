@@ -620,6 +620,13 @@ body {
     transition: filter 0.3s ease;
 }
 
+.carousel-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 10px;
+}
+
 .carousel-slide.active {
     filter: grayscale(0%) contrast(100%);
 }
