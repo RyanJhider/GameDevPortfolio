@@ -563,6 +563,32 @@ body {
     color: #00ff00;
 }
 
+/* ASCII Art */
+.ascii-art {
+    display: block;
+    white-space: pre;
+    font-family: 'VT323', monospace;
+    line-height: 1;
+    margin: 1rem 0;
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    overflow-x: auto;
+    max-width: 100%;
+    font-size: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .ascii-art {
+        font-size: 0.6rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .ascii-art {
+        font-size: 0.7rem;
+    }
+}
+
 /* Terminal Alerts */
 .terminal-alert {
     position: fixed;
