@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let intervalId;
 
     // Create indicators
-    if (indicatorsContainer && slides.length > 0) { // Add this check
+    if (indicatorsContainer) { // Add this check
         slides.forEach((_, index) => {
             const indicator = document.createElement('div');
             indicator.classList.add('carousel-indicator');
