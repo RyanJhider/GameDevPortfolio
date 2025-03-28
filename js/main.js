@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Mislender",
             description: "A multiplayer horror game with proximity chat where players must work together to fix their broken car and escape the haunted forest. AI creatures track players using sound and movement - work together quietly or risk being hunted down. Built with Unity and Mirror networking.",
-            skills: ["Unity", "C#", "Mirror Networking", "Steam Integration", "Proximity Chat", "MultiPlayer", "AI Behavior", "Horror Design"],
+            skills: ["Unity", "C#", "Mirror Networking", "Vivox", "Steam Integration", "Proximity Chat", "MultiPlayer", "AI Behavior", "Horror Design"],
             link: "mislender.html",
             image: "images/Mislender/Mislender.png",
             year: "2024",
