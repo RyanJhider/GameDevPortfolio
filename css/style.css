@@ -432,6 +432,15 @@ body {
 }
 
 .rocket-trailer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.rocket-trailer .terminal-link {
+    flex: 1;
+    max-width: 200px;
     text-align: center;
 }
 
