@@ -18,14 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Random glitch effect
     setInterval(() => {
         const glitch = document.querySelector('.glitch');
-        if (Math.random() > 0.9) {
-            glitch.style.opacity = '0.7';
-            glitch.style.background = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="${Math.random() > 0.5 ? '#ff00ff' : '#00ffff'}" opacity="0.3"/></svg>')`;
+        if (Math.random() > 0.7) {
+            glitch.style.opacity = '0.9';
+            glitch.style.background = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="${Math.random() > 0.5 ? '#ff00ff' : '#00ffff'}" opacity="0.5"/></svg>')`;
             setTimeout(() => {
                 glitch.style.opacity = '0';
-            }, 100);
+            }, 50);
         }
-    }, 3000);
+    }, 1000);
 
     // Load projects dynamically
     const projects = [
