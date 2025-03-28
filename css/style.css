@@ -568,6 +568,21 @@ body {
     color: #00ff00;
 }
 
+/* Terminal Alerts */
+.terminal-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    animation: terminal-popup 0.3s ease-out;
+}
+
+@keyframes terminal-popup {
+    0% { opacity: 0; transform: translate(-50%, -40%); }
+    100% { opacity: 1; transform: translate(-50%, -50%); }
+}
+
 /* Rocket Landing Specific Styles */
 .rocket-landing-section {
     background: rgba(0, 20, 0, 0.3);

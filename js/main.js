@@ -180,8 +180,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function nextSlide() {
         console.log('Carousel: nextSlide called');
-        goToSlide(currentIndex + 1);
-        alert("Now showing slide " + (currentIndex + 1));
+        const newIndex = (currentIndex + 1) % slides.length;
+        goToSlide(newIndex);
+        
+        // Create terminal-style alert
+        const alertBox = document.createElement('div');
+        alertBox.className = 'terminal-alert';
+        alertBox.innerHTML = `
+            <div class="terminal-box">
+                <p class="terminal-text">> CAROUSEL_NAVIGATION:</p>
+                <p class="terminal-text">> MOVING_TO_SLIDE_${newIndex + 1}</p>
+                <p class="terminal-text">> [PRESS_ANY_KEY_TO_CONTINUE]</p>
+            </div>
+        `;
+        document.body.appendChild(alertBox);
+        
+        // Remove alert after delay or click
+        setTimeout(() => {
+            alertBox.remove();
+        }, 2000);
     }
 
     function prevSlide() {
@@ -207,10 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            alert("Moving to next slide...");
-            nextSlide();
-        });
+        nextBtn.addEventListener('click', nextSlide);
     }
 
     // Start auto-rotation
