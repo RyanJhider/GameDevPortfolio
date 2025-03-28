@@ -83,13 +83,17 @@ body {
         opacity: 1;
         text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
     }
-    25%, 75% {
+    20%, 80% {
         opacity: 0.98;
         text-shadow: 0 0 4px rgba(0, 255, 0, 0.7);
     }
-    50% {
+    40%, 60% {
         opacity: 0.95;
         text-shadow: 0 0 3px rgba(0, 255, 0, 0.6);
+    }
+    50% {
+        opacity: 0.9;
+        text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
     }
 }
 
@@ -244,11 +248,11 @@ body {
 }
 
 @keyframes blink {
-    0%, 39% {
+    0%, 45% {
         opacity: 0;
         text-shadow: none;
     }
-    40%, 100% {
+    46%, 100% {
         opacity: 1;
         text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
     }
