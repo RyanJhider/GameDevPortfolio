@@ -171,15 +171,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIndex = 0;
 
     function updateCarousel() {
-        carouselSlides.style.transform = `translateX(-${currentIndex * 100}%)`;
+        console.log('Updating carousel to index:', currentIndex);
+        
+        const transformValue = `translateX(-${currentIndex * 100}%)`;
+        console.log('Applying transform:', transformValue);
+        carouselSlides.style.transform = transformValue;
         
         // Update active states
         slides.forEach((slide, index) => {
-            slide.classList.toggle('active', index === currentIndex);
+            const isActive = index === currentIndex;
+            console.log(`Slide ${index} active:`, isActive);
+            slide.classList.toggle('active', isActive);
         });
         
         indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === currentIndex);
+            const isActive = index === currentIndex;
+            console.log(`Indicator ${index} active:`, isActive);
+            indicator.classList.toggle('active', isActive);
         });
     }
 
@@ -193,20 +201,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCarousel();
     }
 
-    // Button events with error handling
+    // Debug carousel elements
+    console.log('Carousel Debug:');
+    console.log('Slides container:', carouselSlides);
+    console.log('Slides:', slides);
+    console.log('Prev button:', prevBtn);
+    console.log('Next button:', nextBtn);
+    console.log('Indicators:', indicators);
+
+    // Button events with enhanced logging
     if (nextBtn && prevBtn) {
         nextBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Next button clicked');
+            console.log('Next button clicked - Current index before:', currentIndex);
             nextSlide();
+            console.log('Current index after:', currentIndex);
         });
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Prev button clicked');
+            console.log('Prev button clicked - Current index before:', currentIndex);
             prevSlide();
+            console.log('Current index after:', currentIndex);
         });
     } else {
-        console.error('Carousel buttons not found');
+        console.error('Carousel buttons not found - Next:', nextBtn, 'Prev:', prevBtn);
     }
 
     // Indicator events
