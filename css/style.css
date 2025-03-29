@@ -192,17 +192,22 @@ body {
 
 .cursor {
     animation: blink 0.7s infinite steps(1);
-    color: #00ff00;
-    font-weight: bold;
     display: inline-block;
-    margin-left: 2px;
-    vertical-align: middle;
-    position: relative;
-    height: 1em;
     width: 0.5em;
-    animation-timing-function: steps(1);
+    height: 1em;
+    margin-left: 2px;
     background: #00ff00;
     box-shadow: 0 0 5px #00ff00;
+    vertical-align: middle;
+    position: relative;
+    animation-timing-function: steps(1);
+}
+
+.terminal-text {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
 }
 
 .blinking {
