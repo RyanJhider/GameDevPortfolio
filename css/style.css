@@ -1413,6 +1413,39 @@ body {
     border: 1px dashed #00ff00;
 }
 
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.team-grid h4 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    border-bottom: 1px solid #00ff00;
+    padding-bottom: 0.3rem;
+}
+
+.team-grid ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.team-grid li {
+    margin-bottom: 0.3rem;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.team-grid li::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00ff00;
+}
+
 .rocket-details .detail-section {
     border-left: 2px solid #00ff00;
     animation: pulse 3s infinite;
