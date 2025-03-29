@@ -128,3 +128,133 @@
     <script src="js/glitch.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heistgaard - Dev Horror Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+</head>
+<body class="crt">
+    <div class="scanlines"></div>
+    <div class="flicker"></div>
+    <div class="glitch"></div>
+    
+    <header class="terminal-header">
+        <h1 class="glitch-text" data-text=">_RYAN_JHIDER">>_RYAN_JHIDER<span class="cursor">█</span></h1>
+        <nav>
+            <ul class="terminal-nav">
+                <li><a href="index.html" class="typewriter">[HOME]</a></li>
+                <li><a href="index.html#projects" class="typewriter">[PROJECTS]</a></li>
+                <li><a href="index.html#skills" class="typewriter">[SKILLS]</a></li>
+                <li><a href="index.html#contact" class="typewriter">[CONTACT]</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="terminal-box heistgaard-section">
+            <h2 class="glitch-text" data-text="HEISTGAARD_DETAILS">HEISTGAARD DETAILS</h2>
+            <div class="heistgaard-preview">
+                <div class="media-grid">
+                    <div class="media-column">
+                        <div class="horror-carousel">
+                            <div class="carousel-container">
+                                <div class="carousel-slides">
+                                    <div class="carousel-slide active">
+                                        <img src="images/Heistgaard/HeistGaard.png" alt="Heistgaard Gameplay" class="carousel-image">
+                                    </div>
+                                    <div class="carousel-slide">
+                                        <img src="images/Heistgaard/HeistGaard.png" alt="Heistgaard Level Design" class="carousel-image">
+                                    </div>
+                                </div>
+                                <div class="carousel-controls">
+                                    <button class="carousel-prev terminal-link">[PREV]</button>
+                                    <button class="carousel-next terminal-link">[NEXT]</button>
+                                </div>
+                                <div class="carousel-indicators"></div>
+                                <div class="fullscreen-overlay">
+                                    <div class="fullscreen-container">
+                                        <div class="fullscreen-content">
+                                            <img src="" alt="" class="fullscreen-image">
+                                            <div class="fullscreen-static"></div>
+                                        </div>
+                                        <div class="fullscreen-nav-container">
+                                            <button class="fullscreen-nav fullscreen-prev terminal-link">[PREV]</button>
+                                            <button class="fullscreen-nav fullscreen-next terminal-link">[NEXT]</button>
+                                        </div>
+                                    </div>
+                                    <button class="fullscreen-close terminal-link" data-text="[X]">[X]</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="media-column">
+                        <div class="video-container terminal-box">
+                            <div class="video-overlay"></div>
+                            <iframe 
+                                src="https://www.youtube.com/embed/example" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                class="horror-video">
+                            </iframe>
+                            <div class="video-static"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="heistgaard-trailer">
+                    <a href="#" class="terminal-link">[COMING_SOON]</a>
+                </div>
+            </div>
+            <div class="project-details heistgaard-details">
+                <div class="detail-section">
+                    <h3>GAME OVERVIEW</h3>
+                    <p>A 2D platformer where you play as a skilled thief working for Loki. Your mission: steal Thor's relic while evading traps and enemies.</p>
+                    <ul>
+                        <li><strong>Release Date:</strong> 2025</li>
+                        <li><strong>Platform:</strong> PC (Steam)</li>
+                        <li><strong>Team Size:</strong> 12 developers</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>KEY FEATURES</h3>
+                    <ul>
+                        <li>Relentless boss pursuit mechanic</li>
+                        <li>Complex trap systems</li>
+                        <li>Stealth and platforming challenges</li>
+                        <li>Norse mythology-inspired setting</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>> TOOLS_&amp;_TECHNOLOGIES</h3>
+                    <ul>
+                        <li><strong>Game Engine:</strong> Unity</li>
+                        <li><strong>Programming:</strong> C#</li>
+                        <li><strong>Post-processing:</strong> Custom shaders</li>
+                        <li><strong>Version Control:</strong> Git</li>
+                        <li><strong>Team Collaboration:</strong> Agile methodology</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="terminal-footer">
+        <div class="terminal-messages">
+            <p class="terminal-text">> SYSTEM_STATUS: <span class="status-ready">[READY]</span><span class="cursor">█</span></p>
+            <p class="terminal-text">> LAST_UPDATE: <span id="current-date"></span><span class="cursor">█</span></p>
+            <p class="terminal-text">> USER_INPUT: <span class="cursor">█</span></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/glitch.js"></script>
+</body>
+</html>
