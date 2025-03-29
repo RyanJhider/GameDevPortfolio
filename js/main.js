@@ -1,4 +1,106 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Horror Carousel
+    class HorrorCarousel {
+        constructor(container) {
+            this.container = container;
+            this.slides = container.querySelectorAll('.carousel-slide');
+            this.indicators = container.querySelector('.carousel-indicators');
+            this.prevBtn = container.querySelector('.carousel-prev');
+            this.nextBtn = container.querySelector('.carousel-next');
+            this.currentIndex = 0;
+            this.autoPlayInterval = null;
+            this.glitchInterval = null;
+            
+            this.initIndicators();
+            this.setupEventListeners();
+            this.startAutoPlay();
+            this.startRandomGlitch();
+        }
+
+        initIndicators() {
+            this.slides.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'carousel-indicator';
+                if (index === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => this.goToSlide(index));
+                this.indicators.appendChild(indicator);
+            });
+        }
+
+        setupEventListeners() {
+            this.prevBtn.addEventListener('click', () => this.prevSlide());
+            this.nextBtn.addEventListener('click', () => this.nextSlide());
+            
+            // Pause on hover
+            this.container.addEventListener('mouseenter', () => {
+                clearInterval(this.autoPlayInterval);
+                clearInterval(this.glitchInterval);
+            });
+            
+            this.container.addEventListener('mouseleave', () => {
+                this.startAutoPlay();
+                this.startRandomGlitch();
+            });
+        }
+
+        startAutoPlay() {
+            this.autoPlayInterval = setInterval(() => {
+                this.nextSlide();
+            }, 5000);
+        }
+
+        startRandomGlitch() {
+            this.glitchInterval = setInterval(() => {
+                if (Math.random() > 0.7) {
+                    this.triggerGlitch();
+                }
+            }, 3000);
+        }
+
+        triggerGlitch() {
+            const activeSlide = this.slides[this.currentIndex];
+            activeSlide.classList.add('glitching');
+            
+            setTimeout(() => {
+                activeSlide.classList.remove('glitching');
+            }, 300);
+        }
+
+        updateSlide() {
+            this.slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === this.currentIndex);
+            });
+            
+            const indicators = this.indicators.querySelectorAll('.carousel-indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === this.currentIndex);
+            });
+            
+            // VHS-style transition
+            const slidesContainer = this.container.querySelector('.carousel-slides');
+            slidesContainer.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+        }
+
+        goToSlide(index) {
+            this.currentIndex = index;
+            this.updateSlide();
+        }
+
+        prevSlide() {
+            this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+            this.updateSlide();
+        }
+
+        nextSlide() {
+            this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+            this.updateSlide();
+        }
+    }
+
+    // Initialize all carousels
+    document.querySelectorAll('.horror-carousel').forEach(carousel => {
+        new HorrorCarousel(carousel);
+    });
     // Typewriter effect
     const typewriterElements = document.querySelectorAll('.typewriter');
     typewriterElements.forEach(el => {
