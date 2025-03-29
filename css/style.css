@@ -424,6 +424,7 @@ body {
     width: 100%;
     padding-left: 0;
     text-align: left;
+    min-width: 100%;
 }
 
 .skill-bar {
