@@ -402,18 +402,25 @@ body {
     margin-bottom: 1rem;
 }
 
+#skills {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 100%;
+}
+
 #skills h2 {
     margin-bottom: 1.5rem;
-    text-align: left;
+    text-align: center;
     font-size: 2rem;
     letter-spacing: 3px;
-    padding-left: 1rem;
+    width: 100%;
 }
 
 .skill {
     margin-bottom: 1rem;
-    padding-left: 1rem;
     max-width: 100%;
+    width: 100%;
 }
 
 .project-year {
