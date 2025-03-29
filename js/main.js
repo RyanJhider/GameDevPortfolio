@@ -181,8 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const formData = new FormData(contactForm);
-                // Add honeypot field
-                formData.append('_gotcha', '');
+                formData.append('_replyto', formData.get('email')); // Ensure reply-to is set
+                formData.append('_subject', 'New message from portfolio');
+                formData.append('_format', 'plain');
+                formData.append('_gotcha', ''); // Honeypot
 
                 const response = await fetch(contactForm.action, {
                     method: 'POST',
@@ -192,18 +194,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+                
+                if (response.ok && result.ok) {
                     formStatus.textContent = '> MESSAGE_SENT_SUCCESSFULLY!';
                     formStatus.style.color = '#00ff00';
                     contactForm.reset();
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Form submission failed');
+                    throw new Error(result.error || 'Failed to send message. Please try again later.');
                 }
             } catch (error) {
                 formStatus.textContent = `> ERROR: ${error.message}`;
                 formStatus.style.color = '#ff0000';
                 console.error('Form Error:', error);
+                
+                // Show contact email as fallback
+                const emailLink = document.createElement('a');
+                emailLink.href = 'mailto:ryanjhider@gmail.com';
+                emailLink.textContent = 'ryanjhider@gmail.com';
+                emailLink.className = 'terminal-link';
+                formStatus.appendChild(document.createTextNode(' > '));
+                formStatus.appendChild(emailLink);
             }
         });
     }
