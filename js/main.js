@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "Heistgaard",
             description: "A 2D platformer where you play as a skilled thief working for Loki. Your mission: steal Thor’s relic while evading traps and enemies. A relentless boss pursues you throughout the heist, adding tension to every move. ",
             skills: ["Unity", "C#", "Post-processing", "Cinematics", "Audio", "Team of 12","Level Design","Git control"],
-            link: "project3.html",
+            link: "heistgaard.html",
             image: "images/Heistgaard/HeistGaard.png",
             year: "2025"
         },
