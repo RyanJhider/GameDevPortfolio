@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectsSection = document.getElementById('projects');
     projects.forEach(project => {
         const projectElement = document.createElement('div');
-        projectElement.className = `terminal-box project ${project.title === "ROCKET LANDING" ? 'featured-project' : ''}`;
+        projectElement.className = `terminal-box project ${project.title === "Rocket Landing" ? 'featured-project' : ''}`;
         projectElement.innerHTML = `
             <div class="project-header">
                 <h2 class="glitch-text" data-text="${project.title}">${project.title}</h2>
