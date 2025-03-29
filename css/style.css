@@ -298,14 +298,13 @@ body {
 /* Terminal Elements */
 .terminal-header {
     border: 2px solid #00ff00;
-    margin: 0;
+    margin: 1rem;
     padding: 1rem;
     box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
     position: relative;
     background: rgba(0, 20, 0, 0.2);
     animation: header-glow 4s ease-in-out infinite alternate;
     backdrop-filter: blur(2px);
-    width: 100%;
     box-sizing: border-box;
 }
 
@@ -335,13 +334,12 @@ body {
 
 .terminal-box {
     border: 1px solid #00ff00;
-    margin: 0;
-    padding: 1.5rem;
+    margin: 2rem;
+    padding: 1rem;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
-    width: 100%;
+    width: auto;
     overflow: hidden;
-    box-sizing: border-box;
 }
 
 .terminal-box::before {
@@ -431,10 +429,10 @@ body {
 #skills {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: auto;
     padding: 1.5rem;
     box-sizing: border-box;
-    margin: 2rem 0;
+    margin: 2rem 2rem;
     border: 1px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
@@ -516,10 +514,10 @@ body {
 #projects {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
     padding: 1.5rem;
-    margin: 2rem 0;
-    width: 100%;
+    margin: 2rem;
+    width: auto;
     box-sizing: border-box;
 }
 
