@@ -427,10 +427,17 @@ body {
 #projects {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
+    padding: 0.5rem;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
+    #projects {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
     #projects {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -441,6 +448,29 @@ body {
     overflow: hidden;
     transition: all 0.3s ease;
     margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.project p.terminal-text {
+    white-space: normal;
+    overflow: visible;
+    flex-grow: 1;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.project-header h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .project-header h2 {
+        font-size: 1.3rem;
+    }
 }
 
 .project:hover {
@@ -481,10 +511,18 @@ body {
 .project-image {
     width: 100%;
     height: 180px;
+    max-height: 30vh;
     object-fit: cover;
     border-bottom: 1px solid #00ff00;
     filter: grayscale(80%) contrast(120%);
     transition: all 0.5s ease;
+}
+
+@media (max-width: 768px) {
+    .project-image {
+        height: 150px;
+        max-height: 25vh;
+    }
 }
 
 .project:hover .project-image {

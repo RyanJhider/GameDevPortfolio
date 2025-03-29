@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="project-year">${project.year}</span>
             </div>
             <img src="${project.image}" alt="${project.title}" class="project-image">
-            <p class="terminal-text">${project.description}</p>
+            <p class="terminal-text" style="white-space: pre-wrap;">${project.description.replace(/\. /g, '.\n')}</p>
             <div class="skills-used">
                 ${project.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
             </div>
