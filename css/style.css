@@ -434,7 +434,7 @@ body {
     width: 100%;
     padding: 1.5rem;
     box-sizing: border-box;
-    margin: 1rem 0;
+    margin: 2rem 0;
     border: 1px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
@@ -518,7 +518,7 @@ body {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 1.5rem;
-    margin: 1rem 0;
+    margin: 2rem 0;
     width: 100%;
     box-sizing: border-box;
 }
