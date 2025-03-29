@@ -99,7 +99,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize all carousels
     document.querySelectorAll('.horror-carousel').forEach(carousel => {
-        new HorrorCarousel(carousel);
+        const horrorCarousel = new HorrorCarousel(carousel);
+        
+        // Add fullscreen functionality
+        const images = carousel.querySelectorAll('.carousel-image');
+        const fullscreenOverlay = carousel.querySelector('.fullscreen-overlay');
+        const fullscreenImage = fullscreenOverlay.querySelector('.fullscreen-image');
+        const closeBtn = fullscreenOverlay.querySelector('.fullscreen-close');
+        
+        images.forEach(img => {
+            img.addEventListener('click', () => {
+                fullscreenImage.src = img.src;
+                fullscreenImage.alt = img.alt;
+                fullscreenOverlay.style.display = 'flex';
+                fullscreenOverlay.style.animation = 'fullscreen-fade 0.3s ease';
+                
+                // Random glitch effect on open
+                if (Math.random() > 0.7) {
+                    fullscreenOverlay.classList.add('video-glitch');
+                    setTimeout(() => {
+                        fullscreenOverlay.classList.remove('video-glitch');
+                    }, 200);
+                }
+            });
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            fullscreenOverlay.style.animation = 'none';
+            setTimeout(() => {
+                fullscreenOverlay.style.display = 'none';
+            }, 300);
+        });
+        
+        // Close on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
+                fullscreenOverlay.style.display = 'none';
+            }
+        });
     });
 
     // Enhance video player with random glitches
