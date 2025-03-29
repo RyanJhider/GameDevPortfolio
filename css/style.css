@@ -1291,8 +1291,17 @@ body {
     box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
 }
 
-.video-glitch {
+.video-glitch, .glitching {
     animation: video-glitch 0.2s linear;
+}
+
+.fullscreen-close.glitching {
+    animation: 
+        video-glitch 0.2s linear,
+        button-flicker 0.1s infinite alternate,
+        button-pulse 2s infinite;
+    color: #ffff00;
+    border-color: #ffff00;
 }
 
 @keyframes video-glitch {

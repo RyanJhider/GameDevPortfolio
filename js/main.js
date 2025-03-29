@@ -144,11 +144,24 @@ document.addEventListener('DOMContentLoaded', () => {
             showFullscreenImage((currentFullscreenIndex + 1) % images.length);
         });
         
+        // Add random glitch to close button
+        setInterval(() => {
+            if (fullscreenOverlay.style.display === 'flex' && Math.random() > 0.8) {
+                closeBtn.classList.add('glitching');
+                setTimeout(() => {
+                    closeBtn.classList.remove('glitching');
+                }, 200);
+            }
+        }, 3000);
+
         closeBtn.addEventListener('click', () => {
-            fullscreenOverlay.style.animation = 'none';
+            closeBtn.classList.add('glitching');
             setTimeout(() => {
-                fullscreenOverlay.style.display = 'none';
-            }, 300);
+                fullscreenOverlay.style.animation = 'none';
+                setTimeout(() => {
+                    fullscreenOverlay.style.display = 'none';
+                }, 300);
+            }, 200);
         });
         
         // Keyboard navigation
