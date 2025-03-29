@@ -977,10 +977,15 @@ body {
 }
 
 .carousel-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
     display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+    pointer-events: none;
 }
 
 .carousel-prev, .carousel-next {
@@ -989,14 +994,17 @@ body {
     padding: 0.5rem 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    position: relative;
-    z-index: 100;
-    pointer-events: auto;
     font-family: 'VT323', monospace;
     color: #00ff00;
     font-size: 1.2rem;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    margin: 0 0.5rem;
+    pointer-events: auto;
+    position: relative;
+    margin: 0;
+}
+
+.carousel-container {
+    position: relative;
 }
 
 .carousel-prev:hover, .carousel-next:hover {
