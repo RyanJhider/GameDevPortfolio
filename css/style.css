@@ -16,13 +16,13 @@ html {
 }
 
 .hero-section {
-    margin: 1rem;
+    margin: 1rem auto;
     width: calc(100% - 2rem);
+    max-width: 1600px;
     border: 1px solid #00ff00;
-    padding: 1rem;
+    padding: 1.5rem;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
-    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -433,10 +433,10 @@ body {
     display: flex;
     flex-direction: column;
     width: calc(100% - 2rem);
-    max-width: 100%;
-    padding: 1rem;
+    max-width: 1600px;
+    padding: 1.5rem;
     box-sizing: border-box;
-    margin: 1rem;
+    margin: 1rem auto;
     border: 1px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
@@ -454,15 +454,17 @@ body {
 }
 
 #skills h2 {
-    margin: 0 0 1rem 0;
+    margin: 0 auto 1.5rem;
     padding: 0;
     width: 100%;
+    max-width: 800px;
     text-align: center;
 }
 
 .skill {
-    margin: 0.5rem 0;
+    margin: 0.75rem auto;
     width: 100%;
+    max-width: 800px;
 }
 
 #skills h2 {
@@ -517,16 +519,16 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 1rem;
-    margin: 0 auto;
-    width: 100%;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    width: calc(100% - 2rem);
+    max-width: 1600px;
     box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
     #projects {
         grid-template-columns: repeat(2, 1fr);
-        padding: 1.5rem;
     }
 }
 
@@ -534,7 +536,6 @@ body {
     #projects {
         grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
-        padding: 2rem;
     }
 }
 
