@@ -180,15 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
             formStatus.style.color = '#00ff00';
 
             try {
-                const formData = new FormData(contactForm);
-                formData.append('_replyto', formData.get('email')); // Ensure reply-to is set
+                // Convert form data to URL-encoded string
+                const formData = new URLSearchParams();
+                formData.append('name', contactForm.elements.name.value);
+                formData.append('email', contactForm.elements.email.value);
+                formData.append('message', contactForm.elements.message.value);
+                formData.append('_replyto', contactForm.elements.email.value);
                 formData.append('_subject', 'New message from portfolio');
                 formData.append('_format', 'plain');
                 formData.append('_gotcha', ''); // Honeypot
 
                 const response = await fetch(contactForm.action, {
                     method: 'POST',
-                    body: formData,
+                    body: formData.toString(),
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/x-www-form-urlencoded'
