@@ -106,22 +106,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullscreenOverlay = carousel.querySelector('.fullscreen-overlay');
         const fullscreenImage = fullscreenOverlay.querySelector('.fullscreen-image');
         const closeBtn = fullscreenOverlay.querySelector('.fullscreen-close');
+        const prevBtn = fullscreenOverlay.querySelector('.fullscreen-prev');
+        const nextBtn = fullscreenOverlay.querySelector('.fullscreen-next');
         
-        images.forEach(img => {
+        let currentFullscreenIndex = 0;
+        
+        const showFullscreenImage = (index) => {
+            if (index >= 0 && index < images.length) {
+                currentFullscreenIndex = index;
+                fullscreenImage.src = images[index].src;
+                fullscreenImage.alt = images[index].alt;
+                
+                // Random glitch effect on navigation
+                if (Math.random() > 0.5) {
+                    fullscreenImage.classList.add('glitching');
+                    setTimeout(() => {
+                        fullscreenImage.classList.remove('glitching');
+                    }, 300);
+                }
+            }
+        };
+        
+        images.forEach((img, index) => {
             img.addEventListener('click', () => {
-                fullscreenImage.src = img.src;
-                fullscreenImage.alt = img.alt;
+                currentFullscreenIndex = index;
+                showFullscreenImage(index);
                 fullscreenOverlay.style.display = 'flex';
                 fullscreenOverlay.style.animation = 'fullscreen-fade 0.3s ease';
-                
-                // Random glitch effect on open
-                if (Math.random() > 0.7) {
-                    fullscreenOverlay.classList.add('video-glitch');
-                    setTimeout(() => {
-                        fullscreenOverlay.classList.remove('video-glitch');
-                    }, 200);
-                }
             });
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            showFullscreenImage((currentFullscreenIndex - 1 + images.length) % images.length);
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            showFullscreenImage((currentFullscreenIndex + 1) % images.length);
         });
         
         closeBtn.addEventListener('click', () => {
@@ -131,10 +151,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         });
         
-        // Close on ESC key
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
+            if (fullscreenOverlay.style.display !== 'flex') return;
+            
+            if (e.key === 'Escape') {
                 fullscreenOverlay.style.display = 'none';
+            } else if (e.key === 'ArrowLeft') {
+                showFullscreenImage((currentFullscreenIndex - 1 + images.length) % images.length);
+            } else if (e.key === 'ArrowRight') {
+                showFullscreenImage((currentFullscreenIndex + 1) % images.length);
             }
         });
     });
