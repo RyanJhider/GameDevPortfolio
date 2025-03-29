@@ -1,5 +1,32 @@
 /* Base CRT Effect */
 html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.main-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.hero-section {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 0 0.5rem;
+    }
+    
+    .hero-section {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
 }
 
 body {
@@ -610,18 +637,36 @@ body {
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
     overflow-x: auto;
     max-width: 100%;
-    font-size: 0.5rem;
+    font-size: 0.4rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 400px) {
+    .ascii-art {
+        font-size: 0.5rem;
+    }
+}
+
+@media (min-width: 600px) {
     .ascii-art {
         font-size: 0.6rem;
     }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
     .ascii-art {
         font-size: 0.7rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .ascii-art {
+        font-size: 0.8rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .ascii-art {
+        font-size: 0.9rem;
     }
 }
 
@@ -862,18 +907,95 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .terminal-header h1 {
+        font-size: 2rem;
+    }
+    .terminal-nav {
+        gap: 1rem;
+    }
+    .ascii-art {
+        font-size: 0.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    #projects {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     body {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+    
+    .terminal-header {
+        padding: 0.5rem;
+        margin: 0.5rem;
+    }
+    
+    .terminal-header h1 {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .terminal-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
     }
     
     .terminal-box {
-        margin: 1rem;
+        margin: 0.5rem;
         padding: 0.5rem;
     }
 
-    .glitch-text span {
-        animation: desync-blink 6s infinite both;
-        animation-delay: calc(var(--char-index) * 0.15s);
+    .glitch-text {
+        font-size: 1.8rem;
+    }
+    
+    .project-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .project-year {
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #projects {
+        grid-template-columns: 1fr;
+    }
+    
+    .terminal-header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .glitch-text {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .terminal-text {
+        white-space: normal;
+    }
+    
+    .project-image {
+        height: 150px;
+    }
+    
+    .skills-used {
+        justify-content: center;
+    }
+    
+    .terminal-form {
+        padding: 0.5rem;
+    }
+    
+    .terminal-input {
+        font-size: 1rem;
     }
 }
