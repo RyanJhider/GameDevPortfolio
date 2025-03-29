@@ -11,21 +11,22 @@ html {
     max-width: 1600px;
     margin: 0 auto;
     padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .hero-section {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin: 1rem 0 2rem;
+    width: 100%;
 }
 
 @media (max-width: 768px) {
     .main-container {
-        padding: 0 0.5rem;
+        padding: 0 0.75rem;
     }
     
     .hero-section {
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
+        margin: 0.75rem 0 1.5rem;
     }
 }
 
@@ -282,13 +283,15 @@ body {
 /* Terminal Elements */
 .terminal-header {
     border: 2px solid #00ff00;
-    margin: 1rem;
+    margin: 1rem auto;
     padding: 1rem;
     box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
     position: relative;
     background: rgba(0, 20, 0, 0.2);
     animation: header-glow 4s ease-in-out infinite alternate;
     backdrop-filter: blur(2px);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 @keyframes header-glow {
@@ -342,8 +345,15 @@ body {
     list-style: none;
     padding: 0;
     margin: 1rem 0;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .terminal-nav {
+        gap: 1.5rem;
+    }
 }
 
 .terminal-nav li {
@@ -478,21 +488,24 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 2rem;
-    overflow: hidden;
+    padding: 1rem;
     margin: 0 auto;
-    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
     #projects {
         grid-template-columns: repeat(2, 1fr);
+        padding: 1.5rem;
     }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
     #projects {
         grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        padding: 2rem;
     }
 }
 
@@ -725,41 +738,42 @@ body {
     white-space: pre;
     font-family: 'VT323', monospace;
     line-height: 1;
-    margin: 1rem 0;
+    margin: 1rem auto;
     color: #00ff00;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
     overflow-x: auto;
     max-width: 100%;
-    font-size: 0.4rem;
+    font-size: 0.5rem;
+    text-align: center;
 }
 
-@media (min-width: 400px) {
-    .ascii-art {
-        font-size: 0.5rem;
-    }
-}
-
-@media (min-width: 600px) {
+@media (min-width: 480px) {
     .ascii-art {
         font-size: 0.6rem;
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
     .ascii-art {
         font-size: 0.7rem;
     }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
     .ascii-art {
         font-size: 0.8rem;
     }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
     .ascii-art {
         font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .ascii-art {
+        font-size: 1rem;
     }
 }
 
