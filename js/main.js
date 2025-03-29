@@ -101,6 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.horror-carousel').forEach(carousel => {
         new HorrorCarousel(carousel);
     });
+
+    // Enhance video player with random glitches
+    const videoContainer = document.querySelector('.video-container');
+    if (videoContainer) {
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                videoContainer.classList.add('video-glitch');
+                setTimeout(() => {
+                    videoContainer.classList.remove('video-glitch');
+                }, 200);
+            }
+        }, 5000);
+    }
     // Typewriter effect
     const typewriterElements = document.querySelectorAll('.typewriter');
     typewriterElements.forEach(el => {
