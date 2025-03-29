@@ -86,7 +86,7 @@ body {
 
 
 @keyframes text-flicker {
-    0%, 100% {
+    0% {
         opacity: 1;
         text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
     }
@@ -94,11 +94,15 @@ body {
         opacity: 0.9;
         text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
     }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    }
 }
 
 .glitch-text {
     position: relative;
-    animation: none;
+    animation: text-flicker 2s infinite;
 }
 
 .glitch-text::before {
