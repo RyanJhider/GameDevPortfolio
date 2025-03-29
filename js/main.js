@@ -190,11 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 });
 
-                const result = await response.json();
+                let result;
+                try {
+                    result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Form submission failed');
+                    }
+                } catch (error) {
+                    throw new Error('Failed to parse server response');
+                }
                 
                 if (response.ok && result.ok) {
                     formStatus.textContent = '> MESSAGE_SENT_SUCCESSFULLY!';
