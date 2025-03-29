@@ -870,11 +870,28 @@ body {
     min-height: 1.5rem;
 }
 
-/* Rocket Landing Specific Styles */
+/* Project Specific Styles */
 .rocket-landing-section {
     background: rgba(0, 20, 0, 0.3);
     border: 1px solid #00ff00;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.heistgaard-section {
+    background: rgba(20, 0, 20, 0.3);
+    border: 1px solid #ff00ff;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+.heistgaard-details .detail-section {
+    border-left: 2px solid #ff00ff;
+    animation: heist-pulse 3s infinite;
+}
+
+@keyframes heist-pulse {
+    0% { border-left-color: #ff00ff; }
+    50% { border-left-color: #cc00cc; }
+    100% { border-left-color: #ff00ff; }
 }
 
 .rocket-preview {
