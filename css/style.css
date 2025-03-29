@@ -447,7 +447,7 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 0.5rem;
+    padding: 2rem;
     overflow: hidden;
     margin: 0 auto;
     max-width: 100%;
