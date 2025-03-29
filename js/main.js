@@ -180,9 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
             formStatus.style.color = '#00ff00';
 
             try {
+                const formData = new FormData(contactForm);
+                // Add honeypot field
+                formData.append('_gotcha', '');
+
                 const response = await fetch(contactForm.action, {
                     method: 'POST',
-                    body: new FormData(contactForm),
+                    body: formData,
                     headers: {
                         'Accept': 'application/json'
                     }
@@ -190,14 +194,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     formStatus.textContent = '> MESSAGE_SENT_SUCCESSFULLY!';
+                    formStatus.style.color = '#00ff00';
                     contactForm.reset();
                 } else {
-                    throw new Error('Form submission failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Form submission failed');
                 }
             } catch (error) {
-                formStatus.textContent = '> ERROR: MESSAGE_NOT_SENT';
+                formStatus.textContent = `> ERROR: ${error.message}`;
                 formStatus.style.color = '#ff0000';
-                console.error('Error:', error);
+                console.error('Form Error:', error);
             }
         });
     }
