@@ -16,8 +16,25 @@ html {
 }
 
 .hero-section {
-    margin: 1rem 0 2rem;
-    width: 100%;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    border: 1px solid #00ff00;
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -415,7 +432,7 @@ body {
 #skills {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: calc(100% - 2rem);
     max-width: 100%;
     padding: 1rem;
     box-sizing: border-box;
@@ -434,6 +451,18 @@ body {
     bottom: -5px;
     border: 1px solid rgba(0, 255, 0, 0.3);
     pointer-events: none;
+}
+
+#skills h2 {
+    margin: 0 0 1rem 0;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.skill {
+    margin: 0.5rem 0;
+    width: 100%;
 }
 
 #skills h2 {
