@@ -1,8 +1,12 @@
 /* Base CRT Effect */
+html {
+}
+
 body {
     background-color: #0a0a0a;
     color: #00ff00;
     font-family: 'VT323', monospace;
+    font-size: 1.4rem;
     line-height: 1.2;
     overflow-x: hidden;
     position: relative;
@@ -462,7 +466,7 @@ body {
     background: rgba(0, 255, 0, 0.2);
     border: 1px solid #00ff00;
     border-radius: 3px;
-    font-size: 0.8rem;
+    font-size: 0.8em;
     transition: all 0.3s ease;
 }
 
@@ -472,9 +476,9 @@ body {
 }
 
 .terminal-link {
+    padding-block: 5px;
     display: inline-block;
     margin-top: 1rem;
-    padding: 0.3rem 1rem;
     border: 1px solid #00ff00;
     text-decoration: none;
     color: #00ff00;
@@ -510,10 +514,13 @@ body {
 }
 
 .project-links {
+    align-items: center;
+    justify-content: center;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     margin-top: 1rem;
+
 }
 
 .project-links .terminal-link {
