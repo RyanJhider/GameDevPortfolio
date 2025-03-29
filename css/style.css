@@ -405,9 +405,10 @@ body {
 #skills {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    width: 100%;
     max-width: 100%;
-    padding-left: 1rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 #skills h2 {
@@ -420,11 +421,25 @@ body {
 
 .skill {
     margin-bottom: 1rem;
-    max-width: 100%;
     width: 100%;
-    padding-left: 0;
+    padding: 0;
     text-align: left;
-    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.skill-bar {
+    width: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    height: 20px;
+    border: 1px solid #00ff00;
+    box-sizing: border-box;
+}
+
+.skill-level {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0,255,0,0.3), #00ff00);
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    transition: width 1s ease;
 }
 
 .skill-bar {
