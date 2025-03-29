@@ -882,13 +882,62 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
+    width: 100%;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+}
+
+.media-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .media-column {
+        width: 100%;
+    }
+}
+
+.horror-carousel {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.video-container {
+    height: 100%;
+    margin: 0;
+}
+
+.horror-carousel .carousel-container,
+.video-container {
+    height: 300px;
+}
+
+@media (min-width: 992px) {
+    .horror-carousel .carousel-container,
+    .video-container {
+        height: 350px;
+    }
 }
 
 /* Horror Carousel Styles */
 .horror-carousel {
     width: 100%;
-    max-width: 800px;
-    margin: 0 auto 2rem;
+    height: 100%;
+    margin: 0;
     position: relative;
 }
 
@@ -897,8 +946,9 @@ body {
     overflow: hidden;
     border: 2px solid #00ff00;
     box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-    aspect-ratio: 16/9;
     background: #000;
+    width: 100%;
+    height: 100%;
 }
 
 .carousel-slides {
@@ -1017,12 +1067,12 @@ body {
 .video-container {
     position: relative;
     width: 100%;
-    max-width: 800px;
-    margin: 2rem auto;
+    height: 100%;
     padding: 0;
     overflow: hidden;
     border: 2px solid #ff0000;
     box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    background: #000;
 }
 
 .horror-video {
