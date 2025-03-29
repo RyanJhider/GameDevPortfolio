@@ -64,7 +64,23 @@
         <div class="terminal-messages">
             <p class="terminal-text">> EMAIL: <a href="mailto:ryanjhider@gmail.com" class="terminal-link">ryanjhider@gmail.com</a><span class="cursor"></span></p>
             <p class="terminal-text">> LINKEDIN: <a href="https://www.linkedin.com/in/ryan-jhider-8bb22a1ba/" target="_blank" class="terminal-link">linkedin.com/in/ryan-jhider</a><span class="cursor"></span></p>
-            <p class="terminal-text">> SEND_ME_A_MESSAGE: <a href="mailto:ryanjhider@gmail.com?subject=Portfolio%20Contact" class="terminal-link">[CLICK_TO_COMPOSE]</a><span class="cursor"></span></p>
+            
+            <form id="contact-form" class="terminal-form" action="https://formspree.io/f/your-formspree-id" method="POST">
+                <div class="form-group">
+                    <label class="terminal-text">> YOUR_NAME: <span class="cursor"></span></label>
+                    <input type="text" name="name" required class="terminal-input">
+                </div>
+                <div class="form-group">
+                    <label class="terminal-text">> YOUR_EMAIL: <span class="cursor"></span></label>
+                    <input type="email" name="email" required class="terminal-input">
+                </div>
+                <div class="form-group">
+                    <label class="terminal-text">> MESSAGE: <span class="cursor"></span></label>
+                    <textarea name="message" required class="terminal-input" rows="4"></textarea>
+                </div>
+                <button type="submit" class="terminal-link">[SEND_MESSAGE]</button>
+            </form>
+            <div id="form-status" class="terminal-text"></div>
         </div>
     </section>
 

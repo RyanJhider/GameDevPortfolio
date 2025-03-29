@@ -634,6 +634,40 @@ body {
 }
 
 
+/* Contact Form Styles */
+.terminal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-input {
+    background: rgba(0, 20, 0, 0.2);
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+.terminal-input:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+}
+
+#form-status {
+    margin-top: 1rem;
+    min-height: 1.5rem;
+}
+
 /* Rocket Landing Specific Styles */
 .rocket-landing-section {
     background: rgba(0, 20, 0, 0.3);

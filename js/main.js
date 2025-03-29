@@ -168,4 +168,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handleInteraction(); // Call the function immediately on load
 
+    // Contact form handling
+    const contactForm = document.getElementById('contact-form');
+    const formStatus = document.getElementById('form-status');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            formStatus.textContent = '> SENDING_MESSAGE...';
+            formStatus.style.color = '#00ff00';
+
+            try {
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: new FormData(contactForm),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    formStatus.textContent = '> MESSAGE_SENT_SUCCESSFULLY!';
+                    contactForm.reset();
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                formStatus.textContent = '> ERROR: MESSAGE_NOT_SENT';
+                formStatus.style.color = '#ff0000';
+                console.error('Error:', error);
+            }
+        });
+    }
 });
