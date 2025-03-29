@@ -317,10 +317,12 @@ body {
 
 .terminal-box {
     border: 1px solid #00ff00;
-    margin: 2rem;
+    margin: 1rem;
     padding: 1rem;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     position: relative;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .terminal-box::before {
@@ -402,13 +404,16 @@ body {
 
 #skills h2 {
     margin-bottom: 1.5rem;
-    text-align: center;
+    text-align: left;
     font-size: 2rem;
     letter-spacing: 3px;
+    padding-left: 1rem;
 }
 
 .skill {
     margin-bottom: 1rem;
+    padding-left: 1rem;
+    max-width: 100%;
 }
 
 .project-year {
@@ -429,6 +434,9 @@ body {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 0.5rem;
+    overflow: hidden;
+    margin: 0 auto;
+    max-width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -451,6 +459,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .project p.terminal-text {
