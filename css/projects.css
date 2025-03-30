@@ -152,3 +152,27 @@
     50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
 }
+
+/* ZombieX specific styles */
+.zombiex-section {
+    border-color: #ff0000;
+    animation: zombie-pulse 3s infinite;
+}
+
+.zombiex-section .detail-section {
+    border-left-color: #ff0000;
+}
+
+@keyframes zombie-pulse {
+    0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.9); }
+    100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+}
+
+.zombiex-preview img {
+    filter: grayscale(70%) contrast(130%) brightness(0.7);
+}
+
+.zombiex-preview img:hover {
+    filter: grayscale(0%) contrast(100%) brightness(1);
+}
