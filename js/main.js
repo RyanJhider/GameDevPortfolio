@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link: "mislender.html",
             image: "images/Mislender/Mislender.png",
             year: "2024",
-            trailer: "https://www.youtube.com/watch?v=example"
+            trailer: "https://www.youtube.com/embed/your-trailer-id-here"
         },
         {
             title: "SlenderMultiplayer",

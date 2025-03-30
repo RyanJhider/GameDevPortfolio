@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlenderMultiplayer - Dev Horror Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+</head>
+<body class="crt">
+    <div class="scanlines"></div>
+    <div class="flicker"></div>
+    <div class="glitch"></div>
+    
+    <header class="terminal-header">
+        <h1 class="glitch-text" data-text=">_RYAN_JHIDER_">>_RYAN_JHIDER_<span class="cursor blinking">&#9608;</span></h1>
+        <nav>
+            <ul class="terminal-nav">
+                <li><a href="index.html" class="typewriter">[HOME]</a></li>
+                <li><a href="index.html#projects" class="typewriter">[PROJECTS]</a></li>
+                <li><a href="index.html#skills" class="typewriter">[SKILLS]</a></li>
+                <li><a href="index.html#contact" class="typewriter">[CONTACT]</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="terminal-box zombiex-section">
+            <h2 class="glitch-text" data-text="SLENDERMULTIPLAYER_DETAILS">SLENDERMULTIPLAYER DETAILS</h2>
+            <div class="rocket-preview">
+                <div class="media-grid">
+                    <div class="media-column">
+                        <div class="horror-carousel">
+                            <div class="carousel-container">
+                                <div class="carousel-slides">
+                                    <div class="carousel-slide active">
+                                        <img src="images/SlenderMultiplayer/SlenderMultiplayer.png" alt="SlenderMultiplayer Gameplay" class="carousel-image">
+                                    </div>
+                                    <div class="carousel-slide">
+                                        <img src="images/SlenderMultiplayer/SlenderMultiplayer.png" alt="SlenderMultiplayer Map" class="carousel-image">
+                                    </div>
+                                </div>
+                                <div class="carousel-controls">
+                                    <button class="carousel-prev terminal-link">[PREV]</button>
+                                    <button class="carousel-next terminal-link">[NEXT]</button>
+                                </div>
+                                <div class="carousel-indicators"></div>
+                                <div class="fullscreen-overlay">
+                                    <div class="fullscreen-container">
+                                        <div class="fullscreen-content">
+                                            <img src="" alt="" class="fullscreen-image">
+                                            <div class="fullscreen-static"></div>
+                                        </div>
+                                        <div class="fullscreen-nav-container">
+                                            <button class="fullscreen-nav fullscreen-prev terminal-link">[PREV]</button>
+                                            <button class="fullscreen-nav fullscreen-next terminal-link">[NEXT]</button>
+                                        </div>
+                                    </div>
+                                    <button class="fullscreen-close terminal-link" data-text="[X]">[X]</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="media-column">
+                        <div class="video-container terminal-box">
+                            <div class="video-overlay"></div>
+                            <iframe 
+                                src="https://www.youtube.com/embed/example" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                class="horror-video">
+                            </iframe>
+                            <div class="video-static"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rocket-trailer">
+                    <a href="https://example.com" class="terminal-link">[ITCH.IO]</a>
+                </div>
+            </div>
+            <div class="project-details rocket-details">
+                <div class="detail-section">
+                    <h3>GAME OVERVIEW</h3>
+                    <p>A multiplayer horror game where players work together to collect pages while being hunted by Slender. Features proximity chat and randomized map layouts for replayability.</p>
+                    <ul>
+                        <li><strong>Release Date:</strong> 2024</li>
+                        <li><strong>Platform:</strong> PC</li>
+                        <li><strong>Team Size:</strong> Solo project</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>KEY FEATURES</h3>
+                    <ul>
+                        <li>Proximity voice chat system</li>
+                        <li>Randomized map generation</li>
+                        <li>Cooperative gameplay mechanics</li>
+                        <li>Dynamic AI behavior</li>
+                        <li>Atmospheric horror elements</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3>TOOLS & TECHNOLOGIES</h3>
+                    <ul>
+                        <li><strong>Game Engine:</strong> Unity</li>
+                        <li><strong>Programming:</strong> C#</li>
+                        <li><strong>Networking:</strong> Mirror Networking</li>
+                        <li><strong>Audio:</strong> Vivox for voice chat</li>
+                        <li><strong>Version Control:</strong> Git</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="terminal-footer">
+        <div class="terminal-messages">
+            <p class="terminal-text">> SYSTEM_STATUS: <span class="status-ready">[READY]</span><span class="cursor blinking">&#9608;</span></p>
+            <p class="terminal-text">> LAST_UPDATE: <span id="current-date"></span><span class="cursor blinking">&#9608;</span></p>
+            <p class="terminal-text">> USER_INPUT: <span class="cursor blinking">_</span></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/glitch.js"></script>
+</body>
+</html>
