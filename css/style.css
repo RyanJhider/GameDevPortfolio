@@ -121,9 +121,10 @@ body {
 .glitch-text {
     position: relative;
     font-size: 2.5rem;
-    margin: 0.5rem 0;
+    margin: 0.5rem auto;
     text-align: center;
     letter-spacing: 4px;
+    width: 100%;
 }
 
 .glitch-text span {
