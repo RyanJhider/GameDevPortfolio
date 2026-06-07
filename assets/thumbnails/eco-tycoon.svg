@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#1a3d1a"/>
+  <rect x="100" y="200" width="200" height="150" fill="#2d5a2d"/>
+  <rect x="350" y="250" width="200" height="150" fill="#3d7a3d"/>
+  <rect x="600" y="200" width="200" height="150" fill="#2d5a2d"/>
+  <text x="640" y="550" font-family="Arial" font-size="36" fill="#4caf50" text-anchor="middle">ECO TYCOON</text>
+  <text x="640" y="580" font-family="Arial" font-size="14" fill="#8a8a9a" text-anchor="middle">Environmental Simulation</text>
+</svg>

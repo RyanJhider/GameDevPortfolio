@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#1e3a5f"/>
+  <rect x="50" y="200" width="150" height="200" fill="#2d5a8a"/>
+  <rect x="200" y="150" width="150" height="200" fill="#3d6a9a"/>
+  <rect x="350" y="250" width="150" height="200" fill="#2d5a8a"/>
+  <rect x="750" y="180" width="150" height="200" fill="#3d6a9a"/>
+  <rect x="900" y="250" width="150" height="200" fill="#2d5a8a"/>
+  <rect x="1050" y="200" width="150" height="200" fill="#3d6a9a"/>
+  <rect x="550" y="300" width="180" height="180" fill="#4a7aaa"/>
+  <polygon points="640,100 600,200 640,180 680,200" fill="#ffaa00"/>
+  <text x="640" y="500" font-family="Arial" font-size="24" fill="#fff" text-anchor="middle">PIXEL KNIGHTS</text>
+  <text x="640" y="540" font-family="Arial" font-size="14" fill="#ccc" text-anchor="middle">Explore - Unlock Abilities - Defeat Bosses</text>
+</svg>

@@ -3,100 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryan Jhider | RakemyStudio Portfolio</title>
+    <title>Ryan Jhider | Game Developer Portfolio</title>
+    <meta name="description" content="Portfolio of Ryan Jhider - Game Design & Programming Student at ISART Digital">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/projects.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
-</head>
-<body class="crt">
-    <div class="scanlines"></div>
-    <div class="flicker"></div>
-    <div class="glitch"></div>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
     
-    <header class="terminal-header">
-        <h1 class="glitch-text" data-text=">_RYAN_JHIDER_">>_RYAN_JHIDER_<span class="cursor">_</span></h1>
-        <p class="terminal-text">> STUDIO: <span class="status-ready">[RAKEMYSTUDIO]</span><span class="cursor">_</span></p>
-        <nav>
-            <ul class="terminal-nav">
-                <li><a href="#" class="typewriter">[HOME]</a></li>
-                <li><a href="#projects" class="typewriter">[PROJECTS]</a></li>
-                <li><a href="#skills" class="typewriter">[SKILLS]</a></li>
-                <li><a href="#contact" class="typewriter">[CONTACT]</a></li>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- Loading - FAST -->
+    <div class="loading-screen" id="loading-screen">
+        <p class="loading-text">INITIALIZING...</p>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-panel">
+            <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="projects.html" class="nav-link">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
             </ul>
-        </nav>
+            <div class="header-actions">
+                <a href="mailto:ryanjhider@gmail.com" class="cta-btn">Contact</a>
+                <a href="admin.html" class="cta-btn admin-btn">Admin</a>
+            </div>
+        </div>
     </header>
 
-    <main class="main-container">
-        <section id="hero" class="terminal-box hero-section">
-            <div class="ascii-art">
-                <pre>
- ██▀███   ▄▄▄       ██ ▄█▀▓█████  ███▄ ▄███▓▓██   ██▓  ██████ ▄▄▄█████▓ █    ██ ▓█████▄  ██▓ ▒█████  
-▓██ ▒ ██▒▒████▄     ██▄█▒ ▓█   ▀ ▓██▒▀█▀ ██▒ ▒██  ██▒▒██    ▒ ▓  ██▒ ▓▒ ██  ▓██▒▒██▀ ██▌▓██▒▒██▒  ██▒
-▓██ ░▄█ ▒▒██  ▀█▄  ▓███▄░ ▒███   ▓██    ▓██░  ▒██ ██░░ ▓██▄   ▒ ▓██░ ▒░▓██  ▒██░░██   █▌▒██▒▒██░  ██▒
-▒██▀▀█▄  ░██▄▄▄▄██ ▓██ █▄ ▒▓█  ▄ ▒██    ▒██   ░ ▐██▓░  ▒   ██▒░ ▓██▓ ░ ▓▓█  ░██░░▓█▄   ▌░██░▒██   ██░
-░██▓ ▒██▒ ▓█   ▓██▒▒██▒ █▄░▒████▒▒██▒   ░██▒  ░ ██▒▓░▒██████▒▒  ▒██▒ ░ ▒▒█████▓ ░▒████▓ ░██░░ ████▓▒░
-░ ▒▓ ░▒▓░ ▒▒   ▓▒█░▒ ▒▒ ▓▒░░ ▒░ ░░ ▒░   ░  ░   ██▒▒▒ ▒ ▒▓▒ ▒ ░  ▒ ░░   ░▒▓▒ ▒ ▒  ▒▒▓  ▒ ░▓  ░ ▒░▒░▒░ 
-  ░▒ ░ ▒░  ▒   ▒▒ ░░ ░▒ ▒░ ░ ░  ░░  ░      ░ ▓██ ░▒░ ░ ░▒  ░ ░    ░    ░░▒░ ░ ░  ░ ▒  ▒  ▒ ░  ░ ▒ ▒░ 
-  ░░   ░   ░   ▒   ░ ░░ ░    ░   ░      ░    ▒ ▒ ░░  ░  ░  ░    ░       ░░░ ░ ░  ░ ░  ░  ▒ ░░ ░ ░ ▒  
-   ░           ░  ░░  ░      ░  ░       ░    ░ ░           ░              ░        ░     ░      ░ ░  
-                                             ░ ░                                 ░                   
-                </pre>
-            </div>
-            <div class="terminal-messages">
-                <p class="terminal-text">> INITIALIZING_SYSTEM<span class="loading-dots">...</span><span class="cursor">_</span></p>
-                <p class="terminal-text">> LOADING_HAUNTED_DEV_ENV<span class="loading-dots">...</span><span class="cursor">_</span></p>
-                <p class="terminal-text blinking clickable">> CLICK_OR_PRESS_KEY_TO_CONTINUE<span class="cursor">_</span></p>
-            </div>
-        </section>
-
-        <h2 class="glitch-text" data-text="PROJECTS" style="text-align: center; margin: 2rem 0 0 0;">PROJECTS</h2>
-        <section id="projects" class="terminal-box">
-            <!-- Projects will be loaded dynamically -->
-            <!-- Projects will be loaded dynamically -->
-        </section>
-
-        <section id="skills" class="terminal-box">
-            <h2 class="glitch-text" data-text="SKILLS">SKILLS</h2>
-            <!-- Skills will be loaded dynamically -->
-        </section>
-
-    </main>
-
-    <section id="contact" class="terminal-box">
-        <h2 class="glitch-text" data-text="CONTACT">CONTACT</h2>
-        <div class="terminal-messages">
-            <p class="terminal-text">> EMAIL: <a href="mailto:ryanjhider@gmail.com" class="terminal-link">ryanjhider@gmail.com</a><span class="cursor">_</span></p>
-            <p class="terminal-text">> LINKEDIN: <a href="https://www.linkedin.com/in/ryan-jhider-8bb22a1ba/" target="_blank" class="terminal-link">linkedin.com/in/ryan-jhider</a><span class="cursor">_</span></p>
-            
-            <form id="contact-form" class="terminal-form" action="https://formspree.io/f/xqapdbab" method="POST" enctype="application/x-www-form-urlencoded">
-                <input type="hidden" name="_gotcha">
-                <div class="form-group">
-                    <label class="terminal-text">> YOUR_NAME: <span class="cursor">_</span></label>
-                    <input type="text" name="name" required class="terminal-input">
-                </div>
-                <div class="form-group">
-                    <label class="terminal-text">> YOUR_EMAIL: <span class="cursor">_</span></label>
-                    <input type="email" name="email" required class="terminal-input">
-                </div>
-                <div class="form-group">
-                    <label class="terminal-text">> MESSAGE: <span class="cursor">_</span></label>
-                    <textarea name="message" required class="terminal-input" rows="4"></textarea>
-                </div>
-                <button type="submit" class="terminal-link">[SEND_MESSAGE]</button>
-            </form>
-            <div id="form-status" class="terminal-text"></div>
+    <!-- Hero - NO 3 Cards -->
+    <section class="hero">
+        <span class="hero-badge">ISART DIGITAL // 3RD YEAR</span>
+        <h1 class="hero-title">Building Games<br><span class="highlight">That Matter</span></h1>
+        <p class="hero-subtitle">Game Design & Programming student specializing in Unity, multiplayer networking, AI behavior systems, and horror game design.</p>
+        <div class="hero-ctas">
+            <a href="projects.html" class="btn btn-primary">View Projects</a>
+            <a href="about.html" class="btn btn-outline">About Me</a>
         </div>
     </section>
 
-    <footer class="terminal-footer">
-        <div class="terminal-messages">
-            <p class="terminal-text">> SYSTEM_STATUS: <span class="status-ready">[READY]</span><span class="cursor">_</span></p>
-            <p class="terminal-text">> LAST_UPDATE: <span id="current-date"></span><span class="cursor">_</span></p>
-            <p class="terminal-text">> USER_INPUT: <span class="cursor">_</span></p>
+    <!-- Stats -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-value" id="projects-count">0</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="featured-count">0</span>
+                <span class="stat-label">Featured</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="years-experience">3</span>
+                <span class="stat-label">Years</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">ISART</span>
+                <span class="stat-label">School</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="projects-section">
+        <div class="section-header">
+            <h2 class="section-title">Featured Projects</h2>
+            <a href="projects.html" class="section-link">View All →</a>
+        </div>
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+        <div class="projects-grid" id="projects-list">
+            <!-- Projects loaded via JS -->
+        </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="skills-section">
+        <div class="skills-container">
+            <div class="section-header">
+                <h2 class="section-title">Skills</h2>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-group">
+                    <h3>Engines</h3>
+                    <div class="skill-item">Unity</div>
+                    <div class="skill-item">Unreal Engine</div>
+                    <div class="skill-item">Godot</div>
+                </div>
+                <div class="skill-group">
+                    <h3>Languages</h3>
+                    <div class="skill-item">C#</div>
+                    <div class="skill-item">C++</div>
+                    <div class="skill-item">Python</div>
+                    <div class="skill-item">JavaScript</div>
+                </div>
+                <div class="skill-group">
+                    <h3>Tools</h3>
+                    <div class="skill-item">Blender</div>
+                    <div class="skill-item">Git</div>
+                    <div class="skill-item">FMOD</div>
+                    <div class="skill-item">Aseprite</div>
+                </div>
+                <div class="skill-group">
+                    <h3>Specialties</h3>
+                    <div class="skill-item">Multiplayer</div>
+                    <div class="skill-item">AI Behavior</div>
+                    <div class="skill-item">Horror Design</div>
+                    <div class="skill-item">Networking</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-copy">Made with coffee & Unity</p>
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
+                <a href="https://itch.io" target="_blank" class="footer-link">Itch.io</a>
+                <a href="mailto:ryanjhider@gmail.com" class="footer-link">Email</a>
+            </div>
         </div>
     </footer>
 
     <script src="js/main.js"></script>
-    <script src="js/glitch.js"></script>
 </body>
 </html>

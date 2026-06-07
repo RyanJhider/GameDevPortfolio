@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="leader" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffaa00"/>
+      <stop offset="100%" style="stop-color:#ff6600"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a0a1a"/>
+  <rect x="340" y="100" width="600" height="520" fill="#1a1a2a" stroke="#ffaa00" stroke-width="2" rx="10"/>
+  <text x="640" y="150" font-family="Arial" font-size="24" fill="#ffaa00" text-anchor="middle" font-weight="bold">LEADERBOARD</text>
+  <line x1="380" y1="180" x2="900" y2="180" stroke="#ffaa00" stroke-width="1"/>
+  <text x="420" y="210" font-family="Arial" font-size="14" fill="#fff">1.</text>
+  <text x="450" y="210" font-family="Arial" font-size="14" fill="#ffaa00">StarRacer99</text>
+  <text x="820" y="210" font-family="Arial" font-size="14" fill="#fff" text-anchor="end">45,230</text>
+  <text x="420" y="250" font-family="Arial" font-size="14" fill="#fff">2.</text>
+  <text x="450" y="250" font-family="Arial" font-size="14" fill="#00ffcc">NebulaPilot</text>
+  <text x="820" y="250" font-family="Arial" font-size="14" fill="#fff" text-anchor="end">42,890</text>
+  <text x="420" y="290" font-family="Arial" font-size="14" fill="#fff">3.</text>
+  <text x="450" y="290" font-family="Arial" font-size="14" fill="#9966ff">AstroKing</text>
+  <text x="820" y="290" font-family="Arial" font-size="14" fill="#fff" text-anchor="end">38,450</text>
+  <text x="420" y="330" font-family="Arial" font-size="14" fill="#fff">4.</text>
+  <text x="450" y="330" font-family="Arial" font-size="14" fill="#fff">CosmicDrifter</text>
+  <text x="820" y="330" font-family="Arial" font-size="14" fill="#fff" text-anchor="end">35,120</text>
+  <text x="420" y="370" font-family="Arial" font-size="14" fill="#fff">5.</text>
+  <text x="450" y="370" font-family="Arial" font-size="14" fill="#fff">VoidRunner</text>
+  <text x="820" y="370" font-family="Arial" font-size="14" fill="#fff" text-anchor="end">31,890</text>
+  <rect x="440" y="550" width="400" height="40" fill="#1a2a3a" stroke="#ffaa00" stroke-width="1" rx="5"/>
+  <text x="640" y="575" font-family="Arial" font-size="12" fill="#8a8a9a" text-anchor="middle">YOUR RANK: #47</text>
+</svg>

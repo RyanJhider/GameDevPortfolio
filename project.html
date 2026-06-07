@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project | Ryan Jhider</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Firebase Config (from config.js - excluded from Git) -->
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-panel">
+            <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="projects.html" class="nav-link">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+            </ul>
+            <div class="header-actions">
+                <a href="mailto:ryanjhider@gmail.com" class="cta-btn">Contact</a>
+                <a href="admin.html" class="cta-btn admin-btn">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pdp-page">
+        <nav class="pdp-nav">
+            <a href="projects.html" class="pdp-back">← Back to Projects</a>
+        </nav>
+
+        <header class="pdp-hero">
+            <h1 id="pdp-title" class="pdp-title">Loading...</h1>
+            <p id="pdp-subtitle" class="pdp-subtitle"></p>
+            <div id="pdp-media" class="pdp-media">
+                <div class="pdp-media-placeholder">🎮</div>
+            </div>
+        </header>
+
+        <div class="pdp-pills" id="pdp-pills"></div>
+
+        <div class="pdp-content">
+            <div class="pdp-left">
+                <section class="pdp-section">
+                    <h2 class="pdp-section-title">About This Project</h2>
+                    <p id="pdp-desc" class="pdp-description"></p>
+                </section>
+
+                <section class="pdp-section">
+                    <h2 class="pdp-section-title">Play / Download</h2>
+                    <div id="pdp-links" class="pdp-links"></div>
+                </section>
+
+                <section class="pdp-section">
+                    <h2 class="pdp-section-title">Screenshots</h2>
+                    <div id="pdp-gallery" class="pdp-gallery"></div>
+                </section>
+            </div>
+
+            <aside class="pdp-right">
+                <div class="pdp-card">
+                    <h3 class="pdp-card-title">Project Details</h3>
+                    <div id="pdp-details" class="pdp-details"></div>
+                </div>
+
+                <div class="pdp-card">
+                    <h3 class="pdp-card-title">Technologies</h3>
+                    <div id="pdp-tech" class="pdp-tech"></div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-copy">Made with coffee & Unity</p>
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
+                <a href="https://itch.io" target="_blank" class="footer-link">Itch.io</a>
+                <a href="mailto:ryanjhider@gmail.com" class="footer-link">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // Firebase config
+    var firebaseConfig = window.FIREBASE_CONFIG;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var projectId = urlParams.get('id');
+        
+        if (!projectId) {
+            document.getElementById('pdp-title').textContent = 'Project Not Found';
+            return;
+        }
+        
+        // Try Firebase first
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+            
+            db.collection('projects').doc(projectId).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    renderProject(doc.data());
+                } else {
+                    // Fallback to JSON
+                    loadFromJSON(projectId);
+                }
+            })
+            .catch(function(e) {
+                console.log('Firebase error, fallback to JSON:', e);
+                loadFromJSON(projectId);
+            });
+        } catch(e) {
+            loadFromJSON(projectId);
+        }
+    });
+    
+    function loadFromJSON(projectId) {
+        fetch('data/projects.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var project = data.projects.find(function(p) { return p.id === projectId });
+            if (project) {
+                renderProject(project);
+            } else {
+                document.getElementById('pdp-title').textContent = 'Project Not Found';
+            }
+        })
+        .catch(function(e) {
+            console.error('Error:', e);
+            document.getElementById('pdp-title').textContent = 'Error Loading';
+        });
+    }
+    
+    function renderProject(p) {
+        document.getElementById('pdp-title').textContent = p.title || 'Untitled';
+        
+        var subtitle = (p.year || '2024') + ' // ' + (p.platform || 'PC');
+        if (p.status === 'draft') subtitle += ' // DRAFT';
+        document.getElementById('pdp-subtitle').textContent = subtitle;
+        
+        // Media
+        var media = document.getElementById('pdp-media');
+        media.innerHTML = '';
+        
+        if (p.video) {
+            var videoId = extractVideoId(p.video);
+            if (videoId) media.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen></iframe>';
+            else if (p.thumbnail) media.innerHTML = '<img src="' + p.thumbnail + '">';
+            else media.innerHTML = '<div class="pdp-media-placeholder">🎮</div>';
+        } else if (p.thumbnail) {
+            media.innerHTML = '<img src="' + p.thumbnail + '">';
+        } else {
+            media.innerHTML = '<div class="pdp-media-placeholder">🎮</div>';
+        }
+        
+        // Pills
+        var pills = document.getElementById('pdp-pills');
+        var pillData = [];
+        
+        if (p.tags) {
+            p.tags.forEach(function(t) {
+                if (typeof t === 'object' && t.category === 'engine') pillData.push(t.name);
+                if (typeof t === 'object' && t.category === 'genre') pillData.push(t.name);
+            });
+        }
+        if (p.mode) pillData.push(p.mode);
+        
+        pills.innerHTML = pillData.map(function(pill) {
+            return '<span class="pdp-pill">' + pill + '</span>';
+        }).join('');
+        
+        // Description
+        document.getElementById('pdp-desc').textContent = p.descriptionLong || p.description || '';
+        
+        // Links
+        var linksContainer = document.getElementById('pdp-links');
+        linksContainer.innerHTML = '';
+        
+        var hasLinks = false;
+        
+        // Handle both array format [{type, url}] and object format {type: url}
+        var links = p.links || [];
+        if (typeof p.links === 'object' && !Array.isArray(p.links)) {
+            links = Object.keys(p.links).map(function(key) {
+                return { type: key, url: p.links[key] };
+            });
+        }
+        
+        links.forEach(function(link) {
+            if (link.url && link.url.trim() !== '') {
+                var btn = document.createElement('a');
+                btn.href = link.url;
+                btn.className = 'pdp-link-btn';
+                
+                var label = link.type || 'Link';
+                if (link.type === 'googleplay') label = 'Google Play';
+                else if (link.type === 'steam') label = 'Steam';
+                else if (link.type === 'itchio') label = 'Itch.io';
+                else if (link.type === 'itch') label = 'Itch.io';
+                else if (link.type === 'github') label = 'GitHub';
+                else if (link.type === 'demo') label = 'Download Demo';
+                
+                btn.textContent = label;
+                btn.target = '_blank';
+                linksContainer.appendChild(btn);
+                hasLinks = true;
+            }
+        });
+        
+        if (!hasLinks) {
+            linksContainer.innerHTML = '<span class="pdp-no-links">No download links available</span>';
+        }
+        
+        // Details
+        var detailsContainer = document.getElementById('pdp-details');
+        detailsContainer.innerHTML = '';
+        
+        var detailsData = [];
+        
+        if (p.date) detailsData.push({ label: 'Release', value: p.date });
+        if (p.year) detailsData.push({ label: 'Year', value: p.year });
+        if (p.platform) detailsData.push({ label: 'Platform', value: p.platform });
+        if (p.status) detailsData.push({ label: 'Status', value: p.status === 'published' ? 'Released' : 'Draft' });
+        if (p.featured) detailsData.push({ label: 'Featured', value: 'Yes' });
+        
+        if (p.tags) {
+            p.tags.forEach(function(t) {
+                if (typeof t === 'object' && t.category === 'role') {
+                    detailsData.push({ label: 'My Role', value: t.name });
+                }
+            });
+        }
+        if (p.team) detailsData.push({ label: 'Team', value: p.team });
+        if (p.context) detailsData.push({ label: 'Context', value: p.context });
+        if (p.duration) detailsData.push({ label: 'Duration', value: p.duration });
+        
+        if (p.tags) {
+            var langs = [];
+            p.tags.forEach(function(t) {
+                if (typeof t === 'object' && t.category === 'language') langs.push(t.name);
+            });
+            if (langs.length > 0) detailsData.push({ label: 'Languages', value: langs.join(', ') });
+        }
+        
+        detailsData.forEach(function(d) {
+            var row = document.createElement('div');
+            row.className = 'pdp-detail-row';
+            row.innerHTML = '<span class="pdp-detail-label">' + d.label + '</span><span class="pdp-detail-value">' + d.value + '</span>';
+            detailsContainer.appendChild(row);
+        });
+        
+        // Tech
+        var techContainer = document.getElementById('pdp-tech');
+        techContainer.innerHTML = '';
+        
+        if (p.tags && p.tags.length > 0) {
+            p.tags.forEach(function(t) {
+                var tag = document.createElement('span');
+                tag.className = 'pdp-tech-tag';
+                tag.textContent = typeof t === 'object' ? t.name : t;
+                techContainer.appendChild(tag);
+            });
+        }
+        
+        // Gallery
+        var galleryContainer = document.getElementById('pdp-gallery');
+        galleryContainer.innerHTML = '';
+        
+        if (p.images && p.images.length > 0) {
+            p.images.forEach(function(img) {
+                var item = document.createElement('div');
+                item.className = 'pdp-gallery-item';
+                item.innerHTML = '<img src="' + img + '" alt="Screenshot">';
+                galleryContainer.appendChild(item);
+            });
+        }
+    }
+    
+    function extractVideoId(video) {
+        if (!video) return null;
+        if (video.includes('youtube.com/watch?v=')) {
+            var match = video.match(/v=([^&]+)/);
+            return match ? match[1] : null;
+        }
+        if (video.includes('youtu.be/')) {
+            var match = video.match(/youtu\.be\/([^?]+)/);
+            return match ? match[1] : null;
+        }
+        if (video.includes('youtube.com/embed/')) {
+            var match = video.match(/embed\/([^?]+)/);
+            return match ? match[1] : null;
+        }
+        if (video.length === 11) return video;
+        return null;
+    }
+    </script>
+</body>
+</html>

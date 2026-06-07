@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0d0808"/>
+  <rect x="100" y="80" width="1080" height="560" fill="#1a1010" stroke="#ff3366" stroke-width="3" rx="5"/>
+  <text x="640" y="130" font-family="Arial" font-size="28" fill="#ff3366" text-anchor="middle" font-weight="bold">SHADOW REALMS</text>
+  <text x="640" y="160" font-family="Arial" font-size="14" fill="#8a8a9a" text-anchor="middle">Gameplay Preview</text>
+  <!-- Castle background -->
+  <polygon points="200,600 250,400 300,600" fill="#2d1b1b"/>
+  <polygon points="350,600 420,350 490,600" fill="#2d1b1b"/>
+  <polygon points="1000,600 1050,420 1100,600" fill="#2d1b1b"/>
+  <polygon points="900,600 950,380 1000,600" fill="#2d1b1b"/>
+  <!-- Trees -->
+  <circle cx="150" cy="500" r="30" fill="#0a1a0a"/>
+  <circle cx="500" cy="520" r="25" fill="#0a1a0a"/>
+  <circle cx="700" cy="510" r="35" fill="#0a1a0a"/>
+  <circle cx="1100" cy="530" r="28" fill="#0a1a0a"/>
+  <!-- Fog effect -->
+  <rect x="100" y="450" width="1080" height="150" fill="#ff3366" opacity="0.05"/>
+</svg>

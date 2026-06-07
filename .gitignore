@@ -1,1 +1,17 @@
-.aider*
+# Environment variables and local config (CONTIENT LES CREDENTIALS)
+.env.local
+.env.production
+js/config.js
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase (ne pas commiter la db locale)
+.firebase/

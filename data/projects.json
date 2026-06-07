@@ -1,0 +1,207 @@
+{
+  "projects": [
+    {
+      "id": "rocket-landing",
+      "title": "Rocket Landing",
+      "description": "A mobile game where players must safely land a rocket on a platform, testing their reflexes and precision. Over 1k downloads on Play Store.",
+      "descriptionLong": "Rocket Landing is a mobile game where players must safely land a rocket on a platform, testing their reflexes and precision. The game features various difficulty levels and has achieved over 1k downloads on the Play Store.",
+      "year": "2022",
+      "date": "2022",
+      "status": "published",
+      "featured": true,
+      "video": "https://www.youtube.com/embed/Ar9nVtMJKYs",
+      "thumbnail": "data/import/RocketLanding/RocketLandingStorePage.png",
+      "images": [
+        "data/import/RocketLanding/RocketLandingStorePage.png",
+        "data/import/RocketLanding/RocketLandingStorePage2.png",
+        "data/import/RocketLanding/RocketLandingStorePage3.png",
+        "data/import/RocketLanding/RocketLandingLevels.png",
+        "data/import/RocketLanding/RocketLandingTuto.png"
+      ],
+      "tags": [
+        {"name": "Mobile Development", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Game Design", "category": "tool"},
+        {"name": "UI/UX", "category": "tool"}
+      ],
+      "links": [
+        {"type": "googleplay", "url": "https://play.google.com/store/apps/details?id=com.Rakemy.RocketLanding"}
+      ],
+      "platform": "Android"
+    },
+    {
+      "id": "silent-pit",
+      "title": "Silent Pit",
+      "description": "A first-person horror game set in a deep pit and a rusted underground facility. Restore power and escape... but the monster hears you.",
+      "descriptionLong": "Silent Pit is a first-person horror game set in a deep pit and a rusted underground facility. Players must restore power and escape, but the monster can hear them. Features advanced AI behavior, custom shaders, and atmospheric lighting.",
+      "year": "2024",
+      "date": "2024",
+      "status": "published",
+      "featured": true,
+      "video": "",
+      "thumbnail": "data/import/SilentPit/SilentPit.png",
+      "images": [
+        "data/import/SilentPit/SilentPit.png",
+        "data/import/SilentPit/SilentPit1.png",
+        "data/import/SilentPit/SilentPitMonster.png"
+      ],
+      "tags": [
+        {"name": "Game Design & Programming", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Shader Graph", "category": "tool"},
+        {"name": "AI Behavior", "category": "tool"},
+        {"name": "Lighting", "category": "tool"},
+        {"name": "FMOD", "category": "tool"}
+      ],
+      "links": [
+        {"type": "itchio", "url": "https://ryanjhider.itch.io/silentpit"}
+      ],
+      "platform": "PC (Windows)",
+      "genre": "Horror, Survival"
+    },
+    {
+      "id": "zombiex",
+      "title": "ZombieX",
+      "description": "A co-op isometric shooter where you and your team fight endless waves of zombies. Survive, upgrade, and push back the horde - before it's too late.",
+      "descriptionLong": "ZombieX is a co-op isometric shooter where players fight endless waves of zombies. Features online multiplayer for 4 players, custom shaders, Steamworks integration, and mirror networking.",
+      "year": "2024",
+      "date": "2024",
+      "status": "published",
+      "featured": true,
+      "video": "",
+      "thumbnail": "data/import/ZombieX/ZombieX.png",
+      "images": [
+        "data/import/ZombieX/ZombieX.png"
+      ],
+      "tags": [
+        {"name": "Game Design & Programming", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Mirror Networking", "category": "tool"},
+        {"name": "Steamworks API", "category": "tool"},
+        {"name": "MultiPlayer", "category": "tool"},
+        {"name": "Custom Shaders", "category": "tool"}
+      ],
+      "links": [
+        {"type": "steam", "url": ""}
+      ],
+      "platform": "PC (Steam)",
+      "mode": "Online Multiplayer (4 players)"
+    },
+    {
+      "id": "heistgaard",
+      "title": "Heistgaard",
+      "description": "A 2D platformer where you play as a skilled thief working for Loki. Your mission: steal Thor's relic while evading traps and enemies.",
+      "descriptionLong": "Heistgaard is a 2D platformer where players play as a skilled thief working for Loki. The mission: steal Thor's relic while evading traps and enemies. A relentless boss pursues the player throughout the heist. A 12-developer team project completed in 2 months as part of school curriculum.",
+      "year": "2025",
+      "date": "2025",
+      "status": "published",
+      "featured": true,
+      "video": "https://www.youtube.com/embed/mSy0oi2AtG0",
+      "thumbnail": "data/import/Heistgaard/HeistGaard.png",
+      "images": [
+        "data/import/Heistgaard/HeistGaard.png",
+        "data/import/Heistgaard/HeistGaardScreen.png",
+        "data/import/Heistgaard/HeistGaardScreen2.png"
+      ],
+      "tags": [
+        {"name": "Game Design & Programming", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Post-processing", "category": "tool"},
+        {"name": "Cinematics", "category": "tool"},
+        {"name": "Audio", "category": "tool"},
+        {"name": "Level Design", "category": "tool"}
+      ],
+      "links": [
+        {"type": "itchio", "url": "https://labriquerouge.itch.io/heistg"}
+      ],
+      "platform": "PC (Steam)",
+      "team": "12 developers",
+      "duration": "2-month school project"
+    },
+    {
+      "id": "mislender",
+      "title": "Mislender",
+      "description": "A multiplayer horror game with proximity chat where players must work together to fix their broken car and escape the haunted forest.",
+      "descriptionLong": "Mislender is a multiplayer horror game with proximity chat where players must work together to fix their broken car and escape the haunted forest. AI creatures track players using sound and movement - work together quietly or risk being hunted down. A solo project.",
+      "year": "2024",
+      "date": "2024",
+      "status": "published",
+      "featured": true,
+      "video": "",
+      "thumbnail": "data/import/Mislender/Mislender.png",
+      "images": [
+        "data/import/Mislender/Mislender.png"
+      ],
+      "tags": [
+        {"name": "Game Design & Programming", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Mirror Networking", "category": "tool"},
+        {"name": "Vivox", "category": "tool"},
+        {"name": "Steam Integration", "category": "tool"},
+        {"name": "Proximity Chat", "category": "tool"},
+        {"name": "MultiPlayer", "category": "tool"},
+        {"name": "AI Behavior", "category": "tool"}
+      ],
+      "links": [
+        {"type": "steam", "url": ""}
+      ],
+      "platform": "PC (Steam)",
+      "team": "Solo project"
+    },
+    {
+      "id": "slender-multiplayer",
+      "title": "SlenderMultiplayer",
+      "description": "A multiplayer horror game where players work together to collect pages while being hunted by Slender. Features proximity chat and randomized map layouts.",
+      "descriptionLong": "SlenderMultiplayer is a multiplayer horror game where players work together to collect pages while being hunted by Slender. Features proximity chat and randomized map layouts for replayability.",
+      "year": "2024",
+      "date": "2024",
+      "status": "published",
+      "featured": false,
+      "video": "",
+      "thumbnail": "data/import/SlenderMultiplayer/SlenderMultiplayer.png",
+      "images": [
+        "data/import/SlenderMultiplayer/SlenderMultiplayer.png"
+      ],
+      "tags": [
+        {"name": "Game Design & Programming", "category": "role"},
+        {"name": "Unity", "category": "engine"},
+        {"name": "C#", "category": "language"},
+        {"name": "Mirror Networking", "category": "tool"},
+        {"name": "Proximity Chat", "category": "tool"},
+        {"name": "MultiPlayer", "category": "tool"},
+        {"name": "AI Behavior", "category": "tool"},
+        {"name": "Procedural Generation", "category": "tool"}
+      ],
+      "links": [],
+      "platform": "PC",
+      "team": "Solo project"
+    }
+  ],
+  "profile": {
+    "name": "Ryan Jhider",
+    "title": "Game Design & Programming Student",
+    "school": "ISART Digital",
+    "location": "France",
+    "bio": "Passionate game developer specializing in Unity, C#, and multiplayer systems.",
+    "description": "3rd year Game Design & Programming student at ISART Digital. Specialized in Unity, C#, multiplayer systems, and horror game design.",
+    "avatar": "",
+    "skills": {
+      "engines": ["Unity", "Godot"],
+      "languages": ["C#", "C++", "Python"],
+      "tools": ["Blender", "Git", "FMOD", "Shader Graph"],
+      "softSkills": ["Teamwork", "Problem Solving", "Time Management"]
+    },
+    "social": {
+      "github": "",
+      "linkedin": "linkedin.com/in/ryan-jhider",
+      "itchio": "",
+      "twitter": "",
+      "email": "ryanjhider@gmail.com"
+    }
+  }
+}

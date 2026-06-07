@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0d1117"/>
+  <rect x="340" y="150" width="600" height="420" fill="#1a1a2a" stroke="#9966ff" stroke-width="3" rx="10"/>
+  <circle cx="540" cy="300" r="80" fill="#9966ff" opacity="0.3"/>
+  <circle cx="540" cy="300" r="50" fill="#9966ff" opacity="0.5"/>
+  <circle cx="540" cy="300" r="25" fill="#9966ff"/>
+  <circle cx="740" cy="300" r="80" fill="#00ffcc" opacity="0.3"/>
+  <circle cx="740" cy="300" r="50" fill="#00ffcc" opacity="0.5"/>
+  <circle cx="740" cy="300" r="25" fill="#00ffcc"/>
+  <line x1="565" y1="300" x2="715" y2="300" stroke="#fff" stroke-width="4" stroke-dasharray="10,5"/>
+  <text x="640" y="520" font-family="Arial" font-size="18" fill="#9966ff" text-anchor="middle">NEURAL BATTLE - AI TRAINING</text>
+  <text x="640" y="550" font-family="Arial" font-size="12" fill="#8a8a9a" text-anchor="middle">AI learns from player patterns in real-time</text>
+</svg>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Ryan Jhider</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-panel">
+            <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="projects.html" class="nav-link active">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+            </ul>
+            <div class="header-actions">
+                <a href="mailto:ryanjhider@gmail.com" class="cta-btn">Contact</a>
+                <a href="admin.html" class="cta-btn admin-btn">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Projects -->
+    <section class="projects-section" style="padding-top: 8rem;">
+        <div class="section-header">
+            <h2 class="section-title">All Projects</h2>
+        </div>
+        <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+        <div class="projects-grid" id="projects-list">
+            <!-- Projects loaded via JS -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-copy">Made with coffee & Unity</p>
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
+                <a href="https://itch.io" target="_blank" class="footer-link">Itch.io</a>
+                <a href="mailto:ryanjhider@gmail.com" class="footer-link">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

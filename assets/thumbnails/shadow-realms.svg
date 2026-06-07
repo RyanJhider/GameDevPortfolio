@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d1b1b"/>
+      <stop offset="100%" style="stop-color:#1a0a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg2)"/>
+  <circle cx="100" cy="100" r="80" fill="#ff3366" opacity="0.3"/>
+  <circle cx="1100" cy="600" r="120" fill="#000" opacity="0.5"/>
+  <text x="640" y="360" font-family="Arial" font-size="48" fill="#ff3366" text-anchor="middle" font-weight="bold">SHADOW REALMS</text>
+  <text x="640" y="400" font-family="Arial" font-size="16" fill="#8a8a9a" text-anchor="middle">Dark Fantasy RPG</text>
+</svg>
