@@ -10,13 +10,13 @@
       "status": "published",
       "featured": true,
       "video": "https://www.youtube.com/embed/Ar9nVtMJKYs",
-      "thumbnail": "data/import/RocketLanding/RocketLandingStorePage.png",
+      "thumbnail": "images/RocketLanding/RocketLandingStorePage.png",
       "images": [
-        "data/import/RocketLanding/RocketLandingStorePage.png",
-        "data/import/RocketLanding/RocketLandingStorePage2.png",
-        "data/import/RocketLanding/RocketLandingStorePage3.png",
-        "data/import/RocketLanding/RocketLandingLevels.png",
-        "data/import/RocketLanding/RocketLandingTuto.png"
+        "images/RocketLanding/RocketLandingStorePage.png",
+        "images/RocketLanding/RocketLandingStorePage2.png",
+        "images/RocketLanding/RocketLandingStorePage3.png",
+        "images/RocketLanding/RocketLandingLevels.png",
+        "images/RocketLanding/RocketLandingTuto.png"
       ],
       "tags": [
         {"name": "Mobile Development", "category": "role"},
@@ -40,11 +40,11 @@
       "status": "published",
       "featured": true,
       "video": "",
-      "thumbnail": "data/import/SilentPit/SilentPit.png",
+      "thumbnail": "images/SilentPit/SilentPit.png",
       "images": [
-        "data/import/SilentPit/SilentPit.png",
-        "data/import/SilentPit/SilentPit1.png",
-        "data/import/SilentPit/SilentPitMonster.png"
+        "images/SilentPit/SilentPit.png",
+        "images/SilentPit/SilentPit1.png",
+        "images/SilentPit/SilentPitMonster.png"
       ],
       "tags": [
         {"name": "Game Design & Programming", "category": "role"},
@@ -71,9 +71,9 @@
       "status": "published",
       "featured": true,
       "video": "",
-      "thumbnail": "data/import/ZombieX/ZombieX.png",
+      "thumbnail": "images/ZombieX/ZombieX.png",
       "images": [
-        "data/import/ZombieX/ZombieX.png"
+        "images/ZombieX/ZombieX.png"
       ],
       "tags": [
         {"name": "Game Design & Programming", "category": "role"},
@@ -100,11 +100,11 @@
       "status": "published",
       "featured": true,
       "video": "https://www.youtube.com/embed/mSy0oi2AtG0",
-      "thumbnail": "data/import/Heistgaard/HeistGaard.png",
+      "thumbnail": "images/Heistgaard/HeistGaard.png",
       "images": [
-        "data/import/Heistgaard/HeistGaard.png",
-        "data/import/Heistgaard/HeistGaardScreen.png",
-        "data/import/Heistgaard/HeistGaardScreen2.png"
+        "images/Heistgaard/HeistGaard.png",
+        "images/Heistgaard/HeistGaardScreen.png",
+        "images/Heistgaard/HeistGaardScreen2.png"
       ],
       "tags": [
         {"name": "Game Design & Programming", "category": "role"},
@@ -132,9 +132,9 @@
       "status": "published",
       "featured": true,
       "video": "",
-      "thumbnail": "data/import/Mislender/Mislender.png",
+      "thumbnail": "images/Mislender/Mislender.png",
       "images": [
-        "data/import/Mislender/Mislender.png"
+        "images/Mislender/Mislender.png"
       ],
       "tags": [
         {"name": "Game Design & Programming", "category": "role"},
@@ -163,9 +163,9 @@
       "status": "published",
       "featured": false,
       "video": "",
-      "thumbnail": "data/import/SlenderMultiplayer/SlenderMultiplayer.png",
+      "thumbnail": "images/SlenderMultiplayer/SlenderMultiplayer.png",
       "images": [
-        "data/import/SlenderMultiplayer/SlenderMultiplayer.png"
+        "images/SlenderMultiplayer/SlenderMultiplayer.png"
       ],
       "tags": [
         {"name": "Game Design & Programming", "category": "role"},

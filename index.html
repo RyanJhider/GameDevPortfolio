@@ -11,6 +11,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Config (excluded from Git, see js/config.example.js) -->
+    <script src="js/config.js"></script>
 </head>
 <body>
     <!-- Loading - FAST -->
@@ -36,9 +38,9 @@
 
     <!-- Hero - NO 3 Cards -->
     <section class="hero">
-        <span class="hero-badge">ISART DIGITAL // 3RD YEAR</span>
+        <span class="hero-badge">ISART DIGITAL // <span class="profile-school">3RD YEAR</span></span>
         <h1 class="hero-title">Building Games<br><span class="highlight">That Matter</span></h1>
-        <p class="hero-subtitle">Game Design & Programming student specializing in Unity, multiplayer networking, AI behavior systems, and horror game design.</p>
+        <p class="hero-subtitle profile-description">Game Design & Programming student specializing in Unity, multiplayer networking, AI behavior systems, and horror game design.</p>
         <div class="hero-ctas">
             <a href="projects.html" class="btn btn-primary">View Projects</a>
             <a href="about.html" class="btn btn-outline">About Me</a>
@@ -57,11 +59,11 @@
                 <span class="stat-label">Featured</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value" id="years-experience">3</span>
+                <span class="stat-value" id="years-experience">0</span>
                 <span class="stat-label">Years</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value">ISART</span>
+                <span class="stat-value profile-school">ISART</span>
                 <span class="stat-label">School</span>
             </div>
         </div>
@@ -73,8 +75,8 @@
             <h2 class="section-title">Featured Projects</h2>
             <a href="projects.html" class="section-link">View All →</a>
         </div>
-        <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">All</button>
+        <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-tag="__clear">All</button>
         </div>
         <div class="projects-grid" id="projects-list">
             <!-- Projects loaded via JS -->
@@ -90,30 +92,38 @@
             <div class="skills-grid">
                 <div class="skill-group">
                     <h3>Engines</h3>
-                    <div class="skill-item">Unity</div>
-                    <div class="skill-item">Unreal Engine</div>
-                    <div class="skill-item">Godot</div>
+                    <div class="skills-engines">
+                        <div class="skill-item">Unity</div>
+                        <div class="skill-item">Unreal Engine</div>
+                        <div class="skill-item">Godot</div>
+                    </div>
                 </div>
                 <div class="skill-group">
                     <h3>Languages</h3>
-                    <div class="skill-item">C#</div>
-                    <div class="skill-item">C++</div>
-                    <div class="skill-item">Python</div>
-                    <div class="skill-item">JavaScript</div>
+                    <div class="skills-languages">
+                        <div class="skill-item">C#</div>
+                        <div class="skill-item">C++</div>
+                        <div class="skill-item">Python</div>
+                        <div class="skill-item">JavaScript</div>
+                    </div>
                 </div>
                 <div class="skill-group">
                     <h3>Tools</h3>
-                    <div class="skill-item">Blender</div>
-                    <div class="skill-item">Git</div>
-                    <div class="skill-item">FMOD</div>
-                    <div class="skill-item">Aseprite</div>
+                    <div class="skills-tools">
+                        <div class="skill-item">Blender</div>
+                        <div class="skill-item">Git</div>
+                        <div class="skill-item">FMOD</div>
+                        <div class="skill-item">Aseprite</div>
+                    </div>
                 </div>
                 <div class="skill-group">
                     <h3>Specialties</h3>
-                    <div class="skill-item">Multiplayer</div>
-                    <div class="skill-item">AI Behavior</div>
-                    <div class="skill-item">Horror Design</div>
-                    <div class="skill-item">Networking</div>
+                    <div class="skills-soft">
+                        <div class="skill-item">Multiplayer</div>
+                        <div class="skill-item">AI Behavior</div>
+                        <div class="skill-item">Horror Design</div>
+                        <div class="skill-item">Networking</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,14 +134,16 @@
         <div class="footer-content">
             <p class="footer-copy">Made with coffee & Unity</p>
             <div class="footer-links">
-                <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
-                <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
-                <a href="https://itch.io" target="_blank" class="footer-link">Itch.io</a>
-                <a href="mailto:ryanjhider@gmail.com" class="footer-link">Email</a>
+                <a href="https://github.com" target="_blank" class="footer-link social-github" rel="noopener noreferrer">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" class="footer-link social-linkedin" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://itch.io" target="_blank" class="footer-link social-itchio" rel="noopener noreferrer">Itch.io</a>
+                <a href="mailto:ryanjhider@gmail.com" class="footer-link social-email">Email</a>
             </div>
         </div>
     </footer>
 
+    <script src="js/utils.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

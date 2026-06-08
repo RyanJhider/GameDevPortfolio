@@ -1,279 +1,255 @@
-# 🎮 Portfolio ISART Digital
+# Portfolio ISART Digital
 
-Portfolio étudiant pour un étudiant en **Game Design & Programming** à ISART Digital - 3ème année.
+Portfolio etudiant pour un etudiant en **Game Design & Programming** a ISART Digital - 3eme annee.
 
-![Portfolio Preview](https://img.shields.io/badge/Status-Actif-green) ![Firebase](https://img.shields.io/badge/Storage-Firebase_Firestore-blue)
-
----
-
-## ✨ Fonctionnalités
-
-- 🎨 **Design moderne** avec thème sombre cyberpunk
-- ✨ **Animations fluides** (particules, typing effect, scroll animations)
-- 🔥 **Firebase Firestore** - Base de données cloud en temps réel
-- ⚙️ **Admin Panel** - Interface d'administration pour gérer le contenu
-- 🏷️ **Système de tags** par catégorie (Rôle, Moteur, Langage, Outil)
-- 🎥 **Support vidéo** (YouTube embeds, vidéos locales)
-- 📷 **Galerie photos** par projet
-- 🔍 **Filtrage des projets** par catégorie
-- 📱 **Responsive design** (mobile, tablette, desktop)
+Theme visuel : **PS2 Horror** (phosphor vert + blood rouge sur void noir, grain de film, scanlines CRT).
 
 ---
 
-## 🏗️ Architecture
+## Pages
 
-```
-Portfolio ISART
-├── Firebase Firestore (Cloud)
-│   ├── collection: "profile" (document: "main")
-│   └── collection: "projects" (documents individuels)
-│
-└── Fichiers locaux
-    ├── index.html      # Accueil (Hero + Featured Projects + About)
-    ├── projects.html   # Tous les projets
-    ├── project.html    # Détail d'un projet (?id=xxx)
-    ├── about.html      # Page À propos
-    ├── admin.html      # Panel d'administration
-    ├── css/style.css   # Styles
-    └── js/main.js      # Logique Firebase + affichage
-```
+| Route | Description |
+|-------|-------------|
+| `index.html` | Hero + Stats + Featured Projects + Skills (profil Firestore) |
+| `projects.html` | Tous les projets + filtre dynamique multi-tags |
+| `project.html?id=xxx` | Detail projet (video YouTube, galerie, liens, tags) |
+| `about.html` | Bio + timeline education (profil Firestore) |
+| `admin.html` | Auth Firebase + CRUD projets + edition profil |
 
 ---
 
-## ⚙️ Configuration Firebase
+## Stack
 
-### Variables d'environnement (dans chaque HTML)
+- **Frontend** : HTML5, CSS3, JavaScript ES5 (Firebase v8 compat)
+- **Backend** : Firebase Firestore (NoSQL cloud)
+- **Auth** : Firebase Authentication (email/password)
+- **Hebergement** : Firebase Hosting
+- **Images** : base64 compressees cote client avant envoi Firestore
 
-```javascript
-var FIREBASE_CONFIG = {
-    apiKey: "VOTRE_API_KEY",
-    authDomain: "mon-portfolio.firebaseapp.com",
-    projectId: "mon-portfolio",
-    storageBucket: "mon-portfolio.firebasestorage.app",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc123"
-};
+### Police et theme
+
+- Titres : **Bebas Neue** (uppercase, large)
+- Corps : **Space Grotesk**
+- Labels / monospace : **Share Tech Mono**
+
+Couleurs :
+- Fond : `#0a0908` (void noir)
+- Surface : `#1c1e1a`
+- Texte : `#e2d8c8` (creme)
+- Accent phosphor : `#3dff5e`
+- Accent blood : `#7a1515`
+
+### Effets
+
+- Grain de film anime (body::before)
+- Scanlines CRT (body::after)
+- Hover avec glow phosphor
+- Loading screen "INITIALIZING..." (600ms)
+
+---
+
+## Structure
+
 ```
-
-### Structure Firestore
-
-```
-Firestore Database
-│
-├── profile (collection)
-│   └── main (document)
-│       ├── name: "Ryan Jhider"
-│       ├── title: "Game Design & Programming Student"
-│       ├── bio: "Passionate game developer..."
-│       ├── description: "3rd year student..."
-│       ├── avatar: "url vers image"
-│       ├── location: "France"
-│       ├── school: "ISART Digital"
-│       ├── skills: {
-│       │   ├── engines: ["Unity", "Godot"]
-│       │   ├── languages: ["C#", "C++", "Python"]
-│       │   ├── tools: ["Blender", "Git", "FMOD"]
-│       │   └── softSkills: ["Teamwork", "Problem Solving"]
-│       │   }
-│       └── social: {
-│           ├── github: "https://github.com/..."
-│           ├── linkedin: "https://linkedin.com/..."
-│           ├── itchio: "https://itch.io/..."
-│           ├── email: "email@gmail.com"
-│           └── twitter: "https://twitter.com/..."
-│           }
-│
-└── projects (collection)
-    └── {project-id} (documents)
-        ├── id: "nebula-drift"
-        ├── title: "Nebula Drift"
-        ├── description: "Short description"
-        ├── descriptionLong: "Long description..."
-        ├── thumbnail: "url vers image"
-        ├── video: "url vidéo ou YouTube embed"
-        ├── gallery: ["url1", "url2", ...]
-        ├── tags: [
-        │   {name: "Lead Programmer", category: "role"},
-        │   {name: "Unity", category: "engine"},
-        │   {name: "C#", category: "language"}
-        │ ]
-        ├── links: {
-        │   itchio: "https://itch.io/...",
-        │   github: "https://github.com/...",
-        │   playstore: "https://play.google.com/...",
-        │   web: "https://web-url.com"
-        │   }
-        ├── date: "2024"
-        └── featured: true
+.
+├── index.html
+├── projects.html
+├── project.html
+├── about.html
+├── admin.html
+├── css/
+│   ├── style.css         # Theme PS2 Horror (public)
+│   └── admin.css         # Dashboard admin
+├── js/
+│   ├── utils.js          # Helpers partages (escape, safeUrl, tags, links)
+│   ├── main.js           # Home + projects (filtre tags, stats)
+│   ├── project.js        # Page detail projet
+│   ├── profile.js        # Charge le profil Firestore -> DOM
+│   ├── admin.js          # Dashboard admin (auth + CRUD + compression)
+│   └── config.example.js # Template de config Firebase
+├── data/
+│   └── projects.json     # Donnees de demo (fallback)
+├── images/               # Screenshots projets (utilises par data/projects.json)
+├── firestore.rules       # Regles de securite Firestore
+├── DESIGN_BIBLE_PORTFOLIO_PS2_HORROR.md
+└── README.md
 ```
 
 ---
 
-## 🎛️ Panel Admin
+## Configuration Firebase
 
-Le fichier `admin.html` fournit une interface pour gérer le contenu :
+1. Creer un projet Firebase
+2. Activer **Firestore Database** et **Authentication** (Email/Password)
+3. Copier `js/config.example.js` vers `js/config.js` et remplir les valeurs
+4. Deployer les regles Firestore (voir `firestore.rules`)
 
-### Fonctionnalités
+```bash
+cp js/config.example.js js/config.js
+# Editer js/config.js avec vos identifiants
+```
 
-- 📤 **Importer un profil** - Chargement depuis JSON local vers Firestore
-- ➕ **Ajouter un projet** - Création d'un nouveau projet
-- ✏️ **Modifier un projet** - Édition d'un projet existant
-- 🗑️ **Supprimer un projet** - Suppression d'un projet
-- 👁️ **Aperçu** - Visualisation rapide
+`js/config.js` est dans `.gitignore` : ne jamais le committer.
 
-### Accès
+### Regles Firestore
 
-1. Ouvrez `admin.html` dans votre navigateur
-2. Cliquez sur les boutons d'action
+`firestore.rules` (resume) :
+- `projects` : lecture publique, ecriture authentifiee
+- `profile` : lecture publique, ecriture authentifiee
 
 ---
 
-## 🚀 Déploiement
+## Developpement local
 
-### Option 1: Hébergement Firebase
+```bash
+# Servir le dossier racine
+node test-server.js
+# Ou avec Python
+python -m http.server 8000
+```
+
+Puis ouvrir <http://127.0.0.1:8000> (ou le port utilise).
+
+Sans Firebase configure, le site fonctionne en mode **fallback JSON** :
+`data/projects.json` alimente les pages publiques.
+
+---
+
+## Fonctionnement du tag filter (projects.html)
+
+1. Les projets sont charges depuis Firestore (ou `data/projects.json`)
+2. La barre de filtres est generee dynamiquement : un bouton par tag unique
+3. Les tags sont groupes par categorie (engine, language, role, genre, platform, tool, other)
+4. Cliquer un tag l'ajoute/retire de la selection (multi-select, logique **OR**)
+5. Bouton "All" : reset
+6. Le projet est affiche s'il possede **au moins un** des tags actifs
+
+Implementation : `js/main.js` → fonction `buildFilterBar()`.
+
+---
+
+## Schema Firestore
+
+### `profile` / `main` (document)
+
+```json
+{
+  "name": "Ryan Jhider",
+  "title": "Game Design & Programming Student",
+  "school": "ISART Digital",
+  "location": "France",
+  "bio": "...",
+  "description": "...",
+  "avatar": "data:image/jpeg;base64,...",
+  "skills": {
+    "engines": ["Unity", "Godot"],
+    "languages": ["C#", "C++"],
+    "tools": ["Blender", "Git"],
+    "softSkills": ["Teamwork"]
+  },
+  "social": {
+    "github": "https://...",
+    "linkedin": "https://...",
+    "itchio": "https://...",
+    "email": "ryanjhider@gmail.com"
+  }
+}
+```
+
+### `projects` / `{id}` (document)
+
+```json
+{
+  "id": "heistgaard",
+  "title": "Heistgaard",
+  "description": "Court",
+  "descriptionLong": "Long...",
+  "year": "2025",
+  "date": "2025",
+  "platform": "PC (Steam)",
+  "status": "published",
+  "featured": true,
+  "video": "https://www.youtube.com/embed/...",
+  "thumbnail": "data:image/jpeg;base64,...",
+  "images": ["data:image/jpeg;base64,..."],
+  "tags": [
+    {"name": "Unity", "category": "engine"},
+    {"name": "C#", "category": "language"},
+    {"name": "Game Design & Programming", "category": "role"}
+  ],
+  "links": [
+    {"type": "itchio", "url": "https://labriquerouge.itch.io/heistg"}
+  ],
+  "team": "12 developers",
+  "context": "School",
+  "duration": "2-month school project",
+  "role": "Game Designer & Programmer"
+}
+```
+
+**Couleurs des tags** (`js/utils.js` → `getTagColor`) :
+- `engine` : `#3dff5e` (phosphor vert)
+- `language` : `#4ecdc4` (cyan)
+- `role` : `#a855f7` (violet)
+- `genre` : `#ef4444` (rouge)
+- `platform` : `#f59e0b` (orange)
+- `tool` : `#10b981` (emerald)
+- `other` : `#6b7280` (gris)
+
+---
+
+## Compression des images (admin)
+
+Firestore a une limite stricte de **1 MB par document**. Les images en base64 consomment ~33% de plus.
+
+L'admin compresse cote client avant upload (`js/admin.js` → `compressImage`) :
+- **Thumbnail** : max 600px de large, JPEG q=0.7 → ~30-80 KB
+- **Gallery** : max 1280px de large, JPEG q=0.75 → ~100-200 KB
+- **Avatar** : max 400px de large, JPEG q=0.75 → ~20-50 KB
+
+Un projet typique (1 thumb + 4-5 images gallery) tient dans ~600-900 KB, sous la limite.
+
+**Pas de Firebase Storage** : tout est en base64 dans le document Firestore.
+
+---
+
+## Deploiement
 
 ```bash
 # Installer Firebase CLI
 npm install -g firebase-tools
 
-# Se connecter
+# Login
 firebase login
 
-# Initialiser
-firebase init
+# Init (une seule fois)
+firebase init hosting
 
-# Déployer
+# Deploy
 firebase deploy
 ```
 
-### Option 2: GitHub Pages
+`firebase.json` a ete omis du repo pour eviter d'imposer une config. A generer avec `firebase init`.
+
+---
+
+## Tests / validation
 
 ```bash
-git add .
-git commit -m "Update portfolio"
-git push origin main
+# Syntaxe JS
+node --check js/main.js js/admin.js js/utils.js js/project.js js/profile.js
+
+# Smoke tests
+node test-utils.js
+node test-profile.js
+node test-filter.js
+
+# Test de compression image (ouvrir dans le navigateur)
+# http://localhost:8000/test-image-compress.html
 ```
 
 ---
 
-## 🖥️ Développement local
+## Contact
 
-### Prérequis
-- Node.js (pour Firebase CLI)
-- Navigateur moderne
-- Compte Firebase
-
-### Étapes
-
-1. **Créer un projet Firebase**
-   - Allez sur [firebase.google.com](https://firebase.google.com)
-   - Créez un nouveau projet
-   - Activez Firestore Database
-
-2. **Configurer les règles Firestore**
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /{document=**} {
-         allow read: if true;
-         allow write: if request.auth != null;
-       }
-     }
-   }
-   ```
-
-3. **Lancer en local**
-   ```bash
-   # Avec Python
-   python -m http.server 8000
-   
-   # Ou avec Node
-   npx serve .
-   ```
-
-4. **Ouvrir** `http://localhost:8000`
-
----
-
-## 🎯 Catégories de tags
-
-| Catégorie | Couleur | Exemples |
-|-----------|---------|----------|
-| `role` | 🔴 Rose/Rouge | Lead Programmer, Game Designer |
-| `engine` | 🟠 Orange | Unity, Unreal Engine, Godot |
-| `language` | 🟣 Violet | C#, C++, Python, GDScript |
-| `tool` | 🔵 Teal | Blender, Photoshop, Git |
-
----
-
-## 📁 Structure des fichiers
-
-```
-portfolio/
-├── index.html          # Page d'accueil
-├── projects.html      # Tous les projets
-├── project.html       # Détail d'un projet (?id=xxx)
-├── about.html         # À propos
-├── admin.html         # Panel d'administration
-├── css/
-│   └── style.css      # Styles principaux
-├── js/
-│   ├── main.js        # Logique Firebase + affichage
-│   ├── particles.js   # Animation particules
-│   └── typing.js      # Animation typing
-├── assets/
-│   ├── thumbnails/    # Images miniatures projets
-│   └── projects/     # Images des projets
-├── data/
-│   └── projects.json  # (Legacy - non utilisé)
-├── FIREBASE-GUIDE.md  # Guide Firebase
-├── SPEC.md            # Spécifications techniques
-└── README.md          # Ce fichier
-```
-
----
-
-## 🔧 Personnalisation
-
-### Changer les couleurs
-
-Dans `css/style.css` :
-
-```css
-:root {
-    --accent-primary: #ff3366;
-    --accent-secondary: #00ffcc;
-    --accent-tertiary: #ffaa00;
-}
-```
-
-### Modifier le profil
-
-1. Allez sur [firebase.google.com](https://firebase.google.com)
-2. Accédez à Firestore Database
-3. Modifiez le document `main` dans la collection `profile`
-
-### Ajouter des projets
-
-Via le panel admin (`admin.html`) ou directement dans Firestore.
-
----
-
-## 🛠️ Technologies
-
-- **HTML5** - Structure
-- **CSS3** - Stylage (Variables CSS, Flexbox, Grid)
-- **JavaScript ES6+** - Logique
-- **Firebase Firestore** - Base de données temps réel
-- **Canvas API** - Animation particules
-
----
-
-## 📧 Contact
-
-Pour toute question : ryanjhider@gmail.com
-
----
-
-Fait avec ❤️ pour ISART Digital
+ryanjhider@gmail.com

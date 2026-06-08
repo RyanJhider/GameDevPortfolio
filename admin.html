@@ -11,7 +11,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <!-- Firebase Config (from config.js - excluded from Git) -->
@@ -26,15 +25,23 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="votre@email.com" required>
+                    <input type="email" id="email" placeholder="votre@email.com" autocomplete="username" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
-                    <input type="password" id="password" placeholder="********" required>
+                    <input type="password" id="password" placeholder="********" autocomplete="current-password" required>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
             </form>
             <div id="login-error" class="error-message"></div>
+            <div id="config-help" class="config-help hidden">
+                <p><strong>Configuration requise :</strong></p>
+                <ol>
+                    <li>Copier <code>js/config.example.js</code> en <code>js/config.js</code></li>
+                    <li>Remplir les valeurs depuis la console Firebase</li>
+                    <li>Recharger cette page</li>
+                </ol>
+            </div>
         </div>
     </div>
 
@@ -196,7 +203,7 @@
                         <h2>Media</h2>
                         <div class="form-group">
                             <label>Video (YouTube)</label>
-                            <input type="url" id="project-video" placeholder="https://www.youtube.com/embed/...">
+                            <input type="url" id="project-video" placeholder="https://www.youtube.com/embed/..." autocomplete="off">
                             <small>URL embed YouTube</small>
                         </div>
                         <div class="form-group">
@@ -251,7 +258,7 @@
                                     <option value="googleplay">Google Play</option>
                                     <option value="demo">Demo</option>
                                 </select>
-                                <input type="url" class="link-url" placeholder="https://...">
+                                <input type="url" class="link-url" placeholder="https://..." autocomplete="off">
                                 <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">X</button>
                             </div>
                         </div>
@@ -374,21 +381,21 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="social-github">GitHub</label>
-                                <input type="url" id="social-github" placeholder="https://github.com/...">
+                                <input type="url" id="social-github" placeholder="https://github.com/..." autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label for="social-linkedin">LinkedIn</label>
-                                <input type="url" id="social-linkedin" placeholder="https://linkedin.com/in/...">
+                                <input type="url" id="social-linkedin" placeholder="https://linkedin.com/in/..." autocomplete="off">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="social-itchio">Itch.io</label>
-                                <input type="url" id="social-itchio" placeholder="https://itch.io/profile/...">
+                                <input type="url" id="social-itchio" placeholder="https://itch.io/profile/..." autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label for="social-email">Email</label>
-                                <input type="email" id="social-email" placeholder="votre@email.com">
+                                <input type="email" id="social-email" placeholder="votre@email.com" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -405,6 +412,7 @@
 
     <div id="toast-container" class="toast-container"></div>
 
+    <script src="js/utils.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

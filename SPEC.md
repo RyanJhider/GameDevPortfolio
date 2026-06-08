@@ -1,228 +1,241 @@
 # Portfolio ISART Digital - Game Design & Programming
 
-## 1. Project Overview
-
-**Project Name:** Portfolio Game Designer & Programmer  
-**Type:** Static website (hostable on GitHub Pages)  
-**Core Functionality:** Showcase student projects with easy add/remove capability via JSON data file  
-**Target Users:** Recruiters, game studios, potential collaborators
+> Specification technique du portfolio. **Reflete l'implementation reelle** (theme PS2 Horror). Pour la reference visuelle detaillee, voir `DESIGN_BIBLE_PORTFOLIO_PS2_HORROR.md`.
 
 ---
 
-## 2. UI/UX Specification
+## 1. Vue d'ensemble
 
-### Layout Structure
-
-**Pages:**
-1. **Home (index.html)** - Hero + featured projects + about preview
-2. **Projects (projects.html)** - All projects gallery with filters
-3. **Project Detail (project.html)** - Individual project view
-4. **About (about.html)** - Student profile, skills, resume
-
-**Sections per page:**
-- **Header:** Fixed navigation with logo + nav links
-- **Hero:** Full viewport intro with animated text
-- **Projects Grid:** Responsive card layout
-- **Footer:** Social links + copyright
-
-### Responsive Breakpoints
-- Mobile: < 768px (single column)
-- Tablet: 768px - 1024px (2 columns)
-- Desktop: > 1024px (3-4 columns)
-
-### Visual Design
-
-**Color Palette:**
-- Background Primary: `#0a0a0f` (deep black)
-- Background Secondary: `#12121a` (dark purple-black)
-- Accent Primary: `#ff3366` (vibrant pink-red)
-- Accent Secondary: `#00ffcc` (cyber teal)
-- Accent Tertiary: `#ffaa00` (golden orange)
-- Text Primary: `#ffffff`
-- Text Secondary: `#8a8a9a`
-- Card Background: `#1a1a24`
-
-**Typography:**
-- Headings: "Orbitron" (futuristic, techy)
-- Body: "Rajdhani" (modern, readable)
-- Accent/Code: "JetBrains Mono" (monospace)
-
-**Font Sizes:**
-- H1: 4rem (hero), 2.5rem (page titles)
-- H2: 1.8rem
-- H3: 1.4rem
-- Body: 1rem
-- Small: 0.875rem
-
-**Spacing System:**
-- Base unit: 8px
-- Section padding: 80px vertical
-- Card padding: 24px
-- Gap between cards: 32px
-
-**Visual Effects:**
-- Glassmorphism cards with backdrop-filter
-- Glow effects on hover (box-shadow with accent colors)
-- Particle background animation (canvas)
-- Gradient borders on cards
-- Smooth scroll behavior
-
-### Components
-
-**1. Navigation Bar**
-- Fixed position, glassmorphism background
-- Logo (text-based with glow)
-- Links: Home, Projets, À propos
-- Hover: underline animation with accent color
-
-**2. Hero Section**
-- Full viewport height
-- Animated typing effect for titles
-- Particle canvas background
-- CTA buttons with glow hover
-- Social icons row
-
-**3. Project Cards**
-- Aspect ratio: 16:9 thumbnail area
-- Thumbnail (image or video embed)
-- Title overlay on hover
-- Tags displayed as pills
-- Role badge
-- Hover: scale up + glow border
-
-**4. Project Detail Modal/Page**
-- Large hero image/video
-- Project title + description
-- Tags (tools, roles)
-- Gallery (images + videos)
-- Links (itch.io, steam, github)
-- Tech stack Used
-
-**5. Tag Pills**
-- Rounded corners (20px)
-- Color-coded by category:
-  - Role tags: pink-red (`#ff3366`)
-  - Tool tags: teal (`#00ffcc`)
-  - Engine tags: orange (`#ffaa00`)
-  - Language tags: purple (`#9966ff`)
-
-**6. Filter Bar**
-- Horizontal scrollable on mobile
-- Active filter has glow effect
-- "All" option + category filters
+- **Type** : site statique + Firebase Firestore
+- **Hebergement prevu** : Firebase Hosting
+- **Mode degrade** : fallback `data/projects.json` si Firebase non configure
+- **Cible** : recruteurs, studios, collaborateurs
 
 ---
 
-## 3. Functionality Specification
+## 2. Pages
 
-### Core Features
-
-**Project Data Management:**
-- All projects stored in `data/projects.json`
-- Each project has:
-  - id: unique identifier
-  - title: project name
-  - description: short description
-  - descriptionLong: full description
-  - thumbnail: path to preview image
-  - video: optional YouTube/Vimeo embed or video file
-  - images: array of gallery images
-  - tags: array of tag objects {name, category}
-  - links: object with itch, steam, github, demo URLs
-  - date: completion date
-  - featured: boolean for home page highlight
-
-**Adding a Project:**
-1. Add entry to `data/projects.json`
-2. Add thumbnail to `assets/thumbnails/`
-3. Add images to `assets/projects/{id}/`
-
-**Removing a Project:**
-1. Remove entry from JSON
-2. Optionally delete associated files
-
-**Filtering:**
-- Filter by tag category (role, tool, engine)
-- Multi-select filter support
-- Animated filter transitions
-
-**Animations:**
-- Page load: staggered fade-in for cards
-- Scroll: elements animate in when visible
-- Hover: scale, glow, color transitions
-- Hero: typing effect + particle animation
-- Navigation: smooth underline animation
-
-### User Interactions
-- Click project card → open detail view
-- Click filter → filter projects with animation
-- Scroll → trigger scroll animations
-- Hover cards → reveal overlay + glow
-
-### Data Structure (projects.json)
-```json
-{
-  "projects": [
-    {
-      "id": "project-slug",
-      "title": "Project Title",
-      "description": "Short description",
-      "descriptionLong": "Full description...",
-      "thumbnail": "assets/thumbnails/project.jpg",
-      "video": "https://youtube.com/embed/xxx",
-      "images": ["img1.jpg", "img2.jpg"],
-      "tags": [
-        {"name": "Game Designer", "category": "role"},
-        {"name": "Unity", "category": "engine"},
-        {"name": "C#", "category": "language"}
-      ],
-      "links": {
-        "itch": "https://...",
-        "github": "https://..."
-      },
-      "date": "2024",
-      "featured": true
-    }
-  ]
-}
-```
+| URL | Source de verite | Chargee par |
+|-----|------------------|-------------|
+| `/index.html` | `profile` (Firestore) + `projects.featured` | `js/profile.js` + `js/main.js` |
+| `/projects.html` | `projects` (tous) | `js/main.js` |
+| `/project.html?id=xxx` | `projects/{id}` (Firestore) ou fallback JSON | `js/project.js` |
+| `/about.html` | `profile` (Firestore) | `js/profile.js` |
+| `/admin.html` | CRUD complet | `js/admin.js` |
 
 ---
 
-## 4. File Structure
+## 3. Theme PS2 Horror
+
+### Couleurs (variables CSS)
+
+| Token | Valeur | Usage |
+|-------|--------|-------|
+| `--bg-void` | `#0a0908` | Fond principal |
+| `--bg-primary` | `#111210` | Stats, sidebar |
+| `--bg-surface` | `#1c1e1a` | Cartes, form sections |
+| `--bg-elevated` | `#242621` | Inputs, tag editor |
+| `--text-primary` | `#e2d8c8` | Texte courant |
+| `--text-secondary` | `#9a9e95` | Sous-texte |
+| `--text-muted` | `#5a5d56` | Labels |
+| `--accent-phosphor` | `#3dff5e` | CTA, liens, active states |
+| `--accent-blood` | `#7a1515` | Boutons primaires, danger |
+| `--border-subtle` | `rgba(200,190,170,0.08)` | Separateurs |
+| `--border-medium` | `rgba(200,190,170,0.15)` | Bordures visibles |
+
+### Typographie
+
+- **Titres** : `Bebas Neue` (Google Fonts), uppercase, letter-spacing 0.05em
+- **Corps** : `Space Grotesk` (Google Fonts)
+- **Labels / mono** : `Share Tech Mono` (Google Fonts)
+
+### Effets
+
+- **Grain de film** : `body::before` avec SVG `feTurbulence`, animation 4 steps
+- **Scanlines CRT** : `body::after` avec gradient repete
+- **Loading screen** : "INITIALIZING..." en Share Tech Mono, 600ms
+- **Hover cards** : `translateY(-4px)` + box-shadow 0 8px 32px noir
+
+---
+
+## 4. Schema Firestore
+
+### `profile/{id}`
+
+Document unique (`main` par convention). Champs :
+- `name`, `title`, `school`, `location` (string)
+- `bio`, `description` (string)
+- `avatar` (base64 JPEG compresse, max 400px)
+- `skills` (map de 4 listes) : `engines`, `languages`, `tools`, `softSkills`
+- `social` (map) : `github`, `linkedin`, `itchio`, `email`
+
+### `projects/{id}`
+
+Document par projet. `id` = slug. Champs :
+- `id`, `title`, `description`, `descriptionLong`
+- `year`, `date` (string, libre)
+- `platform`, `status` (`published` | `draft`), `featured` (bool)
+- `video` (URL YouTube embed, watch, ou youtu.be)
+- `thumbnail` (base64 JPEG compresse, max 600px)
+- `images` (array de base64 JPEG, max 1280px chacune, max 5 recommande)
+- `tags` (array d'objets `{name, category}`) — `category` ∈ `engine, language, role, genre, platform, tool, other`
+- `links` (array d'objets `{type, url}`) — `type` ∈ `itchio, steam, github, googleplay, demo, other`
+- `team`, `context`, `duration`, `role` (strings)
+
+### Couleurs des tags
+
+| Categorie | Couleur | Hex |
+|-----------|---------|-----|
+| engine | Phosphor vert | `#3dff5e` |
+| language | Cyan | `#4ecdc4` |
+| role | Violet | `#a855f7` |
+| genre | Rouge | `#ef4444` |
+| platform | Orange | `#f59e0b` |
+| tool | Emerald | `#10b981` |
+| other | Gris | `#6b7280` |
+
+---
+
+## 5. Compression des images
+
+Toutes les images uploadées via l'admin sont compressées **côté client** avant d'être stockées en base64 dans Firestore.
+
+| Type | maxWidth | quality | Sortie typique |
+|------|----------|---------|----------------|
+| Thumbnail | 600px | 0.70 | 30-80 KB |
+| Gallery | 1280px | 0.75 | 100-200 KB |
+| Avatar | 400px | 0.75 | 20-50 KB |
+
+Implementation : `js/admin.js` → `compressImage(file, opts)`. Utilise `FileReader` + `Image` + `canvas.toDataURL('image/jpeg', quality)`.
+
+**Limite Firestore** : 1 MB / document. Un projet avec 1 thumb + 4-5 images tient largement.
+
+**Pas de Firebase Storage** utilisé (coût).
+
+---
+
+## 6. Architecture JS
+
+### Modules
+
+| Fichier | Role | Charge par |
+|---------|------|-----------|
+| `js/utils.js` | Helpers partages : `escapeHtml`, `safeUrl`, `getTagName/Category`, `normalizeLinks`, `linkLabel`, `getTagColor`, `extractVideoId`, `sortProjectsByDateDesc` | toutes les pages |
+| `js/main.js` | Charge `projects`, rend grille, gere filtre tags, stats | index, projects |
+| `js/project.js` | Charge 1 projet, rend hero/pills/details/gallery/links | project |
+| `js/profile.js` | Charge `profile`, applique au DOM (textes, skills, social) | index, projects, about |
+| `js/admin.js` | Auth Firebase, CRUD projets, CRUD profil, compression, import JSON | admin |
+| `js/config.js` | (gitignored) Firebase config : `apiKey`, `authDomain`, `projectId`, etc. | toutes les pages |
+
+### Flux de chargement (pages publiques)
 
 ```
-portfolio/
-├── index.html
-├── projects.html
-├── project.html
-├── about.html
-├── css/
-│   └── style.css
-├── js/
-│   ├── main.js
-│   ├── projects.js
-│   ├── particles.js
-│   └── typing.js
-├── data/
-│   └── projects.json
-├── assets/
-│   ├── thumbnails/
-│   └── projects/
-└── README.md
+HTML parse
+  -> js/config.js  (FirebaseConfig global)
+  -> Firebase SDK (app, firestore)
+  -> js/utils.js
+  -> js/profile.js (charge profile)
+  -> js/main.js ou js/project.js (charge projects)
+     -> Firebase en priorite
+     -> fallback data/projects.json
 ```
+
+### Securite
+
+- Toutes les insertions `innerHTML` passent par `PortfolioUtils.escapeHtml` / `escapeAttr`
+- URLs externes validees par `PortfolioUtils.safeUrl` (rejette `javascript:`, `data:`)
+- `textContent` utilise pour les valeurs simples (titles, descriptions)
+- Liens externes : `target="_blank" rel="noopener noreferrer"`
 
 ---
 
-## 5. Acceptance Criteria
+## 7. Filtre multi-tags (projects.html)
 
-- [ ] Site loads with animated hero and particle background
-- [ ] All projects display from JSON data
-- [ ] Filtering works correctly with animations
-- [ ] Project detail shows video/images/tags correctly
-- [ ] Adding new project to JSON reflects on site
-- [ ] Responsive on mobile/tablet/desktop
-- [ ] All animations smooth (60fps)
-- [ ] Tags color-coded by category
-- [ ] External links open in new tab
-- [ ] Can be hosted on GitHub Pages
+**Comportement** :
+1. La barre de filtres est generee dynamiquement depuis les tags uniques des projets charges
+2. Tags groupes par categorie dans l'ordre : engine, language, role, genre, platform, tool, other
+3. Cliquer un tag : toggle dans `activeTags` (multi-select)
+4. Logique de filtrage : **OR** — un projet est affiche s'il a au moins un des tags actifs
+5. Bouton "All" : reset `activeTags = []`
+6. Etat actif visible via `data-active="true"` + style CSS
+
+Implementation : `js/main.js` → `buildFilterBar()` + `getFilteredProjects()`.
+
+---
+
+## 8. Responsive
+
+### Breakpoints
+
+- `> 800px` : 2 colonnes (PDP), 4 colonnes (skills), grille flex
+- `768px - 800px` : stats wrap, skills 2 colonnes
+- `< 768px` : 1 colonne partout, sidebar admin en haut
+- `< 480px` : 1 colonne skills, hero CTA stack
+
+### Mobile
+
+- `viewport` meta sur toutes les pages
+- Nav-links wrap en dessous du header
+- `.pdp-content` → 1 colonne (sidebar remontée)
+- `.pdp-gallery` → 1 colonne
+
+---
+
+## 9. Accessibilite
+
+- `lang="en"` (ou `fr` pour admin) sur `<html>`
+- Labels `<label>` sur tous les inputs
+- `alt` sur les images
+- Liens externes : `rel="noopener noreferrer"`
+- Loading screen `aria-hidden` a ajouter (TODO)
+- `prefers-reduced-motion` a respecter (TODO)
+
+---
+
+## 10. Deploiement
+
+1. Creer un projet Firebase + activer Firestore + Auth (Email/Password)
+2. `cp js/config.example.js js/config.js` + remplir
+3. `firebase init hosting` (depuis la racine)
+4. Configurer `firebase.json` :
+   ```json
+   {
+     "hosting": {
+       "public": ".",
+       "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "test-*.js", "test-*.html"]
+     }
+   }
+   ```
+5. Deployer les rules : `firebase deploy --only firestore:rules`
+6. `firebase deploy --only hosting`
+
+---
+
+## 11. Maintenance
+
+### Commandes utiles
+
+```bash
+# Valider la syntaxe JS
+node --check js/*.js
+
+# Smoke tests
+node test-utils.js
+node test-profile.js
+node test-filter.js
+
+# Tester la compression image (ouvrir dans browser)
+# http://localhost:8000/test-image-compress.html
+
+# Servir en local
+node test-server.js
+```
+
+### TODOs (priorite basse)
+
+- [ ] Ajouter `firestore.rules` au repo
+- [ ] Ajouter og:* / SEO meta
+- [ ] Ajouter `aria-hidden` sur loading screen
+- [ ] Respecter `prefers-reduced-motion`
+- [ ] Migrer les images locales en WebP/AVIF
+- [ ] Internationalisation FR/EN

@@ -8,6 +8,7 @@ js/config.js
 .vscode/
 *.swp
 *.swo
+*.sublime-workspace
 
 # OS
 .DS_Store
@@ -15,3 +16,6 @@ Thumbs.db
 
 # Firebase (ne pas commiter la db locale)
 .firebase/
+
+# Aider (AI coding tool)
+.aider*

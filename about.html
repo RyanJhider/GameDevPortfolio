@@ -10,6 +10,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Config (excluded from Git, see js/config.example.js) -->
+    <script src="js/config.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -33,24 +35,24 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-bio">
-                    <h3>Ryan Jhider</h3>
-                    <p class="about-title">Game Design & Programming Student at ISART Digital</p>
-                    <p class="about-desc">Third-year student passionate about creating immersive gaming experiences. Specialized in Unity development, multiplayer networking systems, AI behavior programming, and horror game design.</p>
-                    <p class="about-desc">Always looking for new challenges and opportunities to create games that leave a lasting impression.</p>
+                    <h3 class="profile-name">Ryan Jhider</h3>
+                    <p class="about-title"><span class="profile-title">Game Design &amp; Programming Student</span> at <span class="profile-school">ISART Digital</span></p>
+                    <p class="about-desc profile-description">Third-year student passionate about creating immersive gaming experiences. Specialized in Unity development, multiplayer networking systems, AI behavior programming, and horror game design.</p>
+                    <p class="about-desc profile-bio">Always looking for new challenges and opportunities to create games that leave a lasting impression.</p>
                 </div>
                 <div class="about-timeline">
                     <h3>Education</h3>
                     <div class="timeline-item">
                         <span class="timeline-year">2024</span>
-                        <p>3rd Year - ISART Digital</p>
+                        <p>3rd Year - <span class="profile-school">ISART Digital</span></p>
                     </div>
                     <div class="timeline-item">
                         <span class="timeline-year">2023</span>
-                        <p>2nd Year - ISART Digital</p>
+                        <p>2nd Year - <span class="profile-school">ISART Digital</span></p>
                     </div>
                     <div class="timeline-item">
                         <span class="timeline-year">2022</span>
-                        <p>1st Year - ISART Digital</p>
+                        <p>1st Year - <span class="profile-school">ISART Digital</span></p>
                     </div>
                 </div>
             </div>
@@ -62,12 +64,15 @@
         <div class="footer-content">
             <p class="footer-copy">Made with coffee & Unity</p>
             <div class="footer-links">
-                <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
-                <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
-                <a href="https://itch.io" target="_blank" class="footer-link">Itch.io</a>
-                <a href="mailto:ryanjhider@gmail.com" class="footer-link">Email</a>
+                <a href="https://github.com" target="_blank" class="footer-link social-github" rel="noopener noreferrer">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" class="footer-link social-linkedin" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://itch.io" target="_blank" class="footer-link social-itchio" rel="noopener noreferrer">Itch.io</a>
+                <a href="mailto:ryanjhider@gmail.com" class="footer-link social-email">Email</a>
             </div>
         </div>
     </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/profile.js"></script>
 </body>
 </html>

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
-  <rect width="1280" height="720" fill="#0d1117"/>
-  <circle cx="400" cy="300" r="60" fill="#9966ff"/>
-  <circle cx="880" cy="300" r="60" fill="#00ffcc"/>
-  <line x1="460" y1="300" x2="820" y2="300" stroke="#fff" stroke-width="4"/>
-  <text x="640" y="550" font-family="Arial" font-size="36" fill="#9966ff" text-anchor="middle">NEURAL BATTLE</text>
-  <text x="640" y="580" font-family="Arial" font-size="14" fill="#8a8a9a" text-anchor="middle">AI-Powered Fighting Game</text>
-</svg>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test: Image Compression</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { padding: 4rem 2rem; max-width: 900px; margin: 0 auto; }
+        .result { background: var(--bg-surface); border: 1px solid var(--border-subtle); padding: 1rem; margin: 1rem 0; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+        .ok { border-color: var(--accent-phosphor); }
+        .bad { border-color: var(--accent-blood); }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--border-subtle); }
+    </style>
+</head>
+<body>
+    <h1>Test: Image Compression</h1>
+    <p>Pick an image (any size) - the page will compress it 3 ways and report the resulting base64 size.</p>
+    <input type="file" id="fileInput" accept="image/*">
+    <div id="results"></div>
+
+    <script src="js/utils.js"></script>
+    <script>
+    function compressImage(file, opts) {
+        opts = opts || {};
+        var maxWidth = opts.maxWidth || 1280;
+        var quality = opts.quality || 0.75;
+        return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onerror = function () { reject(new Error('Lecture impossible')); };
+            reader.onload = function (e) {
+                var img = new Image();
+                img.onerror = function () { reject(new Error('Image invalide')); };
+                img.onload = function () {
+                    var w = img.width;
+                    var h = img.height;
+                    var origW = w, origH = h;
+                    if (w > maxWidth) { h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    try { resolve({ dataUrl: canvas.toDataURL('image/jpeg', quality), w: w, h: h, origW: origW, origH: origH }); }
+                    catch (err) { reject(err); }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function fmt(bytes) { return (bytes / 1024).toFixed(1) + ' KB'; }
+    function sizeOf(b64) { return Math.round((b64.length - 'data:image/jpeg;base64,'.length) * 3 / 4); }
+
+    document.getElementById('fileInput').addEventListener('change', async function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var out = document.getElementById('results');
+        out.innerHTML = '<div class="result">Source: ' + file.name + ' (' + fmt(file.size) + ', ' + file.type + ')</div>';
+
+        var configs = [
+            { name: 'Avatar (400px, q=0.75)', maxWidth: 400, quality: 0.75 },
+            { name: 'Thumbnail (600px, q=0.7)', maxWidth: 600, quality: 0.7 },
+            { name: 'Gallery (1280px, q=0.75)', maxWidth: 1280, quality: 0.75 }
+        ];
+
+        var table = '<table><thead><tr><th>Config</th><th>New size</th><th>Base64</th><th>Ratio</th><th>OK?</th></tr></thead><tbody>';
+        for (var i = 0; i < configs.length; i++) {
+            var c = configs[i];
+            try {
+                var r = await compressImage(file, c);
+                var b64Size = sizeOf(r.dataUrl);
+                var ratio = (b64Size / file.size * 100).toFixed(1);
+                var passes = b64Size < 250 * 1024;
+                table += '<tr class="' + (passes ? 'result ok' : 'result bad') + '">';
+                table += '<td>' + c.name + '</td>';
+                table += '<td>' + r.w + 'x' + r.h + ' (from ' + r.origW + 'x' + r.origH + ')</td>';
+                table += '<td>' + fmt(b64Size) + '</td>';
+                table += '<td>' + ratio + '%</td>';
+                table += '<td>' + (passes ? 'YES (< 250KB)' : 'TOO BIG') + '</td>';
+                table += '</tr>';
+            } catch (err) {
+                table += '<tr class="result bad"><td>' + c.name + '</td><td colspan="4">Error: ' + err.message + '</td></tr>';
+            }
+        }
+        table += '</tbody></table>';
+        out.insertAdjacentHTML('beforeend', table);
+
+        var html = '<h3>Conclusion</h3><p>Each base64 image should stay under ~250KB to fit multiple in a Firestore doc (limit 1MB).<br>';
+        html += 'A typical project (1 thumb + 5 gallery) = ~6 images. If all under 150KB, total ~900KB. OK.</p>';
+        out.insertAdjacentHTML('beforeend', '<div class="result">' + html + '</div>');
+    });
+    </script>
+</body>
+</html>

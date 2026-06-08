@@ -87,7 +87,36 @@
 .toast-success { border-color: var(--accent-phosphor); }
 .toast-error { border-color: var(--accent-blood); }
 @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-.error-message { color: var(--accent-blood); font-size: 0.8rem; margin-top: 0.5rem; }
+.error-message {
+    color: var(--accent-blood);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.config-help {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    text-align: left;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.config-help p { margin-bottom: 0.5rem; color: var(--text-primary); }
+
+.config-help ol {
+    margin-left: 1.2rem;
+    line-height: 1.6;
+}
+
+.config-help code {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg-void);
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.75rem;
+}
 .admin-loading { text-align: center; padding: 3rem; color: var(--text-muted); }
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border-medium); border-top-color: var(--accent-phosphor); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
