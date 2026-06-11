@@ -120,6 +120,94 @@
     });
   }
 
+  // Tiny safe Markdown -> HTML for contribution descriptions.
+  // Input is assumed to be plain text (NOT pre-escaped). Output is HTML.
+  // Supported: **bold**, *italic*, `code`, [text](url), bullet lists (- or *),
+  // numbered lists (1. 2.), and single newlines for line breaks.
+  // Everything is escaped first to neutralize any user-provided tags.
+  function renderMarkdown(text) {
+    if (text === null || text === undefined) return '';
+    var s = String(text);
+
+    // 1) Escape the whole thing first (XSS-safe baseline)
+    s = escapeHtml(s);
+
+    // 2) Extract inline links into placeholders so further regex passes
+    //    don't mangle the href content.
+    var links = [];
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, url) {
+      var safe = safeUrl(url);
+      var placeholder = '\u0000LINK' + links.length + '\u0000';
+      if (safe) {
+        links.push('<a href="' + escapeAttr(safe) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>');
+      } else {
+        links.push(label); // unsafe URL: render plain text
+      }
+      return placeholder;
+    });
+
+    // 3) Inline formatting
+    s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+
+    // 4) Block-level: lists (must run before line-break pass)
+    var lines = s.split(/\r?\n/);
+    var out = [];
+    var i = 0;
+    function flushParagraph(buf) {
+      if (buf.length === 0) return;
+      var joined = buf.join(' ').trim();
+      if (joined) out.push('<p>' + joined + '</p>');
+    }
+    while (i < lines.length) {
+      var line = lines[i];
+      var ulMatch = /^[\s]*[-*]\s+(.+)$/.exec(line);
+      var olMatch = /^[\s]*\d+\.\s+(.+)$/.exec(line);
+      if (ulMatch || olMatch) {
+        var ordered = !!olMatch;
+        var tag = ordered ? 'ol' : 'ul';
+        out.push('<' + tag + '>');
+        while (i < lines.length) {
+          var cur = lines[i];
+          var u = /^[\s]*[-*]\s+(.+)$/.exec(cur);
+          var o = /^[\s]*\d+\.\s+(.+)$/.exec(cur);
+          if (ordered && o) { out.push('<li>' + o[1] + '</li>'); i++; }
+          else if (!ordered && u) { out.push('<li>' + u[1] + '</li>'); i++; }
+          else { break; }
+        }
+        out.push('</' + tag + '>');
+        continue;
+      }
+      if (line.trim() === '') {
+        // paragraph break
+        i++;
+        continue;
+      }
+      // collect paragraph lines until blank/list
+      var para = [line];
+      i++;
+      while (i < lines.length) {
+        var next = lines[i];
+        if (next.trim() === '') break;
+        if (/^[\s]*[-*]\s+/.test(next)) break;
+        if (/^[\s]*\d+\.\s+/.test(next)) break;
+        para.push(next);
+        i++;
+      }
+      out.push('<p>' + para.join('<br>') + '</p>');
+    }
+
+    var html = out.join('');
+
+    // 5) Restore link placeholders
+    html = html.replace(/\u0000LINK(\d+)\u0000/g, function (m, idx) {
+      return links[parseInt(idx, 10)] || '';
+    });
+
+    return html;
+  }
+
   global.PortfolioUtils = {
     escapeHtml: escapeHtml,
     escapeAttr: escapeAttr,
@@ -131,6 +219,7 @@
     getTagColor: getTagColor,
     formatDate: formatDate,
     extractVideoId: extractVideoId,
-    sortProjectsByDateDesc: sortProjectsByDateDesc
+    sortProjectsByDateDesc: sortProjectsByDateDesc,
+    renderMarkdown: renderMarkdown
   };
 })(window);

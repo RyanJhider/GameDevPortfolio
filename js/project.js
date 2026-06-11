@@ -164,9 +164,9 @@
       card.appendChild(titleEl);
 
       if (it.desc) {
-        var descEl = document.createElement('p');
-        descEl.className = 'pdp-contrib-desc';
-        descEl.textContent = it.desc;
+        var descEl = document.createElement('div');
+        descEl.className = 'pdp-contrib-desc markdown-body';
+        descEl.innerHTML = U.renderMarkdown(it.desc);
         card.appendChild(descEl);
       }
 

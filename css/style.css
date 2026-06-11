@@ -564,6 +564,16 @@ a:hover { text-shadow: var(--glow-phosphor); }
   color: var(--text-secondary);
 }
 
+.markdown-body p { margin-bottom: 0.5em; color: var(--text-secondary); }
+.markdown-body p:last-child { margin-bottom: 0; }
+.markdown-body ul, .markdown-body ol { margin: 0.4em 0 0.6em 1.2em; padding: 0; }
+.markdown-body li { margin-bottom: 0.2em; color: var(--text-secondary); }
+.markdown-body strong { color: var(--text-primary); font-weight: 600; }
+.markdown-body em { color: var(--text-primary); font-style: italic; }
+.markdown-body code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 5px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--accent-phosphor); }
+.markdown-body a { color: var(--accent-phosphor); text-decoration: underline; text-decoration-style: dotted; }
+.markdown-body a:hover { text-shadow: var(--glow-phosphor); }
+
 /* Links */
 .pdp-links {
   display: flex;

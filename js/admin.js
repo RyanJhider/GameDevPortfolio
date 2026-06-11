@@ -388,6 +388,30 @@
       });
     }
 
+    // Markdown editor tabs (Edition / Apercu)
+    var mdTabs = document.querySelectorAll('.md-editor .md-tab');
+    mdTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var mode = this.getAttribute('data-md-tab');
+        var editor = this.closest('.md-editor');
+        if (!editor) return;
+        var tabs = editor.querySelectorAll('.md-tab');
+        tabs.forEach(function (t) { t.classList.toggle('md-tab-active', t === tab); });
+        var textarea = editor.querySelector('.md-textarea');
+        var preview = editor.querySelector('.md-preview');
+        if (mode === 'preview') {
+          if (preview && textarea) {
+            preview.innerHTML = U.renderMarkdown(textarea.value);
+            preview.style.display = '';
+          }
+          if (textarea) textarea.style.display = 'none';
+        } else {
+          if (preview) preview.style.display = 'none';
+          if (textarea) { textarea.style.display = ''; textarea.focus(); }
+        }
+      });
+    });
+
     // Dropzone for thumbnail (click + drag)
     setupDropzone('thumbnail-dropzone', 'project-thumbnail-file', function (file) {
       handleImage(file, 'thumbnail');
@@ -725,7 +749,14 @@
         body =
           '<div class="contrib-edit-fields">' +
             '<input type="text" class="contrib-edit-title" value="' + U.escapeAttr(c.title) + '" maxlength="80" autocomplete="off">' +
-            '<textarea class="contrib-edit-desc" rows="2" maxlength="500" placeholder="Petite explication...">' + U.escapeHtml(c.description) + '</textarea>' +
+            '<div class="md-editor md-editor-inline">' +
+              '<div class="md-editor-tabs">' +
+                '<button type="button" class="md-tab md-tab-active" data-md-tab="write">Edition</button>' +
+                '<button type="button" class="md-tab" data-md-tab="preview">Apercu</button>' +
+              '</div>' +
+              '<textarea class="contrib-edit-desc md-textarea" rows="4" maxlength="2000" placeholder="Petite explication... (markdown)">' + U.escapeHtml(c.description) + '</textarea>' +
+              '<div class="contrib-edit-preview md-preview markdown-body" style="display:none;"></div>' +
+            '</div>' +
             '<div class="contrib-edit-actions">' +
               '<button type="button" class="btn btn-primary btn-sm" data-contrib-save="' + i + '">Enregistrer</button>' +
               '<button type="button" class="btn btn-secondary btn-sm" data-contrib-cancel="' + i + '">Annuler</button>' +
@@ -733,7 +764,7 @@
           '</div>';
       } else {
         var descHtml = c.description
-          ? '<p class="contrib-card-desc">' + U.escapeHtml(c.description) + '</p>'
+          ? '<div class="contrib-card-desc markdown-body">' + U.renderMarkdown(c.description) + '</div>'
           : '';
         body =
           '<h4 class="contrib-card-title">' + U.escapeHtml(c.title) + '</h4>' +
@@ -809,6 +840,33 @@
     if (isNaN(idx)) return;
     if (e.key === 'Escape') { e.preventDefault(); cancelEditContribution(idx); }
     else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveContribution(idx); }
+  });
+
+  // Markdown tabs delegated (covers tabs inside re-rendered cards)
+  document.addEventListener('click', function (e) {
+    var tab = e.target.closest && e.target.closest('.md-tab');
+    if (!tab) return;
+    // Skip tabs that are already wired by setupProjectForm (top-level editor).
+    // We detect this by checking if the tab lives inside a contrib-card-editing.
+    var inCard = !!tab.closest('.contrib-card-editing');
+    if (!inCard) return;
+    var editor = tab.closest('.md-editor');
+    if (!editor) return;
+    var tabs = editor.querySelectorAll('.md-tab');
+    tabs.forEach(function (t) { t.classList.toggle('md-tab-active', t === tab); });
+    var mode = tab.getAttribute('data-md-tab');
+    var textarea = editor.querySelector('.contrib-edit-desc');
+    var preview = editor.querySelector('.contrib-edit-preview');
+    if (mode === 'preview') {
+      if (preview && textarea) {
+        preview.innerHTML = U.renderMarkdown(textarea.value);
+        preview.style.display = '';
+      }
+      if (textarea) textarea.style.display = 'none';
+    } else {
+      if (preview) preview.style.display = 'none';
+      if (textarea) { textarea.style.display = ''; textarea.focus(); }
+    }
   });
 
   // ---- LIVE PREVIEW ----

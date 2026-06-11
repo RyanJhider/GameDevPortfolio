@@ -282,7 +282,15 @@
                             <div id="contributions-display" class="contributions-list"></div>
                             <div class="contribution-input-row">
                                 <input type="text" id="contribution-title-input" placeholder="Titre de la tache (ex: Gameplay programming)" autocomplete="off" maxlength="80">
-                                <textarea id="contribution-desc-input" placeholder="Petite explication de ce que vous avez fait..." rows="2" maxlength="500"></textarea>
+                                <div class="md-editor">
+                                    <div class="md-editor-tabs">
+                                        <button type="button" class="md-tab md-tab-active" data-md-tab="write">Edition</button>
+                                        <button type="button" class="md-tab" data-md-tab="preview">Apercu</button>
+                                        <span class="md-hint">**gras** *italique* `code` [lien](url) - liste</span>
+                                    </div>
+                                    <textarea id="contribution-desc-input" class="md-textarea" placeholder="Petite explication de ce que vous avez fait... (supporte le markdown)" rows="4" maxlength="2000"></textarea>
+                                    <div id="contribution-desc-preview" class="md-preview markdown-body" style="display:none;"></div>
+                                </div>
                                 <button type="button" class="btn btn-primary btn-sm" id="add-contribution-btn">+ Ajouter</button>
                             </div>
                         </div>

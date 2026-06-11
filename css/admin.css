@@ -123,6 +123,36 @@
 .contrib-edit-fields .contrib-edit-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.95rem; }
 .contrib-edit-actions { display: flex; gap: 0.4rem; margin-top: 0.25rem; }
 
+.contrib-card-desc { font-size: 0.82rem; line-height: 1.5; color: var(--text-secondary); word-wrap: break-word; }
+.contrib-card-desc p { margin: 0 0 0.4em 0; }
+.contrib-card-desc p:last-child { margin-bottom: 0; }
+.contrib-card-desc ul, .contrib-card-desc ol { margin: 0.3em 0 0.5em 1.2em; padding: 0; }
+.contrib-card-desc li { margin-bottom: 0.15em; }
+.contrib-card-desc strong { color: var(--text-primary); font-weight: 600; }
+.contrib-card-desc em { color: var(--text-primary); }
+.contrib-card-desc code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 4px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--accent-phosphor); }
+.contrib-card-desc a { color: var(--accent-phosphor); text-decoration: underline; text-decoration-style: dotted; }
+
+/* Markdown editor (shared: top form + inline card edit) */
+.md-editor { border: 1px solid var(--border-medium); background: var(--bg-elevated); }
+.md-editor-inline { margin-top: 0.3rem; }
+.md-editor-tabs { display: flex; align-items: center; gap: 4px; padding: 4px 6px; background: var(--bg-primary); border-bottom: 1px solid var(--border-medium); }
+.md-tab { background: transparent; border: 1px solid transparent; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; padding: 3px 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.15s; }
+.md-tab:hover { color: var(--text-primary); }
+.md-tab.md-tab-active { color: var(--accent-phosphor); border-color: var(--border-medium); }
+.md-hint { margin-left: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-muted); opacity: 0.7; }
+.md-textarea { width: 100%; padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: none; color: var(--text-primary); font-size: 0.85rem; font-family: inherit; resize: vertical; min-height: 70px; }
+.md-textarea:focus { outline: none; }
+.md-preview { padding: 0.55rem 0.7rem; min-height: 70px; color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5; }
+.md-preview p { margin: 0 0 0.4em 0; }
+.md-preview p:last-child { margin-bottom: 0; }
+.md-preview ul, .md-preview ol { margin: 0.3em 0 0.4em 1.2em; padding: 0; }
+.md-preview li { margin-bottom: 0.15em; }
+.md-preview strong { color: var(--text-primary); }
+.md-preview em { color: var(--text-primary); }
+.md-preview code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 4px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--accent-phosphor); }
+.md-preview a { color: var(--accent-phosphor); }
+
 .contribution-input-row { display: flex; flex-direction: column; gap: 0.4rem; }
 .contribution-input-row input, .contribution-input-row textarea { padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; width: 100%; resize: vertical; }
 .contribution-input-row input:focus, .contribution-input-row textarea:focus { outline: none; border-color: var(--accent-phosphor); }
