@@ -922,74 +922,28 @@
       toolbar.classList.remove('md-toolbar-visible');
       return;
     }
-    // Compute the bounding rect of the selected text using a mirror element
-    var rect = getSelectionRect(textarea, start, end);
-    if (!rect) {
-      toolbar.classList.remove('md-toolbar-visible');
-      return;
-    }
-    var taRect = textarea.getBoundingClientRect();
-    var top = window.scrollY + rect.top - 44;
-    var left = window.scrollX + rect.left + (rect.width / 2);
-    // Clamp left so toolbar doesn't overflow viewport
+    // Position above the textarea, centered. Uses fixed positioning so it's
+    // independent of document scroll and parent overflow.
+    var rect = textarea.getBoundingClientRect();
+    var top = rect.top - 44;
+    var left = rect.left + (rect.width / 2);
     var halfWidth = 110;
     if (left - halfWidth < 8) left = 8 + halfWidth;
-    if (left + halfWidth > window.scrollX + window.innerWidth - 8) {
-      left = window.scrollX + window.innerWidth - 8 - halfWidth;
+    if (left + halfWidth > window.innerWidth - 8) {
+      left = window.innerWidth - 8 - halfWidth;
     }
     toolbar.style.top = top + 'px';
     toolbar.style.left = left + 'px';
     toolbar.classList.add('md-toolbar-visible');
   }
 
-  // Mirror a textarea into a hidden div to find pixel position of selection.
-  // We use a simple approach: clone styles + text with a marker span.
-  function getSelectionRect(textarea, start, end) {
-    try {
-      var value = textarea.value;
-      var before = value.substring(0, start);
-      var sel = value.substring(start, end) || '.';
-      var style = window.getComputedStyle(textarea);
-      var div = document.createElement('div');
-      div.style.position = 'absolute';
-      div.style.visibility = 'hidden';
-      div.style.whiteSpace = 'pre-wrap';
-      div.style.wordWrap = 'break-word';
-      div.style.top = '0';
-      div.style.left = '0';
-      var props = [
-        'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing',
-        'textTransform', 'wordSpacing', 'lineHeight', 'padding', 'border',
-        'boxSizing', 'width', 'tabSize'
-      ];
-      props.forEach(function (p) { div.style[p] = style[p]; });
-      div.textContent = before;
-      var selSpan = document.createElement('span');
-      selSpan.textContent = sel;
-      div.appendChild(selSpan);
-      var after = document.createElement('span');
-      after.textContent = value.substring(end);
-      div.appendChild(after);
-      document.body.appendChild(div);
-      var rect = selSpan.getBoundingClientRect();
-      var taRect = textarea.getBoundingClientRect();
-      var result = {
-        top: rect.top - taRect.top + textarea.scrollTop,
-        left: rect.left - taRect.left + textarea.scrollLeft,
-        width: rect.width,
-        height: rect.height
-      };
-      document.body.removeChild(div);
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
-
   function setupFloatingToolbar(textarea) {
     if (!textarea) return;
     var toolbar = ensureToolbar(textarea);
     if (!toolbar) return;
+    if (window.console && console.log) {
+      console.log('[md-toolbar] wired for #' + textarea.id);
+    }
 
     function refresh() {
       if (document.activeElement !== textarea) {
@@ -999,11 +953,29 @@
       positionToolbar(toolbar, textarea);
     }
     function hide() { toolbar.classList.remove('md-toolbar-visible'); }
+    function hideIfFocusLost() {
+      // After blur, check where the focus is going. If it's the toolbar
+      // (or a child of it), keep the toolbar visible.
+      setTimeout(function () {
+        var active = document.activeElement;
+        if (active === textarea) return;
+        if (toolbar.contains(active)) return;
+        hide();
+      }, 0);
+    }
 
-    textarea.addEventListener('mouseup', refresh);
-    textarea.addEventListener('keyup', refresh);
+    // selectionchange is the most reliable cross-browser way to react to
+    // a selection change in a textarea. We filter to the active textarea.
+    var onSelChange = function () {
+      if (document.activeElement === textarea) {
+        // Defer to next tick so selectionStart/End are up to date.
+        setTimeout(refresh, 0);
+      }
+    };
+    document.addEventListener('selectionchange', onSelChange);
+
     textarea.addEventListener('focus', refresh);
-    textarea.addEventListener('blur', function () { setTimeout(hide, 150); });
+    textarea.addEventListener('blur', hideIfFocusLost);
     textarea.addEventListener('scroll', hide);
     window.addEventListener('scroll', hide, true);
     window.addEventListener('resize', hide);
