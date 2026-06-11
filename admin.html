@@ -119,173 +119,237 @@
             <!-- Create/Edit Project View -->
             <section id="view-create" class="admin-view hidden">
                 <div class="admin-header">
-                    <h1 id="form-title">Nouveau Projet</h1>
-                    <button class="btn btn-secondary" onclick="showProjectsView()">
-                        Retour
-                    </button>
+                    <div>
+                        <h1 id="form-title">Nouveau Projet</h1>
+                        <p class="form-subtitle" id="form-subtitle">Remplissez les informations essentielles, le reste est optionnel</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" onclick="showProjectsView()">Retour</button>
+                        <button type="submit" form="project-form" class="btn btn-primary">Enregistrer</button>
+                    </div>
                 </div>
 
-                <form id="project-form" class="admin-form">
-                    <!-- Basic Info -->
-                    <div class="form-section">
-                        <h2>Informations de base</h2>
-                        <div class="form-row">
+                <form id="project-form" class="project-form-layout">
+                    <!-- LEFT COLUMN : Form -->
+                    <div class="form-column">
+                        <!-- Essential info : always visible -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <span class="section-num">01</span>
+                                <h2>Essentiel</h2>
+                            </div>
                             <div class="form-group">
-                                <label for="project-title">Titre du projet *</label>
+                                <label for="project-title">Titre du projet <span class="req">*</span></label>
                                 <input type="text" id="project-title" placeholder="Mon Super Projet" required>
                             </div>
                             <div class="form-group">
-                                <label for="project-id">ID unique (slug) *</label>
+                                <label for="project-id">Slug (URL) <span class="req">*</span></label>
                                 <input type="text" id="project-id" placeholder="mon-super-projet" required>
-                                <small>Identifiant URL</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="project-description">Description courte *</label>
-                            <input type="text" id="project-description" placeholder="Un jeu ou..." required>
-                        </div>
-                        <div class="form-group">
-                            <label for="project-description-long">Description complete</label>
-                            <textarea id="project-description-long" rows="4" placeholder="Description detaillee..."></textarea>
-                        </div>
-                        
-                        <!-- NEW FIELDS -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="project-year">Annee</label>
-                                <input type="text" id="project-year" placeholder="2024">
+                                <small>Genere automatiquement depuis le titre</small>
                             </div>
                             <div class="form-group">
-                                <label for="project-date">Date</label>
-                                <input type="text" id="project-date" placeholder="2024">
+                                <label for="project-description">Description courte <span class="req">*</span></label>
+                                <input type="text" id="project-description" placeholder="Une phrase d'accroche" required maxlength="200">
                             </div>
                             <div class="form-group">
-                                <label for="project-platform">Plateforme</label>
-                                <input type="text" id="project-platform" placeholder="PC, Mobile, Steam...">
+                                <label for="project-description-long">Description complete</label>
+                                <textarea id="project-description-long" rows="4" placeholder="Decrivez le projet en detail..."></textarea>
                             </div>
-                            <div class="form-group">
-                                <label for="project-status">Statut</label>
-                                <select id="project-status">
-                                    <option value="published">Public</option>
-                                    <option value="draft">Brouillon</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="project-team">Equipe</label>
-                                <input type="text" id="project-team" placeholder="Solo project ou 12 developers...">
-                            </div>
-                            <div class="form-group">
-                                <label for="project-context">Contexte</label>
-                                <select id="project-context">
-                                    <option value="">-- Selectionner --</option>
-                                    <option value="School">Projet scolaire</option>
-                                    <option value="Personal">Projet personnel</option>
-                                    <option value="Company">Projet entreprise</option>
-                                    <option value="Freelance">Freelance</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="project-duration">Duree</label>
-                                <input type="text" id="project-duration" placeholder="2 mois, 6 semaines...">
-                            </div>
-                            <div class="form-group">
-                                <label for="project-role">Mon role</label>
-                                <input type="text" id="project-role" placeholder="Game Designer & Programmer">
-                            </div>
-                            <div class="form-group">
-                                <label for="project-featured">Featured</label>
-                                <label class="toggle">
-                                    <input type="checkbox" id="project-featured">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Media -->
-                    <div class="form-section">
-                        <h2>Media</h2>
-                        <div class="form-group">
-                            <label>Video (YouTube)</label>
-                            <input type="url" id="project-video" placeholder="https://www.youtube.com/embed/..." autocomplete="off">
-                            <small>URL embed YouTube</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Thumbnail (image principale)</label>
-                            <div class="file-upload">
-                                <input type="file" id="project-thumbnail-file" accept="image/*">
-                                <div class="file-upload-area">
-                                    <span>+</span>
-                                    <p>Cliquez pour selectionner</p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="project-date">Annee</label>
+                                    <input type="text" id="project-date" placeholder="2025" maxlength="4">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project-status">Statut</label>
+                                    <select id="project-status">
+                                        <option value="published">Public</option>
+                                        <option value="draft">Brouillon</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Featured</label>
+                                    <label class="toggle">
+                                        <input type="checkbox" id="project-featured">
+                                        <span class="toggle-slider"></span>
+                                    </label>
                                 </div>
                             </div>
-                            <div id="thumbnail-preview" class="image-preview"></div>
                         </div>
-                        <div class="form-group">
-                            <label>Images galerie</label>
-                            <div class="file-upload">
-                                <input type="file" id="project-gallery-files" accept="image/*" multiple>
-                                <div class="file-upload-area">
-                                    <span>+</span>
-                                    <p>Plusieurs images</p>
+
+                        <!-- Media : always visible -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <span class="section-num">02</span>
+                                <h2>Media</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Thumbnail <span class="req">*</span></label>
+                                <div class="dropzone" id="thumbnail-dropzone">
+                                    <input type="file" id="project-thumbnail-file" accept="image/*" hidden>
+                                    <div class="dropzone-empty" id="thumbnail-empty">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="m21 15-5-5L5 21"/>
+                                        </svg>
+                                        <p>Glissez une image ou <span class="link">parcourir</span></p>
+                                        <small>JPG/PNG, compresse auto (max 600px)</small>
+                                    </div>
+                                    <div class="dropzone-filled hidden" id="thumbnail-filled">
+                                        <img id="thumbnail-preview-img" alt="">
+                                        <button type="button" class="dropzone-remove" data-remove="thumbnail">Retirer</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="gallery-preview" class="gallery-preview"></div>
+                            <div class="form-group">
+                                <label>Video YouTube</label>
+                                <input type="url" id="project-video" placeholder="https://www.youtube.com/embed/..." autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label>Galerie</label>
+                                <div class="dropzone dropzone-multi" id="gallery-dropzone">
+                                    <input type="file" id="project-gallery-files" accept="image/*" multiple hidden>
+                                    <div class="dropzone-empty">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="m21 15-5-5L5 21"/>
+                                        </svg>
+                                        <p>Glissez plusieurs images ou <span class="link">parcourir</span></p>
+                                        <small>Max 1280px chacune, compressees auto</small>
+                                    </div>
+                                </div>
+                                <div id="gallery-preview" class="gallery-preview"></div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Tags -->
-                    <div class="form-section">
-                        <h2>Tags et Categories</h2>
-                        
-                        <!-- Existing Tags -->
-                        <div class="existing-tags-section">
-                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 8px;">Tags existants (cliquez pour ajouter):</p>
-                            <div id="existing-tags-list" class="existing-tags-list"></div>
+                        <!-- Tags : always visible -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <span class="section-num">03</span>
+                                <h2>Tags</h2>
+                            </div>
+                            <div class="tag-input-wrapper">
+                                <div id="tags-display" class="chips-container"></div>
+                                <div class="tag-input-row">
+                                    <input type="text" id="tag-input" placeholder="Ajouter un tag..." autocomplete="off">
+                                    <select id="tag-category" class="tag-cat-select">
+                                        <option value="role">Role</option>
+                                        <option value="engine">Moteur</option>
+                                        <option value="language">Langage</option>
+                                        <option value="genre">Genre</option>
+                                        <option value="platform">Plateforme</option>
+                                        <option value="tool">Outil</option>
+                                        <option value="other">Autre</option>
+                                    </select>
+                                    <button type="button" class="btn btn-primary btn-sm" id="add-tag-btn">+</button>
+                                </div>
+                                <div id="existing-tags-list" class="existing-tags-list"></div>
+                            </div>
                         </div>
-                        
-                        <div id="tags-container" class="tags-editor"></div>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="addNewTag()">
-                            + Ajouter un tag
-                        </button>
-                    </div>
 
-                    <!-- Links -->
-                    <div class="form-section">
-                        <h2>Liens externes</h2>
-                        <div id="links-container" class="links-editor">
-                            <div class="link-row">
-                                <select class="link-type">
-                                    <option value="itch">Itch.io</option>
+                        <!-- Links : always visible -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <span class="section-num">04</span>
+                                <h2>Liens</h2>
+                            </div>
+                            <div id="links-display" class="chips-container"></div>
+                            <div class="link-input-row">
+                                <select id="link-type-select">
+                                    <option value="itchio">Itch.io</option>
                                     <option value="steam">Steam</option>
                                     <option value="github">GitHub</option>
                                     <option value="googleplay">Google Play</option>
                                     <option value="demo">Demo</option>
+                                    <option value="other">Autre</option>
                                 </select>
-                                <input type="url" class="link-url" placeholder="https://..." autocomplete="off">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">X</button>
+                                <input type="url" id="link-url-input" placeholder="https://..." autocomplete="off">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-link-btn">+</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="addNewLink()">
-                            + Ajouter un lien
-                        </button>
+
+                        <!-- Advanced : collapsible -->
+                        <div class="form-section accordion">
+                            <button type="button" class="accordion-header" data-accordion="advanced">
+                                <span class="section-num">05</span>
+                                <h2>Details avances</h2>
+                                <span class="accordion-chevron">&#9662;</span>
+                            </button>
+                            <div class="accordion-body" id="advanced-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="project-platform">Plateforme</label>
+                                        <input type="text" id="project-platform" placeholder="PC, Mobile, Steam...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-team">Equipe</label>
+                                        <input type="text" id="project-team" placeholder="Solo, 5 developers...">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="project-context">Contexte</label>
+                                        <select id="project-context">
+                                            <option value="">Non specifie</option>
+                                            <option value="School">Scolaire</option>
+                                            <option value="Personal">Personnel</option>
+                                            <option value="Company">Entreprise</option>
+                                            <option value="Freelance">Freelance</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-duration">Duree</label>
+                                        <input type="text" id="project-duration" placeholder="2 mois, 6 semaines...">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project-role">Mon role</label>
+                                    <input type="text" id="project-role" placeholder="Game Designer & Programmer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions bottom -->
+                        <div class="form-actions-bottom">
+                            <button type="button" class="btn btn-secondary" onclick="showProjectsView()">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer le projet</button>
+                        </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="showProjectsView()">
-                            Annuler
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Enregistrer
-                        </button>
-                    </div>
+                    <!-- RIGHT COLUMN : Live preview -->
+                    <aside class="preview-column">
+                        <div class="preview-sticky">
+                            <div class="preview-label">
+                                <span class="preview-dot"></span>
+                                Apercu en direct
+                            </div>
+                            <div id="live-preview" class="live-preview-card">
+                                <div class="preview-hero" id="preview-hero">
+                                    <div class="preview-hero-placeholder">Thumbnail</div>
+                                </div>
+                                <div class="preview-body">
+                                    <h3 class="preview-title" id="preview-title">Titre du projet</h3>
+                                    <p class="preview-subtitle" id="preview-subtitle">Description courte</p>
+                                    <div class="preview-meta" id="preview-meta"></div>
+                                    <div class="preview-pills" id="preview-pills"></div>
+                                    <div class="preview-section">
+                                        <span class="preview-label-small">Tags</span>
+                                        <div class="preview-tags" id="preview-tags">
+                                            <span class="preview-empty">Aucun tag</span>
+                                        </div>
+                                    </div>
+                                    <div class="preview-section">
+                                        <span class="preview-label-small">Liens</span>
+                                        <div class="preview-links" id="preview-links">
+                                            <span class="preview-empty">Aucun lien</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
                 </form>
             </section>
 

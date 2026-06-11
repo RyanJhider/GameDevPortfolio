@@ -309,6 +309,124 @@
   function setupProjectForm() {
     var form = document.getElementById('project-form');
     if (form) form.addEventListener('submit', function (e) { e.preventDefault(); saveProject(); });
+
+    // Auto-slug from title (only if id field is empty or matches previous auto-gen)
+    var titleEl = document.getElementById('project-title');
+    var idEl = document.getElementById('project-id');
+    if (titleEl && idEl) {
+      titleEl.addEventListener('input', function () {
+        if (!idEl.dataset.manual) {
+          idEl.value = slugify(titleEl.value);
+        }
+      });
+      idEl.addEventListener('input', function () {
+        idEl.dataset.manual = idEl.value.trim() ? '1' : '';
+      });
+    }
+
+    // Tag input
+    var tagInput = document.getElementById('tag-input');
+    var tagCat = document.getElementById('tag-category');
+    var addTagBtn = document.getElementById('add-tag-btn');
+    function addTagFromInput() {
+      var name = tagInput.value.trim();
+      if (!name) return;
+      addTag(name, tagCat.value);
+      tagInput.value = '';
+      tagInput.focus();
+    }
+    if (addTagBtn) addTagBtn.addEventListener('click', addTagFromInput);
+    if (tagInput) {
+      tagInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); }
+      });
+    }
+
+    // Link input
+    var linkTypeSel = document.getElementById('link-type-select');
+    var linkUrlInput = document.getElementById('link-url-input');
+    var addLinkBtn = document.getElementById('add-link-btn');
+    function addLinkFromInput() {
+      var url = linkUrlInput.value.trim();
+      if (!url) return;
+      addLink(linkTypeSel.value, url);
+      linkUrlInput.value = '';
+      linkUrlInput.focus();
+    }
+    if (addLinkBtn) addLinkBtn.addEventListener('click', addLinkFromInput);
+    if (linkUrlInput) {
+      linkUrlInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addLinkFromInput(); }
+      });
+    }
+
+    // Dropzone for thumbnail (click + drag)
+    setupDropzone('thumbnail-dropzone', 'project-thumbnail-file', function (file) {
+      handleImage(file, 'thumbnail');
+    });
+    // Gallery
+    setupDropzone('gallery-dropzone', 'project-gallery-files', function (file) {
+      handleImage(file, 'gallery');
+    }, true);
+
+    // Live preview
+    var previewFields = ['project-title', 'project-description', 'project-date', 'project-platform', 'project-status', 'project-video', 'project-role'];
+    previewFields.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateLivePreview);
+      if (el) el.addEventListener('change', updateLivePreview);
+    });
+    var feat = document.getElementById('project-featured');
+    if (feat) feat.addEventListener('change', updateLivePreview);
+
+    // Accordion
+    var acc = document.querySelectorAll('.accordion-header');
+    acc.forEach(function (h) {
+      h.addEventListener('click', function () {
+        var body = document.getElementById(h.getAttribute('data-accordion') + '-body');
+        if (body) body.classList.toggle('open');
+        h.classList.toggle('open');
+      });
+    });
+  }
+
+  function slugify(s) {
+    return (s || '').toString().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60);
+  }
+
+  function setupDropzone(zoneId, inputId, onFile, multi) {
+    var zone = document.getElementById(zoneId);
+    var input = document.getElementById(inputId);
+    if (!zone || !input) return;
+    zone.addEventListener('click', function (e) {
+      if (e.target.closest('button')) return;
+      input.click();
+    });
+    input.addEventListener('change', function () {
+      if (multi) {
+        handleImages(this.files, 'gallery');
+        this.value = '';
+      } else {
+        if (this.files[0]) onFile(this.files[0]);
+        this.value = '';
+      }
+    });
+    zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function () { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      var files = e.dataTransfer.files;
+      if (multi) {
+        handleImages(files, 'gallery');
+      } else if (files[0]) {
+        onFile(files[0]);
+      }
+    });
   }
 
   function showCreateForm(project) {
@@ -317,19 +435,27 @@
     if (form) form.reset();
     var titleEl = document.getElementById('form-title');
     if (titleEl) titleEl.textContent = project ? 'Editer le projet' : 'Nouveau projet';
+    var subEl = document.getElementById('form-subtitle');
+    if (subEl) subEl.textContent = project ? 'Modifiez les champs ci-dessous' : 'Remplissez les informations essentielles, le reste est optionnel';
+    var idEl = document.getElementById('project-id');
+    if (idEl) delete idEl.dataset.manual;
 
     uploadedFiles = { thumbnail: null, gallery: [] };
+    currentTags = [];
+    currentLinks = [];
     renderGalleryPreview();
-    renderTags([]);
-    renderLinks([]);
+    renderTagChips();
+    renderLinkChips();
+    updateThumbnailPreview();
+    updateLivePreview();
 
     if (project) {
       setVal('project-id', project.id);
+      if (idEl && project.id) idEl.dataset.manual = '1';
       setVal('project-title', project.title);
       setVal('project-description', project.description);
       setVal('project-description-long', project.descriptionLong);
-      setVal('project-date', project.date);
-      setVal('project-year', project.year);
+      setVal('project-date', project.date || project.year);
       setVal('project-platform', project.platform);
       var statusEl = document.getElementById('project-status');
       if (statusEl) statusEl.value = project.status || 'published';
@@ -344,18 +470,32 @@
 
       if (project.thumbnail) {
         uploadedFiles.thumbnail = project.thumbnail;
-        var tp = document.getElementById('thumbnail-preview');
-        if (tp) tp.innerHTML = '<img src="' + U.escapeAttr(project.thumbnail) + '">';
+        updateThumbnailPreview();
       }
       if (project.images) {
         uploadedFiles.gallery = project.images.slice();
         renderGalleryPreview();
       }
-      if (project.tags) renderTags(project.tags);
-      if (project.links) renderLinks(project.links);
+      if (project.tags) {
+        currentTags = (project.tags || []).map(function (t) {
+          return { name: U.getTagName(t), category: U.getTagCategory(t) || 'other' };
+        });
+        renderTagChips();
+      }
+      if (project.links) {
+        currentLinks = U.normalizeLinks(project.links);
+        renderLinkChips();
+      }
     }
 
+    // Reset advanced accordion
+    var advBody = document.getElementById('advanced-body');
+    var advHeader = document.querySelector('.accordion-header[data-accordion="advanced"]');
+    if (advBody) advBody.classList.remove('open');
+    if (advHeader) advHeader.classList.remove('open');
+
     goToView('create');
+    updateLivePreview();
   }
 
   function setVal(id, value) {
@@ -384,124 +524,229 @@
 
   function renderExistingTags() {
     var container = document.getElementById('existing-tags-list');
-    if (!container || existingTags.length === 0) return;
-    container.innerHTML = existingTags.map(function (t) {
-      return '<span class="existing-tag" data-name="' + U.escapeAttr(t.name) + '" data-cat="' + U.escapeAttr(t.category) + '">' + U.escapeHtml(t.name) + '</span>';
-    }).join('');
-    container.querySelectorAll('.existing-tag').forEach(function (el) {
+    if (!container) return;
+    if (existingTags.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = '<span class="existing-tags-label">Suggestions :</span>' +
+      existingTags.map(function (t) {
+        return '<button type="button" class="suggest-tag" data-name="' + U.escapeAttr(t.name) + '" data-cat="' + U.escapeAttr(t.category) + '">' + U.escapeHtml(t.name) + '</button>';
+      }).join('');
+    container.querySelectorAll('.suggest-tag').forEach(function (el) {
       el.addEventListener('click', function () {
-        addTagFromExisting(this.getAttribute('data-name'), this.getAttribute('data-cat'));
+        addTag(this.getAttribute('data-name'), this.getAttribute('data-cat'));
       });
     });
   }
 
-  window.addTagFromExisting = function (name, category) {
-    var container = document.getElementById('tags-container');
-    if (!container) return;
-    var existing = container.querySelectorAll('.tag-name');
-    for (var i = 0; i < existing.length; i++) {
-      if (existing[i].value.toLowerCase() === name.toLowerCase()) {
+  // ---- TAGS : chip system ----
+
+  var currentTags = [];
+  var currentLinks = [];
+
+  function addTag(name, category) {
+    name = (name || '').trim();
+    if (!name) return;
+    var key = name.toLowerCase();
+    for (var i = 0; i < currentTags.length; i++) {
+      if (currentTags[i].name.toLowerCase() === key) {
         showToast('Tag deja ajoute', 'error');
         return;
       }
     }
-    container.insertAdjacentHTML('beforeend', buildTagRowHTML(name, category));
-    showToast('Tag ajoute: ' + name);
-  };
-
-  window.addNewTag = function () {
-    var container = document.getElementById('tags-container');
-    if (!container) return;
-    container.insertAdjacentHTML('beforeend', buildTagRowHTML('', 'other'));
-  };
-
-  function buildTagRowHTML(name, category) {
-    return '<div class="tag-row">' +
-      '<input type="text" class="tag-name" value="' + U.escapeAttr(name) + '" placeholder="Nom du tag">' +
-      '<select class="tag-category">' + buildCategoryOptions(category) + '</select>' +
-      '<button type="button" class="btn btn-danger btn-sm" data-action="remove-row">X</button>' +
-    '</div>';
+    currentTags.push({ name: name, category: category || 'other' });
+    renderTagChips();
+    updateLivePreview();
   }
 
-  function buildCategoryOptions(selected) {
-    var opts = [
-      { v: 'engine', l: 'Moteur' },
-      { v: 'language', l: 'Langage' },
-      { v: 'role', l: 'Role' },
-      { v: 'genre', l: 'Genre' },
-      { v: 'platform', l: 'Plateforme' },
-      { v: 'tool', l: 'Outil' },
-      { v: 'other', l: 'Autre' }
-    ];
-    return opts.map(function (o) {
-      return '<option value="' + o.v + '"' + (o.v === selected ? ' selected' : '') + '>' + o.l + '</option>';
+  function removeTag(idx) {
+    currentTags.splice(idx, 1);
+    renderTagChips();
+    updateLivePreview();
+  }
+
+  function renderTagChips() {
+    var container = document.getElementById('tags-display');
+    if (!container) return;
+    if (currentTags.length === 0) {
+      container.innerHTML = '<span class="chips-empty">Aucun tag. Ajoutez-en ci-dessous.</span>';
+      return;
+    }
+    container.innerHTML = currentTags.map(function (t, i) {
+      var color = U.getTagColor(t.category);
+      return '<span class="chip" style="--chip-color:' + color + '">' +
+        '<span class="chip-dot"></span>' +
+        U.escapeHtml(t.name) +
+        '<button type="button" class="chip-x" data-tag-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+      '</span>';
     }).join('');
   }
 
-  function renderTags(tags) {
-    var container = document.getElementById('tags-container');
+  // ---- LINKS : chip system ----
+
+  function addLink(type, url) {
+    url = (url || '').trim();
+    if (!url) return;
+    var safe = U.safeUrl(url);
+    if (!safe) { showToast('URL invalide', 'error'); return; }
+    if (type === 'itch') type = 'itchio';
+    currentLinks.push({ type: type, url: safe });
+    renderLinkChips();
+    updateLivePreview();
+  }
+
+  function removeLink(idx) {
+    currentLinks.splice(idx, 1);
+    renderLinkChips();
+    updateLivePreview();
+  }
+
+  function renderLinkChips() {
+    var container = document.getElementById('links-display');
     if (!container) return;
-    container.innerHTML = '';
-    (tags || []).forEach(function (t) {
-      container.insertAdjacentHTML('beforeend', buildTagRowHTML(t.name || '', t.category || 'other'));
-    });
-  }
-
-  function renderLinks(links) {
-    var container = document.getElementById('links-container');
-    if (!container) return;
-    container.innerHTML = '';
-    U.normalizeLinks(links).forEach(function (l) {
-      container.insertAdjacentHTML('beforeend', buildLinkRowHTML(l.type, l.url));
-    });
-  }
-
-  function buildLinkRowHTML(type, url) {
-    return '<div class="link-row">' +
-      '<select class="link-type">' + buildLinkTypeOptions(type) + '</select>' +
-      '<input type="url" class="link-url" value="' + U.escapeAttr(url || '') + '" placeholder="https://...">' +
-      '<button type="button" class="btn btn-danger btn-sm" data-action="remove-row">X</button>' +
-    '</div>';
-  }
-
-  function buildLinkTypeOptions(selected) {
-    var opts = [
-      { v: 'itch', l: 'Itch.io' },
-      { v: 'itchio', l: 'Itch.io (alt)' },
-      { v: 'steam', l: 'Steam' },
-      { v: 'github', l: 'GitHub' },
-      { v: 'googleplay', l: 'Google Play' },
-      { v: 'demo', l: 'Demo' },
-      { v: 'other', l: 'Autre' }
-    ];
-    return opts.map(function (o) {
-      return '<option value="' + o.v + '"' + (o.v === selected ? ' selected' : '') + '>' + o.l + '</option>';
+    if (currentLinks.length === 0) {
+      container.innerHTML = '<span class="chips-empty">Aucun lien. Ajoutez-en ci-dessous.</span>';
+      return;
+    }
+    container.innerHTML = currentLinks.map(function (l, i) {
+      var label = U.linkLabel(l.type);
+      var shortUrl = l.url.replace(/^https?:\/\//, '').slice(0, 30);
+      return '<span class="chip chip-link">' +
+        '<span class="chip-type">' + U.escapeHtml(label) + '</span>' +
+        '<span class="chip-url">' + U.escapeHtml(shortUrl) + '</span>' +
+        '<button type="button" class="chip-x" data-link-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+      '</span>';
     }).join('');
   }
 
-  window.addNewLink = function () {
-    var container = document.getElementById('links-container');
-    if (!container) return;
-    container.insertAdjacentHTML('beforeend', buildLinkRowHTML('itch', ''));
-  };
+  // ---- THUMBNAIL preview ----
 
+  function updateThumbnailPreview() {
+    var empty = document.getElementById('thumbnail-empty');
+    var filled = document.getElementById('thumbnail-filled');
+    var img = document.getElementById('thumbnail-preview-img');
+    if (!empty || !filled || !img) return;
+    if (uploadedFiles.thumbnail) {
+      img.src = uploadedFiles.thumbnail;
+      empty.classList.add('hidden');
+      filled.classList.remove('hidden');
+    } else {
+      img.src = '';
+      empty.classList.remove('hidden');
+      filled.classList.add('hidden');
+    }
+  }
+
+  // Remove thumbnail
   document.addEventListener('click', function (e) {
-    var btn = e.target.closest('[data-action="remove-row"]');
-    if (btn && btn.parentElement) btn.parentElement.remove();
+    var rm = e.target.closest('[data-remove="thumbnail"]');
+    if (rm) {
+      uploadedFiles.thumbnail = null;
+      updateThumbnailPreview();
+      updateLivePreview();
+    }
   });
+
+  // Remove tag/link via event delegation
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-tag-remove]');
+    if (t) { removeTag(parseInt(t.getAttribute('data-tag-remove'), 10)); return; }
+    var l = e.target.closest('[data-link-remove]');
+    if (l) { removeLink(parseInt(l.getAttribute('data-link-remove'), 10)); }
+  });
+
+  // ---- LIVE PREVIEW ----
+
+  function updateLivePreview() {
+    var title = getVal('project-title') || 'Titre du projet';
+    var desc = getVal('project-description') || 'Description courte';
+    var date = getVal('project-date') || '';
+    var platform = getVal('project-platform') || '';
+    var status = getVal('project-status') || 'published';
+    var featured = !!(document.getElementById('project-featured') || {}).checked;
+    var role = getVal('project-role') || '';
+
+    var titleEl = document.getElementById('preview-title');
+    var subEl = document.getElementById('preview-subtitle');
+    if (titleEl) titleEl.textContent = title;
+    if (subEl) subEl.textContent = desc;
+
+    // Hero
+    var hero = document.getElementById('preview-hero');
+    if (hero) {
+      if (uploadedFiles.thumbnail) {
+        hero.innerHTML = '<img src="' + U.escapeAttr(uploadedFiles.thumbnail) + '" alt="">' +
+          (featured ? '<span class="preview-featured">FEATURED</span>' : '');
+      } else {
+        hero.innerHTML = '<div class="preview-hero-placeholder">Thumbnail</div>' +
+          (featured ? '<span class="preview-featured">FEATURED</span>' : '');
+      }
+    }
+
+    // Meta
+    var meta = document.getElementById('preview-meta');
+    if (meta) {
+      var parts = [];
+      if (date) parts.push('<span>' + U.escapeHtml(date) + '</span>');
+      if (platform) parts.push('<span>' + U.escapeHtml(platform) + '</span>');
+      parts.push('<span class="preview-status status-' + U.escapeAttr(status) + '">' + (status === 'draft' ? 'Brouillon' : 'Public') + '</span>');
+      if (role) parts.push('<span class="preview-role">' + U.escapeHtml(role) + '</span>');
+      meta.innerHTML = parts.join('<span class="meta-sep">//</span>');
+    }
+
+    // Pills (engine + genre from tags)
+    var pills = document.getElementById('preview-pills');
+    if (pills) {
+      var engines = currentTags.filter(function (t) { return t.category === 'engine'; }).map(function (t) { return t.name; });
+      var genres = currentTags.filter(function (t) { return t.category === 'genre'; }).map(function (t) { return t.name; });
+      var pHtml = '';
+      engines.forEach(function (e) { pHtml += '<span class="preview-pill pill-engine">' + U.escapeHtml(e) + '</span>'; });
+      genres.forEach(function (g) { pHtml += '<span class="preview-pill pill-genre">' + U.escapeHtml(g) + '</span>'; });
+      pills.innerHTML = pHtml;
+    }
+
+    // Tags
+    var tagBox = document.getElementById('preview-tags');
+    if (tagBox) {
+      if (currentTags.length === 0) {
+        tagBox.innerHTML = '<span class="preview-empty">Aucun tag</span>';
+      } else {
+        tagBox.innerHTML = currentTags.map(function (t) {
+          var color = U.getTagColor(t.category);
+          return '<span class="preview-tag" style="--tag-color:' + color + '">' + U.escapeHtml(t.name) + '</span>';
+        }).join('');
+      }
+    }
+
+    // Links
+    var linkBox = document.getElementById('preview-links');
+    if (linkBox) {
+      if (currentLinks.length === 0) {
+        linkBox.innerHTML = '<span class="preview-empty">Aucun lien</span>';
+      } else {
+        linkBox.innerHTML = currentLinks.map(function (l) {
+          return '<a class="preview-link" href="' + U.escapeAttr(l.url) + '" target="_blank" rel="noopener noreferrer">' +
+            '<span class="preview-link-type">' + U.escapeHtml(U.linkLabel(l.type)) + '</span>' +
+            '<span class="preview-link-arrow">&#8599;</span>' +
+          '</a>';
+        }).join('');
+      }
+    }
+  }
 
   function saveProject() {
     var id = (document.getElementById('project-id') || {}).value;
     if (!id || !id.trim()) { showToast('ID requis', 'error'); return; }
     id = id.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    if (!id) { showToast('ID invalide', 'error'); return; }
+
+    var dateVal = (getVal('project-date') || '').trim();
 
     var data = {
       id: id,
       title: (getVal('project-title') || '').trim(),
       description: (getVal('project-description') || '').trim(),
       descriptionLong: (getVal('project-description-long') || '').trim(),
-      year: (getVal('project-year') || '').trim(),
-      date: (getVal('project-date') || '').trim(),
+      date: dateVal,
+      year: dateVal,
       platform: (getVal('project-platform') || '').trim(),
       status: getVal('project-status') || 'published',
       video: (getVal('project-video') || '').trim(),
@@ -512,8 +757,8 @@
       role: (getVal('project-role') || '').trim(),
       thumbnail: uploadedFiles.thumbnail,
       images: uploadedFiles.gallery.slice(),
-      tags: getTags(),
-      links: getLinks()
+      tags: currentTags.slice(),
+      links: currentLinks.slice()
     };
 
     if (data.title.length > 200) { showToast('Titre trop long (max 200)', 'error'); return; }
@@ -544,43 +789,6 @@
     return el ? el.value : '';
   }
 
-  function getTags() {
-    var tags = [];
-    var rows = document.querySelectorAll('#tags-container .tag-row');
-    var seen = {};
-    for (var i = 0; i < rows.length; i++) {
-      var nameEl = rows[i].querySelector('.tag-name');
-      var catEl = rows[i].querySelector('.tag-category');
-      if (!nameEl || !catEl) continue;
-      var name = nameEl.value.trim();
-      var cat = catEl.value;
-      if (!name) continue;
-      var key = name.toLowerCase();
-      if (seen[key]) continue;
-      seen[key] = true;
-      tags.push({ name: name, category: cat });
-    }
-    return tags;
-  }
-
-  function getLinks() {
-    var links = [];
-    var rows = document.querySelectorAll('#links-container .link-row');
-    for (var i = 0; i < rows.length; i++) {
-      var typeEl = rows[i].querySelector('.link-type');
-      var urlEl = rows[i].querySelector('.link-url');
-      if (!typeEl || !urlEl) continue;
-      var url = urlEl.value.trim();
-      if (!url) continue;
-      var safe = U.safeUrl(url);
-      if (!safe) continue;
-      var type = typeEl.value;
-      if (type === 'itch') type = 'itchio';
-      links.push({ type: type, url: safe });
-    }
-    return links;
-  }
-
   // ============== FILE UPLOADS (with compression) ==============
 
   function setupFileUploads() {
@@ -592,30 +800,32 @@
 
   function handleImage(file, target) {
     if (!file || !file.type.startsWith('image/')) { showToast('Selectionnez une image', 'error'); return; }
-    compressImage(file, { maxWidth: 600, quality: 0.7 })
-      .then(function (base64) { assignImage(base64, target, file.name); })
-      .catch(function (e) { showToast('Erreur compression: ' + e.message, 'error'); });
+    if (target === 'thumbnail') {
+      compressImage(file, { maxWidth: 600, quality: 0.7 })
+        .then(function (base64) {
+          uploadedFiles.thumbnail = base64;
+          updateThumbnailPreview();
+          updateLivePreview();
+          showToast('Thumbnail compresse');
+        })
+        .catch(function (e) { showToast('Erreur compression: ' + e.message, 'error'); });
+    } else if (target === 'gallery') {
+      compressImage(file, { maxWidth: 1280, quality: 0.75 })
+        .then(function (base64) { uploadedFiles.gallery.push(base64); renderGalleryPreview(); })
+        .catch(function (e) { showToast('Erreur compression: ' + e.message, 'error'); });
+    }
   }
 
   function handleImages(files, target) {
     if (!files || files.length === 0) return;
-    var pending = files.length;
+    var arr = Array.prototype.slice.call(files);
     var done = 0;
-    Array.prototype.forEach.call(files, function (file) {
-      if (!file.type.startsWith('image/')) { pending--; return; }
+    arr.forEach(function (file) {
+      if (!file.type.startsWith('image/')) { done++; return; }
       compressImage(file, { maxWidth: 1280, quality: 0.75 })
-        .then(function (base64) { uploadedFiles.gallery.push(base64); done++; renderGalleryPreview(); if (done === pending) showToast(done + ' images ajoutees'); })
-        .catch(function (e) { showToast('Erreur ' + file.name + ': ' + e.message, 'error'); pending--; });
+        .then(function (base64) { uploadedFiles.gallery.push(base64); renderGalleryPreview(); done++; if (done === arr.length) showToast(done + ' images ajoutees'); })
+        .catch(function (e) { showToast('Erreur ' + file.name + ': ' + e.message, 'error'); done++; });
     });
-  }
-
-  function assignImage(base64, target, name) {
-    if (target === 'thumbnail') {
-      uploadedFiles.thumbnail = base64;
-      var tp = document.getElementById('thumbnail-preview');
-      if (tp) tp.innerHTML = '<img src="' + U.escapeAttr(base64) + '">';
-      showToast('Thumbnail compresse');
-    }
   }
 
   function compressImage(file, opts) {
