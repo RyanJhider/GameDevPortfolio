@@ -3,12 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: only whitelisted emails can write
+    // Whitelisted admin UID (Google sign-in: ryanjhider@gmail.com)
+    // Using UID instead of email avoids casing / token normalization edge cases.
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email in [
-          'ryanjhider@gmail.com'
-        ];
+        && request.auth.uid == 'xfLGmCokx6OdOWJVUdIAJ6pSdHw1';
     }
 
     // ===== PROJECTS =====
