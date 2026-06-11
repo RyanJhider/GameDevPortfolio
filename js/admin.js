@@ -742,7 +742,7 @@
       project.images.forEach(function (src, i) {
         if (isAlreadyBase64(src)) return;
         tasks.push(
-          compressImageUrl(src, { maxWidth: 1280, quality: 0.75 })
+          compressImageUrl(src, { maxWidth: 800, quality: 0.6 })
             .then(function (b64) { project.images[i] = b64; })
             .catch(function (e) {
               errors.push('Image ' + i + ' "' + src + '": ' + e.message);
