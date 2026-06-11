@@ -674,9 +674,82 @@
 
   // ============== IMPORT ==============
 
+  function isAlreadyBase64(str) {
+    return typeof str === 'string' && /^data:image\//i.test(str);
+  }
+
+  function isRelativeImagePath(str) {
+    return typeof str === 'string' && /^(images\/|\.\/|\.\.\/|[^a-z]+:)/i.test(str) === false
+      && /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(str);
+  }
+
+  function compressImageUrl(url, opts) {
+    opts = opts || {};
+    var maxWidth = opts.maxWidth || 1280;
+    var quality = opts.quality || 0.75;
+    return fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' sur ' + url);
+        return r.blob();
+      })
+      .then(function (blob) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onerror = function () { reject(new Error('Lecture impossible: ' + url)); };
+          reader.onload = function (e) {
+            var img = new Image();
+            img.onerror = function () { reject(new Error('Image invalide: ' + url)); };
+            img.onload = function () {
+              var w = img.width;
+              var h = img.height;
+              if (w > maxWidth) {
+                h = Math.round(h * (maxWidth / w));
+                w = maxWidth;
+              }
+              var canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              try {
+                resolve(canvas.toDataURL('image/jpeg', quality));
+              } catch (err) {
+                reject(err);
+              }
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(blob);
+        });
+      });
+  }
+
+  function convertProjectImages(project) {
+    var tasks = [];
+    var needsThumb = project.thumbnail && !isAlreadyBase64(project.thumbnail);
+    if (needsThumb) {
+      tasks.push(
+        compressImageUrl(project.thumbnail, { maxWidth: 600, quality: 0.7 })
+          .then(function (b64) { project.thumbnail = b64; })
+          .catch(function (e) { throw new Error('Thumbnail "' + project.thumbnail + '": ' + e.message); })
+      );
+    }
+    if (Array.isArray(project.images)) {
+      project.images.forEach(function (src, i) {
+        if (isAlreadyBase64(src)) return;
+        tasks.push(
+          compressImageUrl(src, { maxWidth: 1280, quality: 0.75 })
+            .then(function (b64) { project.images[i] = b64; })
+            .catch(function (e) { throw new Error('Image ' + i + ' "' + src + '": ' + e.message); })
+        );
+      });
+    }
+    return Promise.all(tasks);
+  }
+
   window.importProjectsFromJSON = function () {
     if (!firebaseReady()) { showToast('Config Firebase manquante!', 'error'); return; }
-    showToast('Import en cours vers Firestore...');
+    showToast('Import en cours vers Firestore (conversion images)...');
     fetch('data/projects.json?t=' + Date.now())
       .then(function (r) {
         if (!r.ok) throw new Error('Fichier non trouve: ' + r.status);
@@ -684,13 +757,36 @@
       })
       .then(function (data) {
         if (!data.projects || data.projects.length === 0) { showToast('Aucun projet trouve', 'error'); return; }
-        var imported = 0;
         var total = data.projects.length;
-        data.projects.forEach(function (project) {
-          firebase.firestore().collection('projects').doc(project.id).set(project)
-            .then(function () { imported++; if (imported === total) { showToast(total + ' projets importes dans Firestore!'); loadProjects(); } })
-            .catch(function (err) { showToast('Erreur import: ' + err.message, 'error'); });
-        });
+        var imported = 0;
+        var failed = 0;
+        var projects = data.projects.slice();
+
+        function processNext() {
+          if (projects.length === 0) {
+            if (failed === 0) showToast(total + ' projets importes dans Firestore!');
+            else showToast(imported + '/' + total + ' importes, ' + failed + ' echoues');
+            loadProjects();
+            return;
+          }
+          var project = projects.shift();
+          convertProjectImages(project)
+            .then(function () {
+              return firebase.firestore().collection('projects').doc(project.id).set(project);
+            })
+            .then(function () {
+              imported++;
+              showToast('Import ' + imported + '/' + total + ': ' + project.title);
+              processNext();
+            })
+            .catch(function (err) {
+              failed++;
+              console.error('Import "' + project.id + '" failed:', err);
+              showToast('Erreur "' + project.id + '": ' + err.message, 'error');
+              processNext();
+            });
+        }
+        processNext();
       })
       .catch(function (err) { showToast('Erreur: ' + err.message, 'error'); });
   };
