@@ -270,10 +270,27 @@
                             </div>
                         </div>
 
+                        <!-- Contributions : always visible -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <span class="section-num">05</span>
+                                <h2>Mes contributions</h2>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                                Decrivez les taches concretes que vous avez realisees sur ce projet.
+                            </p>
+                            <div id="contributions-display" class="contributions-list"></div>
+                            <div class="contribution-input-row">
+                                <input type="text" id="contribution-title-input" placeholder="Titre de la tache (ex: Gameplay programming)" autocomplete="off" maxlength="80">
+                                <textarea id="contribution-desc-input" placeholder="Petite explication de ce que vous avez fait..." rows="2" maxlength="500"></textarea>
+                                <button type="button" class="btn btn-primary btn-sm" id="add-contribution-btn">+ Ajouter</button>
+                            </div>
+                        </div>
+
                         <!-- Advanced : collapsible -->
                         <div class="form-section accordion">
                             <button type="button" class="accordion-header" data-accordion="advanced">
-                                <span class="section-num">05</span>
+                                <span class="section-num">06</span>
                                 <h2>Details avances</h2>
                                 <span class="accordion-chevron">&#9662;</span>
                             </button>

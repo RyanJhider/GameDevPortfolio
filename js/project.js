@@ -72,6 +72,7 @@
     renderMedia(p);
     renderPills(p);
     renderDescription(p);
+    renderContributions(p);
     renderLinks(p);
     renderDetails(p);
     renderTech(p);
@@ -128,6 +129,49 @@
 
   function renderDescription(p) {
     setText('pdp-desc', p.descriptionLong || p.description || '');
+  }
+
+  function renderContributions(p) {
+    var section = document.getElementById('pdp-contributions-section');
+    var container = document.getElementById('pdp-contributions');
+    if (!section || !container) return;
+    container.innerHTML = '';
+
+    var list = [];
+    (p.contributions || []).forEach(function (c) {
+      if (!c) return;
+      var title, desc;
+      if (typeof c === 'string') { title = c; desc = ''; }
+      else { title = c.title || ''; desc = c.description || ''; }
+      title = String(title).trim();
+      if (!title) return;
+      list.push({ title: title, desc: String(desc).trim() });
+    });
+
+    if (list.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+
+    list.forEach(function (it) {
+      var card = document.createElement('div');
+      card.className = 'pdp-contrib-card';
+
+      var titleEl = document.createElement('h3');
+      titleEl.className = 'pdp-contrib-title';
+      titleEl.textContent = it.title;
+      card.appendChild(titleEl);
+
+      if (it.desc) {
+        var descEl = document.createElement('p');
+        descEl.className = 'pdp-contrib-desc';
+        descEl.textContent = it.desc;
+        card.appendChild(descEl);
+      }
+
+      container.appendChild(card);
+    });
   }
 
   function renderLinks(p) {

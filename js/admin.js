@@ -360,6 +360,34 @@
       });
     }
 
+    // Contribution input
+    var contribTitleInput = document.getElementById('contribution-title-input');
+    var contribDescInput = document.getElementById('contribution-desc-input');
+    var addContribBtn = document.getElementById('add-contribution-btn');
+    function addContributionFromInput() {
+      var title = contribTitleInput.value.trim();
+      var desc = contribDescInput.value.trim();
+      if (!title) { showToast('Titre requis', 'error'); return; }
+      addContribution(title, desc);
+      contribTitleInput.value = '';
+      contribDescInput.value = '';
+      contribTitleInput.focus();
+    }
+    if (addContribBtn) addContribBtn.addEventListener('click', addContributionFromInput);
+    if (contribTitleInput) {
+      contribTitleInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addContributionFromInput(); }
+      });
+    }
+    if (contribDescInput) {
+      contribDescInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          addContributionFromInput();
+        }
+      });
+    }
+
     // Dropzone for thumbnail (click + drag)
     setupDropzone('thumbnail-dropzone', 'project-thumbnail-file', function (file) {
       handleImage(file, 'thumbnail');
@@ -443,9 +471,11 @@
     uploadedFiles = { thumbnail: null, gallery: [] };
     currentTags = [];
     currentLinks = [];
+    currentContributions = [];
     renderGalleryPreview();
     renderTagChips();
     renderLinkChips();
+    renderContributionCards();
     updateThumbnailPreview();
     updateLivePreview();
 
@@ -485,6 +515,18 @@
       if (project.links) {
         currentLinks = U.normalizeLinks(project.links);
         renderLinkChips();
+      }
+      if (Array.isArray(project.contributions)) {
+        currentContributions = project.contributions
+          .map(function (c) {
+            if (typeof c === 'string') return { title: c, description: '' };
+            return {
+              title: (c && c.title) ? String(c.title) : '',
+              description: (c && c.description) ? String(c.description) : ''
+            };
+          })
+          .filter(function (c) { return c.title; });
+        renderContributionCards();
       }
     }
 
@@ -541,6 +583,7 @@
 
   var currentTags = [];
   var currentLinks = [];
+  var currentContributions = [];
 
   function addTag(name, category) {
     name = (name || '').trim();
@@ -617,6 +660,49 @@
     }).join('');
   }
 
+  // ---- CONTRIBUTIONS : card system ----
+
+  function addContribution(title, description) {
+    title = (title || '').trim();
+    description = (description || '').trim();
+    if (!title) return;
+    var key = title.toLowerCase();
+    for (var i = 0; i < currentContributions.length; i++) {
+      if (currentContributions[i].title.toLowerCase() === key) {
+        showToast('Contribution deja ajoutee', 'error');
+        return;
+      }
+    }
+    currentContributions.push({ title: title, description: description });
+    renderContributionCards();
+  }
+
+  function removeContribution(idx) {
+    currentContributions.splice(idx, 1);
+    renderContributionCards();
+  }
+
+  function renderContributionCards() {
+    var container = document.getElementById('contributions-display');
+    if (!container) return;
+    if (currentContributions.length === 0) {
+      container.innerHTML = '<span class="chips-empty">Aucune contribution ajoutee.</span>';
+      return;
+    }
+    container.innerHTML = currentContributions.map(function (c, i) {
+      var descHtml = c.description
+        ? '<p class="contrib-card-desc">' + U.escapeHtml(c.description) + '</p>'
+        : '';
+      return '<div class="contrib-card-admin">' +
+        '<div class="contrib-card-body">' +
+          '<h4 class="contrib-card-title">' + U.escapeHtml(c.title) + '</h4>' +
+          descHtml +
+        '</div>' +
+        '<button type="button" class="contrib-card-remove" data-contrib-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+      '</div>';
+    }).join('');
+  }
+
   // ---- THUMBNAIL preview ----
 
   function updateThumbnailPreview() {
@@ -650,7 +736,9 @@
     var t = e.target.closest('[data-tag-remove]');
     if (t) { removeTag(parseInt(t.getAttribute('data-tag-remove'), 10)); return; }
     var l = e.target.closest('[data-link-remove]');
-    if (l) { removeLink(parseInt(l.getAttribute('data-link-remove'), 10)); }
+    if (l) { removeLink(parseInt(l.getAttribute('data-link-remove'), 10)); return; }
+    var c = e.target.closest('[data-contrib-remove]');
+    if (c) { removeContribution(parseInt(c.getAttribute('data-contrib-remove'), 10)); }
   });
 
   // ---- LIVE PREVIEW ----
@@ -758,7 +846,8 @@
       thumbnail: uploadedFiles.thumbnail,
       images: uploadedFiles.gallery.slice(),
       tags: currentTags.slice(),
-      links: currentLinks.slice()
+      links: currentLinks.slice(),
+      contributions: currentContributions.slice()
     };
 
     if (data.title.length > 200) { showToast('Titre trop long (max 200)', 'error'); return; }

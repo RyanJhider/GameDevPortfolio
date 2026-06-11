@@ -528,6 +528,42 @@ a:hover { text-shadow: var(--glow-phosphor); }
   color: var(--text-secondary);
 }
 
+/* Contributions */
+.pdp-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pdp-contrib-card {
+  position: relative;
+  padding: 1rem 1.1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-phosphor);
+  transition: border-color 0.2s var(--ease-snap), transform 0.2s var(--ease-snap);
+}
+
+.pdp-contrib-card:hover {
+  border-left-color: var(--accent-blood);
+  transform: translateX(2px);
+}
+
+.pdp-contrib-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.pdp-contrib-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
 /* Links */
 .pdp-links {
   display: flex;
