@@ -725,13 +725,17 @@
   }
 
   function convertProjectImages(project) {
+    var errors = [];
     var tasks = [];
     var needsThumb = project.thumbnail && !isAlreadyBase64(project.thumbnail);
     if (needsThumb) {
       tasks.push(
         compressImageUrl(project.thumbnail, { maxWidth: 600, quality: 0.7 })
           .then(function (b64) { project.thumbnail = b64; })
-          .catch(function (e) { throw new Error('Thumbnail "' + project.thumbnail + '": ' + e.message); })
+          .catch(function (e) {
+            errors.push('Thumbnail "' + project.thumbnail + '": ' + e.message);
+            project.thumbnail = '';
+          })
       );
     }
     if (Array.isArray(project.images)) {
@@ -740,11 +744,21 @@
         tasks.push(
           compressImageUrl(src, { maxWidth: 1280, quality: 0.75 })
             .then(function (b64) { project.images[i] = b64; })
-            .catch(function (e) { throw new Error('Image ' + i + ' "' + src + '": ' + e.message); })
+            .catch(function (e) {
+              errors.push('Image ' + i + ' "' + src + '": ' + e.message);
+              project.images[i] = '';
+            })
         );
       });
     }
-    return Promise.all(tasks);
+    return Promise.all(tasks).then(function () {
+      if (Array.isArray(project.images)) {
+        project.images = project.images.filter(function (s) { return s; });
+      }
+      if (errors.length > 0) {
+        console.warn('Import "' + project.id + '" images partielles:', errors);
+      }
+    });
   }
 
   window.importProjectsFromJSON = function () {
