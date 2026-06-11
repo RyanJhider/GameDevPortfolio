@@ -153,6 +153,41 @@
 .md-preview code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 4px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--accent-phosphor); }
 .md-preview a { color: var(--accent-phosphor); }
 
+/* Floating markdown toolbar (Notion/Medium style) */
+.md-toolbar {
+  position: absolute;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-medium);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 0 1px rgba(61,255,94,0.08);
+  z-index: 9999;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.md-toolbar.md-toolbar-visible { display: inline-flex; pointer-events: auto; }
+
+.md-toolbar-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  min-width: 30px;
+  text-align: center;
+  transition: all 0.12s;
+  line-height: 1;
+}
+
+.md-toolbar-btn:hover { color: var(--accent-phosphor); border-color: var(--border-medium); background: var(--bg-elevated); }
+.md-toolbar-btn strong { font-weight: 700; }
+.md-toolbar-btn em { font-style: italic; }
+
 .contribution-input-row { display: flex; flex-direction: column; gap: 0.4rem; }
 .contribution-input-row input, .contribution-input-row textarea { padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; width: 100%; resize: vertical; }
 .contribution-input-row input:focus, .contribution-input-row textarea:focus { outline: none; border-color: var(--accent-phosphor); }

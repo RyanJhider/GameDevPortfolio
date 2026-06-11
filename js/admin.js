@@ -412,6 +412,9 @@
       });
     });
 
+    // Floating markdown toolbar (top-level description textarea)
+    setupFloatingToolbar(contribDescInput);
+
     // Dropzone for thumbnail (click + drag)
     setupDropzone('thumbnail-dropzone', 'project-thumbnail-file', function (file) {
       handleImage(file, 'thumbnail');
@@ -749,14 +752,7 @@
         body =
           '<div class="contrib-edit-fields">' +
             '<input type="text" class="contrib-edit-title" value="' + U.escapeAttr(c.title) + '" maxlength="80" autocomplete="off">' +
-            '<div class="md-editor md-editor-inline">' +
-              '<div class="md-editor-tabs">' +
-                '<button type="button" class="md-tab md-tab-active" data-md-tab="write">Edition</button>' +
-                '<button type="button" class="md-tab" data-md-tab="preview">Apercu</button>' +
-              '</div>' +
-              '<textarea class="contrib-edit-desc md-textarea" rows="4" maxlength="2000" placeholder="Petite explication... (markdown)">' + U.escapeHtml(c.description) + '</textarea>' +
-              '<div class="contrib-edit-preview md-preview markdown-body" style="display:none;"></div>' +
-            '</div>' +
+            '<textarea class="contrib-edit-desc md-textarea" data-contrib-edit-ta="' + i + '" rows="4" maxlength="2000" placeholder="Selectionnez du texte pour les options de formatage...">' + U.escapeHtml(c.description) + '</textarea>' +
             '<div class="contrib-edit-actions">' +
               '<button type="button" class="btn btn-primary btn-sm" data-contrib-save="' + i + '">Enregistrer</button>' +
               '<button type="button" class="btn btn-secondary btn-sm" data-contrib-cancel="' + i + '">Annuler</button>' +
@@ -785,6 +781,9 @@
     if (editIdx !== undefined && editIdx !== null) {
       var editing = document.querySelector('[data-contrib-card="' + editIdx + '"] .contrib-edit-title');
       if (editing) { editing.focus(); editing.select(); }
+      // Wire the floating toolbar for the inline edit textarea
+      var ta = document.querySelector('[data-contrib-card="' + editIdx + '"] .contrib-edit-desc');
+      if (ta) setupFloatingToolbar(ta);
     }
   }
 
@@ -868,6 +867,204 @@
       if (textarea) { textarea.style.display = ''; textarea.focus(); }
     }
   });
+
+  // Floating toolbar action button -> apply markdown formatting
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.md-toolbar-btn');
+    if (!btn) return;
+    e.preventDefault();
+    var toolbar = btn.closest('.md-toolbar');
+    if (!toolbar) return;
+    var targetKey = toolbar.getAttribute('data-target');
+    var textarea;
+    if (targetKey && /^contrib-edit-\d+$/.test(targetKey)) {
+      var idx = targetKey.replace('contrib-edit-', '');
+      textarea = document.querySelector('[data-contrib-edit-ta="' + idx + '"]');
+    } else {
+      textarea = targetKey ? document.getElementById(targetKey) : toolbar.previousElementSibling;
+    }
+    if (!textarea || typeof textarea.selectionStart !== 'number') return;
+    var action = btn.getAttribute('data-md-action');
+    applyMarkdownAction(textarea, action);
+    // Refresh toolbar position after the textarea content changes
+    positionToolbar(toolbar, textarea);
+  });
+
+  // ---- Markdown floating toolbar ----
+
+  function ensureToolbar(textarea) {
+    if (!textarea) return null;
+    // Use the textarea's id, or fall back to a generated key (for inline card edit textareas)
+    var key = textarea.id ? textarea.id : (textarea.getAttribute('data-contrib-edit-ta') ? 'contrib-edit-' + textarea.getAttribute('data-contrib-edit-ta') : '');
+    if (!key) return null;
+    var toolbarId = 'md-toolbar-' + key;
+    var toolbar = document.getElementById(toolbarId);
+    if (toolbar) return toolbar;
+    toolbar = document.createElement('div');
+    toolbar.id = toolbarId;
+    toolbar.className = 'md-toolbar';
+    toolbar.setAttribute('data-target', key);
+    toolbar.innerHTML =
+      '<button type="button" class="md-toolbar-btn" data-md-action="bold" title="Gras (**)"><strong>B</strong></button>' +
+      '<button type="button" class="md-toolbar-btn" data-md-action="italic" title="Italique (*)"><em>I</em></button>' +
+      '<button type="button" class="md-toolbar-btn" data-md-action="list" title="Liste a puces (-)">&#8226; List</button>' +
+      '<button type="button" class="md-toolbar-btn" data-md-action="link" title="Lien [texte](url)">&#128279;</button>';
+    document.body.appendChild(toolbar);
+    return toolbar;
+  }
+
+  function positionToolbar(toolbar, textarea) {
+    if (!toolbar || !textarea) return;
+    // Only show when there's a non-empty selection
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    if (start === end) {
+      toolbar.classList.remove('md-toolbar-visible');
+      return;
+    }
+    // Compute the bounding rect of the selected text using a mirror element
+    var rect = getSelectionRect(textarea, start, end);
+    if (!rect) {
+      toolbar.classList.remove('md-toolbar-visible');
+      return;
+    }
+    var taRect = textarea.getBoundingClientRect();
+    var top = window.scrollY + rect.top - 44;
+    var left = window.scrollX + rect.left + (rect.width / 2);
+    // Clamp left so toolbar doesn't overflow viewport
+    var halfWidth = 110;
+    if (left - halfWidth < 8) left = 8 + halfWidth;
+    if (left + halfWidth > window.scrollX + window.innerWidth - 8) {
+      left = window.scrollX + window.innerWidth - 8 - halfWidth;
+    }
+    toolbar.style.top = top + 'px';
+    toolbar.style.left = left + 'px';
+    toolbar.classList.add('md-toolbar-visible');
+  }
+
+  // Mirror a textarea into a hidden div to find pixel position of selection.
+  // We use a simple approach: clone styles + text with a marker span.
+  function getSelectionRect(textarea, start, end) {
+    try {
+      var value = textarea.value;
+      var before = value.substring(0, start);
+      var sel = value.substring(start, end) || '.';
+      var style = window.getComputedStyle(textarea);
+      var div = document.createElement('div');
+      div.style.position = 'absolute';
+      div.style.visibility = 'hidden';
+      div.style.whiteSpace = 'pre-wrap';
+      div.style.wordWrap = 'break-word';
+      div.style.top = '0';
+      div.style.left = '0';
+      var props = [
+        'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing',
+        'textTransform', 'wordSpacing', 'lineHeight', 'padding', 'border',
+        'boxSizing', 'width', 'tabSize'
+      ];
+      props.forEach(function (p) { div.style[p] = style[p]; });
+      div.textContent = before;
+      var selSpan = document.createElement('span');
+      selSpan.textContent = sel;
+      div.appendChild(selSpan);
+      var after = document.createElement('span');
+      after.textContent = value.substring(end);
+      div.appendChild(after);
+      document.body.appendChild(div);
+      var rect = selSpan.getBoundingClientRect();
+      var taRect = textarea.getBoundingClientRect();
+      var result = {
+        top: rect.top - taRect.top + textarea.scrollTop,
+        left: rect.left - taRect.left + textarea.scrollLeft,
+        width: rect.width,
+        height: rect.height
+      };
+      document.body.removeChild(div);
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function setupFloatingToolbar(textarea) {
+    if (!textarea) return;
+    var toolbar = ensureToolbar(textarea);
+    if (!toolbar) return;
+
+    function refresh() {
+      if (document.activeElement !== textarea) {
+        toolbar.classList.remove('md-toolbar-visible');
+        return;
+      }
+      positionToolbar(toolbar, textarea);
+    }
+    function hide() { toolbar.classList.remove('md-toolbar-visible'); }
+
+    textarea.addEventListener('mouseup', refresh);
+    textarea.addEventListener('keyup', refresh);
+    textarea.addEventListener('focus', refresh);
+    textarea.addEventListener('blur', function () { setTimeout(hide, 150); });
+    textarea.addEventListener('scroll', hide);
+    window.addEventListener('scroll', hide, true);
+    window.addEventListener('resize', hide);
+  }
+
+  function applyMarkdownAction(textarea, action) {
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    var value = textarea.value;
+
+    function replaceSelection(before, sel, after) {
+      var newValue = value.substring(0, start) + before + sel + after + value.substring(end);
+      textarea.value = newValue;
+      var newStart = start + before.length;
+      var newEnd = newStart + sel.length;
+      textarea.focus();
+      textarea.setSelectionRange(newStart, newEnd);
+    }
+
+    var sel = value.substring(start, end);
+    var selected = sel.length > 0;
+
+    if (action === 'bold') {
+      if (selected) replaceSelection('**', sel, '**');
+      else { replaceSelection('**', 'texte en gras', '**'); }
+    } else if (action === 'italic') {
+      if (selected) replaceSelection('*', sel, '*');
+      else { replaceSelection('*', 'italique', '*'); }
+    } else if (action === 'list') {
+      // Add "- " at the start of each selected line
+      var block = selected ? sel : 'Premier element';
+      var lines = block.split(/\r?\n/);
+      var allBullet = lines.length > 0 && lines.every(function (l) { return /^\s*[-*]\s+/.test(l) || l.trim() === ''; }) && lines.some(function (l) { return /^\s*[-*]\s+/.test(l); });
+      var transformed;
+      if (allBullet) {
+        // Toggle off: strip bullet
+        transformed = lines.map(function (l) { return l.replace(/^(\s*)[-*]\s+/, '$1'); }).join('\n');
+      } else {
+        // Toggle on: add "- "
+        transformed = lines.map(function (l) {
+          if (l.trim() === '') return l;
+          return '- ' + l.replace(/^\s+/, '');
+        }).join('\n');
+      }
+      replaceSelection('', transformed, '');
+    } else if (action === 'link') {
+      if (selected) {
+        var url = window.prompt('URL du lien :', 'https://');
+        if (url === null) return;
+        var safe = U.safeUrl(url);
+        if (!safe) { showToast('URL invalide', 'error'); return; }
+        replaceSelection('[', sel, '](' + safe + ')');
+      } else {
+        var url2 = window.prompt('URL du lien :', 'https://');
+        if (url2 === null) return;
+        var safe2 = U.safeUrl(url2);
+        if (!safe2) { showToast('URL invalide', 'error'); return; }
+        replaceSelection('[', 'texte du lien', '](' + safe2 + ')');
+      }
+    }
+  }
 
   // ---- LIVE PREVIEW ----
 
