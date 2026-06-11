@@ -121,3 +121,11 @@
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border-medium); border-top-color: var(--accent-phosphor); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 768px) { .admin-sidebar { width: 100%; position: relative; height: auto; } .admin-main { margin-left: 0; } .admin-projects-grid { grid-template-columns: 1fr; } }
+
+.login-divider { display: flex; align-items: center; margin: 1.25rem 0; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+.login-divider span { padding: 0 0.75rem; }
+
+.btn-google { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-medium); display: inline-flex; align-items: center; justify-content: center; }
+.btn-google:hover { border-color: var(--text-secondary); background: var(--bg-primary); }
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }

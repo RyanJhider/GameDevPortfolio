@@ -44,6 +44,8 @@
   function setupLoginForm() {
     var form = document.getElementById('login-form');
     if (form) form.addEventListener('submit', function (e) { e.preventDefault(); doLogin(); });
+    var googleBtn = document.getElementById('google-login-btn');
+    if (googleBtn) googleBtn.addEventListener('click', function (e) { e.preventDefault(); doGoogleLogin(); });
   }
 
   function doLogin() {
@@ -65,6 +67,44 @@
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function () { showDashboard(); })
       .catch(function (error) { setError(errorEl, getErrorMessage(error.code)); });
+  }
+
+  function doGoogleLogin() {
+    var errorEl = document.getElementById('login-error');
+    if (errorEl) errorEl.textContent = '';
+
+    if (!window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) {
+      setError(errorEl, 'Config Firebase manquante');
+      showConfigHelp(true);
+      return;
+    }
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      setError(errorEl, 'Firebase SDK non charge (verifiez votre connexion internet)');
+      return;
+    }
+
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider)
+      .then(function (result) {
+        var user = result.user;
+        if (!isAuthorizedEmail(user.email)) {
+          firebase.auth().signOut();
+          setError(errorEl, 'Acces refuse: ' + user.email + ' n\'est pas autorise');
+          return;
+        }
+        showDashboard();
+      })
+      .catch(function (error) { setError(errorEl, getErrorMessage(error.code)); });
+  }
+
+  function isAuthorizedEmail(email) {
+    if (!email) return false;
+    var allowed = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.adminEmails) || [];
+    if (allowed.length === 0) return true;
+    for (var i = 0; i < allowed.length; i++) {
+      if (allowed[i].toLowerCase() === email.toLowerCase()) return true;
+    }
+    return false;
   }
 
   function showConfigHelp(show) {
@@ -95,7 +135,18 @@
     if (!window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) { showLoginScreen(); return; }
     if (typeof firebase === 'undefined' || !firebase.auth) { showLoginScreen(); return; }
     firebase.auth().onAuthStateChanged(function (user) {
-      if (user) showDashboard(); else showLoginScreen();
+      if (user) {
+        if (!isAuthorizedEmail(user.email)) {
+          firebase.auth().signOut();
+          var errorEl = document.getElementById('login-error');
+          setError(errorEl, 'Acces refuse: ' + (user.email || 'email inconnu') + ' n\'est pas autorise');
+          showLoginScreen();
+          return;
+        }
+        showDashboard();
+      } else {
+        showLoginScreen();
+      }
     }, function () { showLoginScreen(); });
   }
 
