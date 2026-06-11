@@ -682,7 +682,36 @@
     renderContributionCards();
   }
 
-  function renderContributionCards() {
+  function editContribution(idx) {
+    if (idx < 0 || idx >= currentContributions.length) return;
+    renderContributionCards(idx);
+  }
+
+  function saveContribution(idx) {
+    if (idx < 0 || idx >= currentContributions.length) return;
+    var card = document.querySelector('[data-contrib-card="' + idx + '"]');
+    if (!card) return;
+    var titleInput = card.querySelector('.contrib-edit-title');
+    var descInput = card.querySelector('.contrib-edit-desc');
+    var newTitle = (titleInput.value || '').trim();
+    var newDesc = (descInput.value || '').trim();
+    if (!newTitle) { showToast('Titre requis', 'error'); return; }
+    var key = newTitle.toLowerCase();
+    for (var i = 0; i < currentContributions.length; i++) {
+      if (i !== idx && currentContributions[i].title.toLowerCase() === key) {
+        showToast('Une autre contribution a deja ce titre', 'error');
+        return;
+      }
+    }
+    currentContributions[idx] = { title: newTitle, description: newDesc };
+    renderContributionCards();
+  }
+
+  function cancelEditContribution(idx) {
+    renderContributionCards();
+  }
+
+  function renderContributionCards(editIdx) {
     var container = document.getElementById('contributions-display');
     if (!container) return;
     if (currentContributions.length === 0) {
@@ -690,17 +719,42 @@
       return;
     }
     container.innerHTML = currentContributions.map(function (c, i) {
-      var descHtml = c.description
-        ? '<p class="contrib-card-desc">' + U.escapeHtml(c.description) + '</p>'
-        : '';
-      return '<div class="contrib-card-admin">' +
-        '<div class="contrib-card-body">' +
+      var isEditing = (editIdx === i);
+      var body;
+      if (isEditing) {
+        body =
+          '<div class="contrib-edit-fields">' +
+            '<input type="text" class="contrib-edit-title" value="' + U.escapeAttr(c.title) + '" maxlength="80" autocomplete="off">' +
+            '<textarea class="contrib-edit-desc" rows="2" maxlength="500" placeholder="Petite explication...">' + U.escapeHtml(c.description) + '</textarea>' +
+            '<div class="contrib-edit-actions">' +
+              '<button type="button" class="btn btn-primary btn-sm" data-contrib-save="' + i + '">Enregistrer</button>' +
+              '<button type="button" class="btn btn-secondary btn-sm" data-contrib-cancel="' + i + '">Annuler</button>' +
+            '</div>' +
+          '</div>';
+      } else {
+        var descHtml = c.description
+          ? '<p class="contrib-card-desc">' + U.escapeHtml(c.description) + '</p>'
+          : '';
+        body =
           '<h4 class="contrib-card-title">' + U.escapeHtml(c.title) + '</h4>' +
-          descHtml +
-        '</div>' +
-        '<button type="button" class="contrib-card-remove" data-contrib-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+          descHtml;
+      }
+      var actions =
+        '<div class="contrib-card-actions">' +
+          (isEditing ? '' : '<button type="button" class="contrib-card-edit" data-contrib-edit="' + i + '" aria-label="Modifier">Editer</button>') +
+          '<button type="button" class="contrib-card-remove" data-contrib-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+        '</div>';
+      var editingClass = isEditing ? ' contrib-card-editing' : '';
+      return '<div class="contrib-card-admin' + editingClass + '" data-contrib-card="' + i + '">' +
+        '<div class="contrib-card-body">' + body + '</div>' +
+        actions +
       '</div>';
     }).join('');
+
+    if (editIdx !== undefined && editIdx !== null) {
+      var editing = document.querySelector('[data-contrib-card="' + editIdx + '"] .contrib-edit-title');
+      if (editing) { editing.focus(); editing.select(); }
+    }
   }
 
   // ---- THUMBNAIL preview ----
@@ -738,7 +792,23 @@
     var l = e.target.closest('[data-link-remove]');
     if (l) { removeLink(parseInt(l.getAttribute('data-link-remove'), 10)); return; }
     var c = e.target.closest('[data-contrib-remove]');
-    if (c) { removeContribution(parseInt(c.getAttribute('data-contrib-remove'), 10)); }
+    if (c) { removeContribution(parseInt(c.getAttribute('data-contrib-remove'), 10)); return; }
+    var ce = e.target.closest('[data-contrib-edit]');
+    if (ce) { editContribution(parseInt(ce.getAttribute('data-contrib-edit'), 10)); return; }
+    var cs = e.target.closest('[data-contrib-save]');
+    if (cs) { saveContribution(parseInt(cs.getAttribute('data-contrib-save'), 10)); return; }
+    var cc = e.target.closest('[data-contrib-cancel]');
+    if (cc) { cancelEditContribution(parseInt(cc.getAttribute('data-contrib-cancel'), 10)); return; }
+  });
+
+  // Keyboard support inside edit fields: Escape cancels, Ctrl/Cmd+Enter saves
+  document.addEventListener('keydown', function (e) {
+    var card = e.target.closest && e.target.closest('.contrib-card-editing');
+    if (!card) return;
+    var idx = parseInt(card.getAttribute('data-contrib-card'), 10);
+    if (isNaN(idx)) return;
+    if (e.key === 'Escape') { e.preventDefault(); cancelEditContribution(idx); }
+    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveContribution(idx); }
   });
 
   // ---- LIVE PREVIEW ----

@@ -112,6 +112,17 @@
 .contrib-card-remove { background: transparent; border: 1px solid var(--border-medium); color: var(--text-muted); cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 2px 8px; flex-shrink: 0; transition: all 0.15s; }
 .contrib-card-remove:hover { color: var(--accent-blood); border-color: var(--accent-blood); }
 
+.contrib-card-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.contrib-card-edit { background: transparent; border: 1px solid var(--border-medium); color: var(--text-secondary); cursor: pointer; font-size: 0.7rem; padding: 2px 8px; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.15s; }
+.contrib-card-edit:hover { color: var(--accent-phosphor); border-color: var(--accent-phosphor); }
+
+.contrib-card-editing { border-left-color: var(--accent-phosphor); box-shadow: 0 0 0 1px rgba(61,255,94,0.15); }
+.contrib-edit-fields { display: flex; flex-direction: column; gap: 0.4rem; }
+.contrib-edit-fields input, .contrib-edit-fields textarea { padding: 0.5rem 0.6rem; background: var(--bg-primary); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; width: 100%; resize: vertical; }
+.contrib-edit-fields input:focus, .contrib-edit-fields textarea:focus { outline: none; border-color: var(--accent-phosphor); }
+.contrib-edit-fields .contrib-edit-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.95rem; }
+.contrib-edit-actions { display: flex; gap: 0.4rem; margin-top: 0.25rem; }
+
 .contribution-input-row { display: flex; flex-direction: column; gap: 0.4rem; }
 .contribution-input-row input, .contribution-input-row textarea { padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; width: 100%; resize: vertical; }
 .contribution-input-row input:focus, .contribution-input-row textarea:focus { outline: none; border-color: var(--accent-phosphor); }
