@@ -13,8 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
-    <!-- Firebase Config (from config.js - excluded from Git) -->
-    <script src="js/config.js"></script>
+    <!-- Firebase Config (public, committed to repo) -->
+    <script src="js/config.public.js"></script>
 </head>
 <body class="admin-body">
     <!-- Login Screen -->
@@ -47,8 +47,8 @@
             <div id="config-help" class="config-help hidden">
                 <p><strong>Configuration requise :</strong></p>
                 <ol>
-                    <li>Copier <code>js/config.example.js</code> en <code>js/config.js</code></li>
-                    <li>Remplir les valeurs depuis la console Firebase</li>
+                    <li>Verifier que <code>js/config.public.js</code> existe et contient la config Firebase</li>
+                    <li>Ajouter votre email dans <code>adminEmails</code> (ainsi que dans <code>firestore.rules</code>)</li>
                     <li>Recharger cette page</li>
                 </ol>
             </div>

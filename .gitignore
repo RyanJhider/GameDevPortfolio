@@ -1,7 +1,8 @@
 # Environment variables and local config (CONTIENT LES CREDENTIALS)
 .env.local
 .env.production
-js/config.js
+# js/config.js was removed: the project is hosted on GitHub Pages and uses
+# js/config.public.js (committed) so the site can boot in production.
 
 # IDE
 .idea/
