@@ -363,7 +363,14 @@
       if (i < 0) i = total - 1;
       if (i >= total) i = 0;
       index = i;
-      grid.style.transform = 'translateX(' + (-index * 100) + '%)';
+      // Center the active card by offsetting by the viewport's left padding
+      // so the card's left edge lines up with the viewport's left edge.
+      var viewport = grid.parentElement;
+      var vpRect = viewport.getBoundingClientRect();
+      var cardRect = cards[0].getBoundingClientRect();
+      var cardLeft = cardRect.left - vpRect.left;
+      var offset = -index * cards[0].offsetWidth - cardLeft;
+      grid.style.transform = 'translateX(' + offset + 'px)';
       if (dotsEl) {
         dotsEl.querySelectorAll('.featured-dot').forEach(function (d, j) {
           d.classList.toggle('active', j === index);
@@ -429,6 +436,13 @@
 
     buildDots();
     startAuto();
+
+    // Re-center on resize
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { goTo(index); }, 150);
+    });
   }
 
   // ========================================
