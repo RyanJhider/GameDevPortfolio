@@ -70,6 +70,8 @@
   function getFilteredProjects() {
     var isHome = isHomePage();
     var list = isHome ? projectsData.filter(function (p) { return p.featured; }) : projectsData;
+    // Always hide projects marked as hidden in the admin
+    list = list.filter(function (p) { return p.hidden !== true; });
     if (activeTags.length > 0) {
       list = list.filter(function (p) {
         if (!p.tags) return false;

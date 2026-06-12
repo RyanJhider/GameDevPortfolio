@@ -36,7 +36,27 @@
 .admin-project-card .tags-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
 .admin-project-card .badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--accent-phosphor); color: var(--bg-void); border-radius: 2px; }
 .admin-project-card .badge-draft { background: var(--text-muted); }
-.admin-project-card .actions { display: flex; gap: 0.5rem; }
+.admin-project-card .badge-hidden { background: var(--accent-blood); color: #fff; }
+.admin-project-card .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* Hidden project : dimmed, striped overlay */
+.admin-project-card.is-hidden { opacity: 0.55; }
+.admin-project-card.is-hidden::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0,
+    transparent 8px,
+    rgba(122, 21, 21, 0.08) 8px,
+    rgba(122, 21, 21, 0.08) 16px
+  );
+  pointer-events: none;
+}
+.admin-project-card.is-hidden .thumbnail { filter: grayscale(0.6); }
+
+.visibility-icon { display: inline-block; font-size: 0.85rem; line-height: 1; margin-right: 2px; }
 
 /* Drag handle */
 .admin-drag-handle { position: absolute; top: 6px; left: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: rgba(10, 9, 8, 0.75); color: var(--text-secondary); cursor: grab; font-size: 1rem; line-height: 1; z-index: 2; user-select: none; transition: background 0.15s, color 0.15s; }

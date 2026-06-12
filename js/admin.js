@@ -223,6 +223,8 @@
             var n = parseInt(data.order, 10);
             data.order = isNaN(n) ? undefined : n;
           }
+          // Normalize hidden: must be a strict boolean
+          data.hidden = data.hidden === true;
           projects.push(data);
         });
         // Apply the same sort as the public site so the admin view matches
@@ -256,20 +258,27 @@
       : '<div class="thumbnail-placeholder">?</div>';
     var featured = p.featured ? '<span class="badge">Featured</span>' : '';
     var draft = p.status === 'draft' ? '<span class="badge badge-draft">Brouillon</span>' : '';
+    var hidden = !!p.hidden;
+    var hiddenBadge = hidden ? '<span class="badge badge-hidden" title="Cache du public">Cache</span>' : '';
     var safeId = U.escapeAttr(p.id);
     var orderedClass = (typeof p.order === 'number' && !isNaN(p.order)) ? ' has-order' : '';
     var orderBadge = (typeof p.order === 'number' && !isNaN(p.order))
       ? '<span class="badge" title="Ordre personnalise">#' + p.order + '</span>'
       : '';
+    var cardHiddenClass = hidden ? ' is-hidden' : '';
+    var visibilityIcon = hidden ? '&#128065;' : '&#128064;';
+    var visibilityLabel = hidden ? 'Afficher' : 'Masquer';
+    var visibilityTitle = hidden ? 'Rendre visible sur le site public' : 'Cacher du site public';
 
-    return '<div class="admin-project-card' + orderedClass + '" data-project-id="' + safeId + '">' +
+    return '<div class="admin-project-card' + orderedClass + cardHiddenClass + '" data-project-id="' + safeId + '">' +
       '<div class="admin-drag-handle" draggable="true" title="Glisser pour reordonner" aria-label="Reordonner">&#8801;</div>' +
       '<div class="thumbnail">' + thumb + '</div>' +
       '<div class="info">' +
         '<h3>' + U.escapeHtml(p.title || 'Sans titre') + '</h3>' +
         '<p>' + U.escapeHtml(p.description || '') + '</p>' +
-        '<div class="tags-row">' + featured + draft + orderBadge + '</div>' +
+        '<div class="tags-row">' + featured + draft + hiddenBadge + orderBadge + '</div>' +
         '<div class="actions">' +
+          '<button class="btn btn-secondary btn-sm" data-action="toggle-visibility" data-id="' + safeId + '" title="' + visibilityTitle + '" aria-label="' + visibilityLabel + '"><span class="visibility-icon">' + visibilityIcon + '</span> ' + visibilityLabel + '</button>' +
           '<button class="btn btn-primary btn-sm" data-action="edit" data-id="' + safeId + '">Editer</button>' +
           '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + safeId + '">Supprimer</button>' +
         '</div>' +
@@ -282,8 +291,10 @@
     if (!btn) return;
     var id = btn.getAttribute('data-id');
     if (!id) return;
-    if (btn.getAttribute('data-action') === 'edit') editProject(id);
-    else if (btn.getAttribute('data-action') === 'delete') deleteProject(id);
+    var action = btn.getAttribute('data-action');
+    if (action === 'edit') editProject(id);
+    else if (action === 'delete') deleteProject(id);
+    else if (action === 'toggle-visibility') toggleProjectVisibility(id);
   });
 
   function setupProjectFilters() {
@@ -299,9 +310,36 @@
         if (filter === 'featured') filtered = projects.filter(function (p) { return p.featured; });
         else if (filter === 'published') filtered = projects.filter(function (p) { return p.status !== 'draft'; });
         else if (filter === 'draft') filtered = projects.filter(function (p) { return p.status === 'draft'; });
+        else if (filter === 'hidden') filtered = projects.filter(function (p) { return !!p.hidden; });
+        else if (filter === 'visible') filtered = projects.filter(function (p) { return !p.hidden; });
         renderProjects(filtered);
       });
     }
+  }
+
+  function toggleProjectVisibility(id) {
+    var p = projects.find(function (x) { return x.id === id; });
+    if (!p) return;
+    var newHidden = !p.hidden;
+    if (!firebaseReady()) { showToast('Firebase non configure', 'error'); return; }
+    firebase.firestore().collection('projects').doc(id)
+      .update({ hidden: newHidden })
+      .then(function () {
+        p.hidden = newHidden;
+        showToast(newHidden ? 'Projet cache du public' : 'Projet visible sur le site');
+        // Re-render the visible list, preserving the active filter
+        var activeFilter = document.querySelector('.admin-filters .filter-btn.active');
+        var filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
+        var filtered = projects;
+        if (filter === 'featured') filtered = projects.filter(function (x) { return x.featured; });
+        else if (filter === 'published') filtered = projects.filter(function (x) { return x.status !== 'draft'; });
+        else if (filter === 'draft') filtered = projects.filter(function (x) { return x.status === 'draft'; });
+        else if (filter === 'hidden') filtered = projects.filter(function (x) { return !!x.hidden; });
+        else if (filter === 'visible') filtered = projects.filter(function (x) { return !x.hidden; });
+        renderProjects(filtered);
+        wireDragAndDrop();
+      })
+      .catch(function (e) { showToast('Erreur: ' + e.message, 'error'); });
   }
 
   // ============== DRAG & DROP REORDER ==============
@@ -437,6 +475,8 @@
     if (filter === 'featured') filtered = projects.filter(function (x) { return x.featured; });
     else if (filter === 'published') filtered = projects.filter(function (x) { return x.status !== 'draft'; });
     else if (filter === 'draft') filtered = projects.filter(function (x) { return x.status === 'draft'; });
+    else if (filter === 'hidden') filtered = projects.filter(function (x) { return !!x.hidden; });
+    else if (filter === 'visible') filtered = projects.filter(function (x) { return !x.hidden; });
     renderProjects(filtered);
     wireDragAndDrop();
 
@@ -1712,4 +1752,5 @@
 
   window.editProject = editProject;
   window.deleteProject = deleteProject;
+  window.toggleProjectVisibility = toggleProjectVisibility;
 })();

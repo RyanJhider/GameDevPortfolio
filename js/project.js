@@ -28,6 +28,10 @@
             if (doc.exists) {
               var data = doc.data();
               data.id = data.id || doc.id;
+              if (data.hidden === true) {
+                showError('Project Not Found', 'This project does not exist.');
+                return;
+              }
               renderProject(data);
             } else {
               loadFromJSON(projectId);
@@ -47,7 +51,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var project = (data.projects || []).find(function (p) { return p.id === projectId; });
-        if (project) renderProject(project);
+        if (project && project.hidden !== true) renderProject(project);
         else showError('Project Not Found', 'This project does not exist.');
       })
       .catch(function () { showError('Error Loading', 'Failed to load project data.'); });
