@@ -291,10 +291,11 @@
         featuredWrap.hidden = false;
         if (featuredCount) featuredCount.textContent = featured.length;
         featuredEl.innerHTML = featured.map(function (p, i) { return renderFeaturedCard(p, i); }).join('');
-        initFeaturedCarousel();
+        refreshFeaturedCarousel();
       } else {
         featuredWrap.hidden = true;
         featuredEl.innerHTML = '';
+        destroyFeaturedCarousel();
       }
     }
 
@@ -316,41 +317,52 @@
   }
 
   // ========================================
-  // Featured Carousel - Single slide, vertical card, autoplay + loop
+  // Featured Carousel - Single slide, autoplay + loop, stateful
   // ========================================
 
-  function initFeaturedCarousel() {
+  var featuredCarousel = null;
+
+  function initFeaturedCarouselOnce() {
+    if (featuredCarousel) return featuredCarousel;
+
+    var wrap = document.getElementById('projects-featured-wrap');
     var grid = document.getElementById('projects-featured');
     var prevBtn = document.getElementById('featured-prev');
     var nextBtn = document.getElementById('featured-next');
     var dotsEl = document.getElementById('featured-dots');
-    var edgeL = document.getElementById('featured-edge-left');
-    var edgeR = document.getElementById('featured-edge-right');
-    var wrap = document.getElementById('projects-featured-wrap');
-    if (!grid) return;
+    var viewport = grid ? grid.parentElement : null;
+    if (!grid || !viewport) return null;
 
-    var cards = Array.prototype.slice.call(grid.querySelectorAll('.featured-card'));
-    var total = cards.length;
-    if (total <= 1) {
-      if (prevBtn) prevBtn.style.display = 'none';
-      if (nextBtn) nextBtn.style.display = 'none';
-      if (dotsEl) dotsEl.innerHTML = '';
-      return;
+    var state = {
+      index: 0,
+      autoMs: 5000,
+      timer: null,
+      paused: false,
+      touchStartX: 0,
+      touchDragging: false,
+      resizeTimer: null,
+      bound: false
+    };
+
+    function getCards() {
+      return Array.prototype.slice.call(grid.querySelectorAll('.featured-card'));
     }
 
-    var index = 0;
-    var autoMs = 5000;
-    var autoTimer = null;
-    var paused = false;
+    function getStep() {
+      var cards = getCards();
+      if (!cards.length) return 0;
+      return cards[0].offsetWidth;
+    }
 
-    function buildDots() {
+    function buildDots(total) {
       if (!dotsEl) return;
       var html = '';
       for (var i = 0; i < total; i++) {
-        html += '<button type="button" class="featured-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
+        html += '<button type="button" class="featured-dot' + (i === state.index ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
       }
       dotsEl.innerHTML = html;
-      dotsEl.querySelectorAll('.featured-dot').forEach(function (dot) {
+      var dots = dotsEl.querySelectorAll('.featured-dot');
+      dots.forEach(function (dot) {
         dot.addEventListener('click', function () {
           var idx = parseInt(this.getAttribute('data-index'), 10) || 0;
           goTo(idx);
@@ -359,90 +371,136 @@
       });
     }
 
-    function goTo(i) {
-      if (i < 0) i = total - 1;
-      if (i >= total) i = 0;
-      index = i;
-      // Center the active card by offsetting by the viewport's left padding
-      // so the card's left edge lines up with the viewport's left edge.
-      var viewport = grid.parentElement;
+    function applyTransform() {
+      var step = getStep();
+      if (!step) { grid.style.transform = 'translateX(0)'; return; }
+      // Measure: where does the first card's left edge sit relative to viewport's left?
       var vpRect = viewport.getBoundingClientRect();
-      var cardRect = cards[0].getBoundingClientRect();
-      var cardLeft = cardRect.left - vpRect.left;
-      var offset = -index * cards[0].offsetWidth - cardLeft;
+      var first = getCards()[0];
+      if (!first) { grid.style.transform = 'translateX(0)'; return; }
+      var firstRect = first.getBoundingClientRect();
+      var cardLeftInViewport = firstRect.left - vpRect.left;
+      // We want card #N's left edge at viewport's left edge.
+      // Transform needed: -N * step - cardLeftInViewport
+      var offset = -state.index * step - cardLeftInViewport;
       grid.style.transform = 'translateX(' + offset + 'px)';
-      if (dotsEl) {
-        dotsEl.querySelectorAll('.featured-dot').forEach(function (d, j) {
-          d.classList.toggle('active', j === index);
-        });
-      }
     }
 
-    function next() { goTo(index + 1); }
-    function prev() { goTo(index - 1); }
-
-    function startAuto() {
-      stopAuto();
-      autoTimer = setInterval(function () {
-        if (!paused) next();
-      }, autoMs);
-    }
-
-    function stopAuto() {
-      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-    }
-
-    function restartAuto() {
-      startAuto();
-    }
-
-    if (prevBtn) prevBtn.onclick = function () { prev(); restartAuto(); };
-    if (nextBtn) nextBtn.onclick = function () { next(); restartAuto(); };
-
-    // Pause on hover
-    if (wrap) {
-      wrap.addEventListener('mouseenter', function () { paused = true; });
-      wrap.addEventListener('mouseleave', function () { paused = false; });
-    }
-
-    // Keyboard arrows
-    if (wrap) {
-      wrap.setAttribute('tabindex', '0');
-      wrap.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowRight') { next(); restartAuto(); }
-        if (e.key === 'ArrowLeft') { prev(); restartAuto(); }
+    function updateDots(total) {
+      if (!dotsEl) return;
+      dotsEl.querySelectorAll('.featured-dot').forEach(function (d, j) {
+        d.classList.toggle('active', j === state.index);
       });
     }
 
-    // Hide edges: we loop, so no "more on this side" needed
-    if (edgeL) edgeL.style.display = 'none';
-    if (edgeR) edgeR.style.display = 'none';
+    function goTo(i) {
+      var cards = getCards();
+      var total = cards.length;
+      if (total === 0) return;
+      if (i < 0) i = total - 1;
+      if (i >= total) i = 0;
+      state.index = i;
+      applyTransform();
+      updateDots(total);
+    }
 
-    // Touch swipe
-    var startX = 0, dragging = false;
-    grid.addEventListener('touchstart', function (e) {
-      startX = e.touches[0].clientX;
-      dragging = true;
-    }, { passive: true });
-    grid.addEventListener('touchend', function (e) {
-      if (!dragging) return;
-      var dx = e.changedTouches[0].clientX - startX;
+    function next() { goTo(state.index + 1); }
+    function prev() { goTo(state.index - 1); }
+
+    function startAuto() {
+      stopAuto();
+      state.timer = setInterval(function () {
+        if (!state.paused) next();
+      }, state.autoMs);
+    }
+
+    function stopAuto() {
+      if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    }
+
+    function restartAuto() { startAuto(); }
+
+    function onPrev() { prev(); restartAuto(); }
+    function onNext() { next(); restartAuto(); }
+
+    function onTouchStart(e) {
+      state.touchStartX = e.touches[0].clientX;
+      state.touchDragging = true;
+    }
+
+    function onTouchEnd(e) {
+      if (!state.touchDragging) return;
+      var dx = e.changedTouches[0].clientX - state.touchStartX;
       if (Math.abs(dx) > 40) {
         if (dx < 0) next(); else prev();
         restartAuto();
       }
-      dragging = false;
-    }, { passive: true });
+      state.touchDragging = false;
+    }
 
-    buildDots();
-    startAuto();
+    function onKeyDown(e) {
+      if (e.key === 'ArrowRight') { next(); restartAuto(); }
+      if (e.key === 'ArrowLeft') { prev(); restartAuto(); }
+    }
 
-    // Re-center on resize
-    var resizeTimer;
-    window.addEventListener('resize', function () {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () { goTo(index); }, 150);
-    });
+    function onResize() {
+      clearTimeout(state.resizeTimer);
+      state.resizeTimer = setTimeout(function () { applyTransform(); }, 100);
+    }
+
+    // Bind once
+    if (prevBtn) prevBtn.addEventListener('click', onPrev);
+    if (nextBtn) nextBtn.addEventListener('click', onNext);
+    if (wrap) {
+      wrap.addEventListener('mouseenter', function () { state.paused = true; });
+      wrap.addEventListener('mouseleave', function () { state.paused = false; });
+      wrap.setAttribute('tabindex', '0');
+      wrap.addEventListener('keydown', onKeyDown);
+    }
+    grid.addEventListener('touchstart', onTouchStart, { passive: true });
+    grid.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    state.bound = true;
+    featuredCarousel = {
+      state: state,
+      refresh: function () {
+        var cards = getCards();
+        var total = cards.length;
+        // Hide nav if 0 or 1 cards
+        if (prevBtn) prevBtn.style.display = (total <= 1) ? 'none' : '';
+        if (nextBtn) nextBtn.style.display = (total <= 1) ? 'none' : '';
+        // Clamp index
+        if (state.index >= total) state.index = 0;
+        if (state.index < 0) state.index = 0;
+        buildDots(total);
+        // Wait one frame so layout is up-to-date, then apply
+        requestAnimationFrame(function () {
+          applyTransform();
+          updateDots(total);
+        });
+        if (!state.timer) startAuto();
+      },
+      destroy: function () {
+        stopAuto();
+        if (prevBtn) prevBtn.style.display = '';
+        if (nextBtn) nextBtn.style.display = '';
+        if (dotsEl) dotsEl.innerHTML = '';
+        grid.style.transform = '';
+      }
+    };
+    return featuredCarousel;
+  }
+
+  function refreshFeaturedCarousel() {
+    var c = initFeaturedCarouselOnce();
+    if (c) c.refresh();
+  }
+
+  function destroyFeaturedCarousel() {
+    if (featuredCarousel) {
+      featuredCarousel.destroy();
+    }
   }
 
   // ========================================
