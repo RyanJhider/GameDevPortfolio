@@ -6,7 +6,7 @@
     <title>Projects | Ryan Jhider</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -30,13 +30,57 @@
         </div>
     </header>
 
-    <!-- Projects -->
-    <section class="projects-section" style="padding-top: 8rem;">
-        <div class="section-header">
-            <h2 class="section-title">All Projects</h2>
+    <!-- Projects Page -->
+    <section class="projects-page">
+        <!-- Page Header -->
+        <div class="projects-page-header">
+            <div class="projects-page-title-wrap">
+                <span class="projects-page-label">// ARCHIVE</span>
+                <h1 class="projects-page-title">All Projects</h1>
+                <p class="projects-page-sub" id="projects-count-line">Loading collection...</p>
+            </div>
+
+            <!-- Search + Sort Controls -->
+            <div class="projects-controls">
+                <div class="projects-search">
+                    <span class="projects-search-icon">⌕</span>
+                    <input type="text" id="projects-search-input" placeholder="Search projects, engines, roles..." autocomplete="off">
+                    <button type="button" class="projects-search-clear" id="projects-search-clear" aria-label="Clear search">×</button>
+                </div>
+                <div class="projects-sort">
+                    <label for="projects-sort-select" class="projects-sort-label">SORT</label>
+                    <select id="projects-sort-select" class="projects-sort-select">
+                        <option value="order">Manual</option>
+                        <option value="date-desc">Newest first</option>
+                        <option value="date-asc">Oldest first</option>
+                        <option value="alpha-asc">A → Z</option>
+                        <option value="alpha-desc">Z → A</option>
+                        <option value="featured">Featured first</option>
+                    </select>
+                </div>
+            </div>
         </div>
+
+        <!-- Tag Filter Bar -->
         <div class="filter-bar" id="filter-bar">
             <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+
+        <!-- Featured Strip -->
+        <div class="projects-featured-wrap" id="projects-featured-wrap" hidden>
+            <div class="projects-section-label">
+                <span class="projects-section-label-dot"></span>
+                <span>FEATURED</span>
+                <span class="projects-section-label-count" id="featured-count">0</span>
+            </div>
+            <div class="projects-featured" id="projects-featured"></div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="projects-section-label" id="projects-grid-label" hidden>
+            <span class="projects-section-label-dot"></span>
+            <span id="projects-grid-label-text">ALL PROJECTS</span>
+            <span class="projects-section-label-count" id="grid-count">0</span>
         </div>
         <div class="projects-grid" id="projects-list">
             <!-- Projects loaded via JS -->

@@ -9,9 +9,12 @@
   var U = window.PortfolioUtils;
   var projectsData = [];
   var activeTags = [];
+  var searchQuery = '';
+  var sortMode = 'order';
 
   document.addEventListener('DOMContentLoaded', function () {
     loadData();
+    initProjectsPageControls();
   });
 
   function loadData() {
@@ -67,11 +70,87 @@
     }
   }
 
+  // ========================================
+  // PROJECTS PAGE - Controls (search + sort)
+  // ========================================
+
+  function initProjectsPageControls() {
+    var searchInput = document.getElementById('projects-search-input');
+    var searchClear = document.getElementById('projects-search-clear');
+    var sortSelect = document.getElementById('projects-sort-select');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        searchQuery = this.value.trim();
+        if (searchClear) searchClear.classList.toggle('visible', searchQuery.length > 0);
+        renderProjects();
+      });
+    }
+
+    if (searchClear) {
+      searchClear.addEventListener('click', function () {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        this.classList.remove('visible');
+        renderProjects();
+        if (searchInput) searchInput.focus();
+      });
+    }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function () {
+        sortMode = this.value;
+        renderProjects();
+      });
+    }
+  }
+
+  function sortList(list) {
+    var copy = list.slice();
+    var parseDate = function (p) {
+      var d = p.date || p.year || '';
+      var n = parseInt(String(d), 10);
+      return isNaN(n) ? 0 : n;
+    };
+    switch (sortMode) {
+      case 'date-desc':
+        copy.sort(function (a, b) { return parseDate(b) - parseDate(a); });
+        break;
+      case 'date-asc':
+        copy.sort(function (a, b) { return parseDate(a) - parseDate(b); });
+        break;
+      case 'alpha-asc':
+        copy.sort(function (a, b) {
+          return (a.title || '').localeCompare(b.title || '');
+        });
+        break;
+      case 'alpha-desc':
+        copy.sort(function (a, b) {
+          return (b.title || '').localeCompare(a.title || '');
+        });
+        break;
+      case 'featured':
+        copy.sort(function (a, b) {
+          if ((b.featured ? 1 : 0) !== (a.featured ? 1 : 0)) {
+            return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+          }
+          return parseDate(b) - parseDate(a);
+        });
+        break;
+      case 'order':
+      default:
+        // preserve default order (already sorted by sortProjectsByOrder or date desc)
+        break;
+    }
+    return copy;
+  }
+
   function getFilteredProjects() {
     var isHome = isHomePage();
     var list = isHome ? projectsData.filter(function (p) { return p.featured; }) : projectsData;
-    // Always hide projects marked as hidden in the admin
     list = list.filter(function (p) { return p.hidden !== true; });
+
+    // Tag filter (OR logic)
     if (activeTags.length > 0) {
       list = list.filter(function (p) {
         if (!p.tags) return false;
@@ -79,6 +158,23 @@
         return activeTags.some(function (tag) { return names.indexOf(tag.toLowerCase()) !== -1; });
       });
     }
+
+    // Search filter (matches title, description, tags, role, engine)
+    if (searchQuery) {
+      var q = searchQuery.toLowerCase();
+      list = list.filter(function (p) {
+        var haystack = [];
+        haystack.push(p.title || '');
+        haystack.push(p.description || '');
+        haystack.push(p.descriptionLong || '');
+        haystack.push(p.role || '');
+        if (p.tags) {
+          p.tags.forEach(function (t) { haystack.push(U.getTagName(t)); });
+        }
+        return haystack.join(' ').toLowerCase().indexOf(q) !== -1;
+      });
+    }
+
     return list;
   }
 
@@ -140,19 +236,130 @@
 
     if (!isHomePage()) buildFilterBar();
 
-    var list = getFilteredProjects();
+    var list = sortList(getFilteredProjects());
+
+    if (!isHomePage()) {
+      renderProjectsPage(list);
+    } else {
+      renderHomeList(grid, list);
+    }
+  }
+
+  function renderHomeList(grid, list) {
     if (list.length === 0) {
       grid.innerHTML = '<div class="empty-state">No projects found</div>';
       return;
     }
-
-    grid.innerHTML = list.map(function (p) { return renderCard(p); }).join('');
+    grid.innerHTML = list.map(function (p, i) { return renderCard(p, i); }).join('');
   }
 
-  function renderCard(p) {
+  function renderProjectsPage(list) {
+    var featuredWrap = document.getElementById('projects-featured-wrap');
+    var featuredEl = document.getElementById('projects-featured');
+    var gridLabel = document.getElementById('projects-grid-label');
+    var gridLabelText = document.getElementById('projects-grid-label-text');
+    var featuredCount = document.getElementById('featured-count');
+    var gridCount = document.getElementById('grid-count');
+    var grid = document.getElementById('projects-list');
+    var countLine = document.getElementById('projects-count-line');
+
+    var total = projectsData.filter(function (p) { return p.hidden !== true; }).length;
+    if (countLine) {
+      var labelText = total + ' project' + (total > 1 ? 's' : '') + ' // 2022 → ' + new Date().getFullYear();
+      if (searchQuery) {
+        labelText = list.length + ' match' + (list.length > 1 ? 'es' : '') + ' for "' + searchQuery + '"';
+      } else if (activeTags.length > 0) {
+        labelText = list.length + ' match' + (list.length > 1 ? 'es' : '') + ' // ' + activeTags.join(' + ');
+      }
+      countLine.textContent = labelText;
+    }
+
+    if (list.length === 0) {
+      if (featuredWrap) featuredWrap.hidden = true;
+      if (gridLabel) gridLabel.hidden = true;
+      grid.innerHTML = '<div class="empty-state">No projects match your filters</div>';
+      return;
+    }
+
+    // Split featured vs others (only when no search/tag filter active, to keep the section meaningful)
+    var showFeaturedSplit = !searchQuery && activeTags.length === 0;
+    var featured = showFeaturedSplit ? list.filter(function (p) { return p.featured; }) : [];
+    var others = showFeaturedSplit ? list.filter(function (p) { return !p.featured; }) : list;
+
+    if (featuredWrap && featuredEl) {
+      if (featured.length > 0) {
+        featuredWrap.hidden = false;
+        if (featuredCount) featuredCount.textContent = featured.length;
+        featuredEl.innerHTML = featured.map(function (p, i) { return renderFeaturedCard(p, i); }).join('');
+      } else {
+        featuredWrap.hidden = true;
+        featuredEl.innerHTML = '';
+      }
+    }
+
+    if (gridLabel && gridLabelText && gridCount) {
+      if (featured.length > 0) {
+        gridLabel.hidden = false;
+        gridLabelText.textContent = 'ALL PROJECTS';
+        gridCount.textContent = others.length;
+      } else {
+        gridLabel.hidden = true;
+      }
+    }
+
+    if (others.length === 0) {
+      grid.innerHTML = '';
+    } else {
+      grid.innerHTML = others.map(function (p, i) { return renderCard(p, i); }).join('');
+    }
+  }
+
+  // ========================================
+  // Card Renderers
+  // ========================================
+
+  function renderFeaturedCard(p, i) {
+    var thumb = p.thumbnail
+      ? '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="' + U.escapeAttr(p.title || 'Project') + '" class="featured-thumb-img" loading="lazy">'
+      : '<div class="featured-thumb-img featured-thumb-empty">NO MEDIA</div>';
+
+    var tagsHtml = '';
+    if (p.tags && p.tags.length > 0) {
+      tagsHtml = '<div class="featured-tags">';
+      p.tags.slice(0, 5).forEach(function (t) {
+        var name = U.getTagName(t);
+        var cat = U.getTagCategory(t);
+        tagsHtml += '<span class="featured-tag" style="color:' + U.getTagColor(cat) + ';border-color:' + U.getTagColor(cat) + '40;">' + U.escapeHtml(name) + '</span>';
+      });
+      tagsHtml += '</div>';
+    }
+
+    var metaBits = [];
+    if (p.year || p.date) metaBits.push(U.escapeHtml(p.year || p.date));
+    if (p.platform) metaBits.push(U.escapeHtml(p.platform));
+    if (p.role) metaBits.push(U.escapeHtml(p.role));
+    var metaLine = metaBits.join(' <span class="meta-sep">//</span> ');
+
+    return '<a href="project.html?id=' + U.escapeAttr(p.id) + '" class="featured-card" style="animation-delay:' + (i * 0.08) + 's">' +
+      '<div class="featured-thumb">' +
+        thumb +
+        '<div class="featured-overlay"></div>' +
+        '<div class="featured-badge">★ FEATURED</div>' +
+      '</div>' +
+      '<div class="featured-body">' +
+        '<div class="featured-meta">' + metaLine + '</div>' +
+        '<h3 class="featured-title">' + U.escapeHtml(p.title || 'Untitled') + '</h3>' +
+        '<p class="featured-desc">' + U.escapeHtml(p.description || '') + '</p>' +
+        tagsHtml +
+        '<div class="featured-cta">VIEW PROJECT <span>→</span></div>' +
+      '</div>' +
+    '</a>';
+  }
+
+  function renderCard(p, i) {
     var thumb = p.thumbnail
       ? '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="' + U.escapeAttr(p.title || 'Project') + '" class="project-thumb" loading="lazy">'
-      : '<div class="project-thumb"></div>';
+      : '<div class="project-thumb project-thumb-empty">NO MEDIA</div>';
 
     var tagsHtml = '';
     if (p.tags && p.tags.length > 0) {
@@ -165,10 +372,20 @@
       tagsHtml += '</div>';
     }
 
-    return '<a href="project.html?id=' + U.escapeAttr(p.id) + '" class="project-card">' +
-      thumb +
+    var yearLabel = (p.year || p.date) ? '<span class="project-card-year">' + U.escapeHtml(p.year || p.date) + '</span>' : '';
+    var roleLabel = p.role ? '<span class="project-card-role">' + U.escapeHtml(p.role) + '</span>' : '';
+
+    return '<a href="project.html?id=' + U.escapeAttr(p.id) + '" class="project-card" style="animation-delay:' + (i * 0.04) + 's">' +
+      '<div class="project-card-media">' +
+        thumb +
+        (p.featured ? '<div class="project-card-star">★</div>' : '') +
+      '</div>' +
       '<div class="card-info">' +
-        '<h3 class="project-title">' + U.escapeHtml(p.title || 'Untitled') + '</h3>' +
+        '<div class="project-card-head">' +
+          '<h3 class="project-title">' + U.escapeHtml(p.title || 'Untitled') + '</h3>' +
+          yearLabel +
+        '</div>' +
+        roleLabel +
         '<p class="project-desc">' + U.escapeHtml(p.description || '') + '</p>' +
         tagsHtml +
       '</div>' +
