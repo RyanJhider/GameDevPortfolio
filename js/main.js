@@ -316,104 +316,97 @@
   }
 
   // ========================================
-  // Featured Carousel
+  // Featured Carousel - Paged (2 cards visible, peek on sides)
   // ========================================
 
   function initFeaturedCarousel() {
-    var track = document.getElementById('projects-featured');
+    var grid = document.getElementById('projects-featured');
     var prevBtn = document.getElementById('featured-prev');
     var nextBtn = document.getElementById('featured-next');
     var dotsEl = document.getElementById('featured-dots');
-    if (!track) return;
+    var edgeL = document.getElementById('featured-edge-left');
+    var edgeR = document.getElementById('featured-edge-right');
+    if (!grid) return;
 
-    var cards = track.querySelectorAll('.featured-card');
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.featured-card'));
     var total = cards.length;
     if (total === 0) {
       if (dotsEl) dotsEl.innerHTML = '';
       return;
     }
 
-    // Build dots
-    if (dotsEl) {
-      var dotsHtml = '';
-      for (var i = 0; i < total; i++) {
-        dotsHtml += '<button type="button" class="featured-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
+    function pageSize() {
+      return window.innerWidth >= 1100 ? 2 : 1;
+    }
+
+    var state = { page: 0, pages: Math.ceil(total / pageSize()) };
+
+    function rebuildDots() {
+      if (!dotsEl) return;
+      var html = '';
+      for (var i = 0; i < state.pages; i++) {
+        html += '<button type="button" class="featured-dot' + (i === state.page ? ' active' : '') + '" data-page="' + i + '" aria-label="Go to featured page ' + (i + 1) + '"></button>';
       }
-      dotsEl.innerHTML = dotsHtml;
+      dotsEl.innerHTML = html;
       dotsEl.querySelectorAll('.featured-dot').forEach(function (dot) {
         dot.addEventListener('click', function () {
-          var idx = parseInt(this.getAttribute('data-index'), 10) || 0;
-          scrollToCard(idx);
+          goTo(parseInt(this.getAttribute('data-page'), 10) || 0);
         });
       });
     }
 
-    function getStep() {
-      if (!cards.length) return 0;
-      var first = cards[0];
-      var styles = window.getComputedStyle(track);
-      var gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
-      return first.getBoundingClientRect().width + gap;
+    function goTo(page) {
+      var ps = pageSize();
+      state.pages = Math.ceil(total / ps);
+      if (page < 0) page = 0;
+      if (page >= state.pages) page = state.pages - 1;
+      state.page = page;
+      update();
     }
 
-    function scrollToCard(idx) {
-      var step = getStep();
-      if (!step) return;
-      track.scrollTo({ left: step * idx, behavior: 'smooth' });
-    }
+    function update() {
+      var ps = pageSize();
+      var start = state.page * ps;
+      var end = start + ps;
+      cards.forEach(function (c, i) {
+        if (i >= start && i < end) {
+          c.classList.remove('is-peek');
+        } else {
+          c.classList.add('is-peek');
+        }
+      });
 
-    function updateNav() {
-      var maxScroll = track.scrollWidth - track.clientWidth;
-      var sl = track.scrollLeft;
-      if (prevBtn) prevBtn.disabled = sl <= 2;
-      if (nextBtn) nextBtn.disabled = sl >= maxScroll - 2;
-      var edgeL = document.getElementById('featured-edge-left');
-      var edgeR = document.getElementById('featured-edge-right');
-      if (edgeL) edgeL.classList.toggle('visible', sl > 4);
-      if (edgeR) edgeR.classList.toggle('visible', sl < maxScroll - 4);
-      // Update dots based on closest card
-      if (dotsEl && total > 0) {
-        var step = getStep();
-        var active = step > 0 ? Math.round(sl / step) : 0;
-        active = Math.max(0, Math.min(total - 1, active));
+      if (prevBtn) prevBtn.disabled = state.page === 0;
+      if (nextBtn) nextBtn.disabled = state.page >= state.pages - 1;
+
+      if (edgeL) edgeL.classList.toggle('visible', state.page > 0);
+      if (edgeR) edgeR.classList.toggle('visible', state.page < state.pages - 1);
+
+      if (dotsEl) {
         dotsEl.querySelectorAll('.featured-dot').forEach(function (d, i) {
-          d.classList.toggle('active', i === active);
+          d.classList.toggle('active', i === state.page);
         });
       }
     }
 
-    if (prevBtn) {
-      prevBtn.onclick = function () {
-        var step = getStep();
-        track.scrollBy({ left: -step, behavior: 'smooth' });
-      };
-    }
-    if (nextBtn) {
-      nextBtn.onclick = function () {
-        var step = getStep();
-        track.scrollBy({ left: step, behavior: 'smooth' });
-      };
+    if (prevBtn) prevBtn.onclick = function () { goTo(state.page - 1); };
+    if (nextBtn) nextBtn.onclick = function () { goTo(state.page + 1); };
+
+    function rebuild() {
+      state.pages = Math.ceil(total / pageSize());
+      if (state.page >= state.pages) state.page = state.pages - 1;
+      if (state.page < 0) state.page = 0;
+      rebuildDots();
+      update();
     }
 
-    track.onscroll = updateNav;
-    window.addEventListener('resize', updateNav);
+    rebuild();
 
-    // Keyboard arrows when hovering
-    track.setAttribute('tabindex', '0');
-    track.onkeydown = function (e) {
-      if (e.key === 'ArrowRight') { track.scrollBy({ left: getStep(), behavior: 'smooth' }); e.preventDefault(); }
-      if (e.key === 'ArrowLeft') { track.scrollBy({ left: -getStep(), behavior: 'smooth' }); e.preventDefault(); }
-    };
-
-    // Wheel: vertical scroll converted to horizontal when over carousel
-    track.onwheel = function (e) {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        track.scrollLeft += e.deltaY;
-        e.preventDefault();
-      }
-    };
-
-    updateNav();
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(rebuild, 150);
+    });
   }
 
   // ========================================
