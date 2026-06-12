@@ -6,11 +6,11 @@
     <title>Project | Ryan Jhider</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
+
     <!-- Firebase Config (public, committed to repo) -->
     <script src="js/config.public.js"></script>
 </head>
@@ -31,54 +31,107 @@
     </header>
 
     <main class="pdp-page">
-        <nav class="pdp-nav">
-            <a href="projects.html" class="pdp-back">← Back to Projects</a>
+        <nav class="pdp-breadcrumb">
+            <a href="index.html" class="pdp-crumb">Home</a>
+            <span class="pdp-crumb-sep">/</span>
+            <a href="projects.html" class="pdp-crumb">All Projects</a>
+            <span class="pdp-crumb-sep">/</span>
+            <span id="pdp-crumb-title" class="pdp-crumb-current">Loading...</span>
         </nav>
 
-        <header class="pdp-hero">
-            <h1 id="pdp-title" class="pdp-title">Loading...</h1>
-            <p id="pdp-subtitle" class="pdp-subtitle"></p>
-            <div id="pdp-media" class="pdp-media">
-                <div class="pdp-media-placeholder">🎮</div>
+        <!-- ============== TITLE BAR ============== -->
+        <header class="pdp-titlebar">
+            <div class="pdp-titlebar-left">
+                <span class="pdp-hero-badge" id="pdp-status-badge">PROJECT</span>
+                <h1 id="pdp-title" class="pdp-title">Loading...</h1>
+                <p id="pdp-subtitle" class="pdp-subtitle"></p>
+            </div>
+            <div class="pdp-titlebar-right">
+                <div id="pdp-pills" class="pdp-pills"></div>
             </div>
         </header>
 
-        <div class="pdp-pills" id="pdp-pills"></div>
+        <!-- ============== PLAYER + SIDEBAR (Steam-like) ============== -->
+        <section class="pdp-stage">
+            <!-- LEFT: Main player + thumbnails + buy box -->
+            <div class="pdp-stage-left">
+                <!-- Main player (video or image, swappable via thumbnails) -->
+                <div class="pdp-player">
+                    <div id="pdp-media" class="pdp-player-media">
+                        <div class="pdp-media-placeholder">🎮</div>
+                    </div>
+                    <div class="pdp-player-chrome">
+                        <div class="pdp-player-label" id="pdp-player-label">CAPSULE</div>
+                        <div class="pdp-player-counter" id="pdp-player-counter">1 / 1</div>
+                    </div>
+                </div>
 
-        <div class="pdp-content">
-            <div class="pdp-left">
-                <section class="pdp-section">
-                    <h2 class="pdp-section-title">About This Project</h2>
-                    <p id="pdp-desc" class="pdp-description"></p>
-                </section>
+                <!-- Thumbnail strip directly below player (horizontal) -->
+                <div id="pdp-thumbs-wrap" class="pdp-thumbs-wrap" style="display:none;">
+                    <div id="pdp-thumbs" class="pdp-thumbs"></div>
+                </div>
 
-                <section class="pdp-section" id="pdp-contributions-section" style="display:none;">
-                    <h2 class="pdp-section-title">My Contributions</h2>
-                    <div id="pdp-contributions" class="pdp-contributions"></div>
-                </section>
+                <!-- Buy box below player -->
+                <div class="pdp-buybox">
+                    <div class="pdp-buybox-header">
+                        <div class="pdp-buybox-platform" id="pdp-buybox-platform">PC</div>
+                        <div class="pdp-buybox-release" id="pdp-buybox-release">—</div>
+                    </div>
+                    <div class="pdp-buybox-title" id="pdp-buybox-title">Loading...</div>
+                    <div class="pdp-buybox-status" id="pdp-buybox-status"></div>
 
-                <section class="pdp-section">
-                    <h2 class="pdp-section-title">Play / Download</h2>
                     <div id="pdp-links" class="pdp-links"></div>
-                </section>
 
-                <section class="pdp-section">
-                    <h2 class="pdp-section-title">Screenshots</h2>
-                    <div id="pdp-gallery" class="pdp-gallery"></div>
-                </section>
+                    <div class="pdp-buybox-share">
+                        <span class="pdp-buybox-share-label">SHARE</span>
+                        <button type="button" class="pdp-share-btn" data-share="copy" aria-label="Copy link">⎘</button>
+                        <button type="button" class="pdp-share-btn" data-share="twitter" aria-label="Share on X">𝕏</button>
+                        <button type="button" class="pdp-share-btn" data-share="linkedin" aria-label="Share on LinkedIn">in</button>
+                    </div>
+                </div>
             </div>
 
-            <aside class="pdp-right">
+            <!-- RIGHT: cover + short description + details + tags -->
+            <aside class="pdp-stage-right">
+                <!-- Cover thumbnail (Steam capsule style) -->
+                <div class="pdp-hero-image" id="pdp-hero-image">
+                    <div class="pdp-hero-image-placeholder">🎮</div>
+                </div>
+
+                <!-- Short description (Steam-style) -->
+                <div class="pdp-card pdp-shortdesc-card">
+                    <p id="pdp-desc" class="pdp-shortdesc"></p>
+                </div>
+
+                <!-- Project Details -->
                 <div class="pdp-card">
                     <h3 class="pdp-card-title">Project Details</h3>
                     <div id="pdp-details" class="pdp-details"></div>
                 </div>
 
+                <!-- Tags & Technologies -->
                 <div class="pdp-card">
-                    <h3 class="pdp-card-title">Technologies</h3>
+                    <h3 class="pdp-card-title">Tags &amp; Technologies</h3>
                     <div id="pdp-tech" class="pdp-tech"></div>
                 </div>
             </aside>
+        </section>
+
+        <!-- ============== MAIN CONTENT (below player) ============== -->
+        <div class="pdp-content">
+            <div class="pdp-left">
+                <section class="pdp-section pdp-about">
+                    <h2 class="pdp-section-title">About This Project</h2>
+                    <p id="pdp-desc-long" class="pdp-description"></p>
+                </section>
+
+                <section class="pdp-section" id="pdp-contributions-section" style="display:none;">
+                    <h2 class="pdp-section-title">Features &amp; My Contributions</h2>
+                    <div id="pdp-contributions" class="pdp-contributions"></div>
+                </section>
+            </div>
+
+            <div class="pdp-spacer"></div>
         </div>
     </main>
 

@@ -8,6 +8,9 @@
 
   var U = window.PortfolioUtils;
 
+  var currentSlide = 0;
+  var currentSlides = [];
+
   document.addEventListener('DOMContentLoaded', function () {
     var urlParams = new URLSearchParams(window.location.search);
     var projectId = urlParams.get('id');
@@ -66,40 +69,99 @@
 
   function renderProject(p) {
     document.title = (p.title || 'Project') + ' | Ryan Jhider';
+    window._pdpTitle = p.title || 'Project';
 
     setText('pdp-title', p.title || 'Untitled');
+    setText('pdp-crumb-title', p.title || 'Project');
+    setText('pdp-buybox-title', p.title || 'Untitled');
 
-    var subtitleParts = [p.year || p.date || '', p.platform || 'PC'];
+    var year = p.year || p.date || '';
+    var platform = p.platform || 'PC';
+    var subtitleParts = [year, platform];
     if (p.status === 'draft') subtitleParts.push('DRAFT');
     setText('pdp-subtitle', subtitleParts.filter(Boolean).join(' // '));
 
-    renderMedia(p);
+    setText('pdp-buybox-platform', platform);
+    setText('pdp-buybox-release', year || '—');
+
+    var statusBadge = document.getElementById('pdp-status-badge');
+    if (statusBadge) {
+      statusBadge.textContent = p.status === 'draft' ? 'DRAFT' : (p.featured ? 'FEATURED' : 'PROJECT');
+      statusBadge.className = 'pdp-hero-badge ' + (p.status === 'draft' ? 'is-draft' : (p.featured ? 'is-featured' : 'is-default'));
+    }
+
+    var buyboxStatus = document.getElementById('pdp-buybox-status');
+    if (buyboxStatus) {
+      if (p.status === 'draft') buyboxStatus.textContent = 'In Development';
+      else if (p.status === 'published') buyboxStatus.textContent = 'Released';
+      else buyboxStatus.textContent = '';
+    }
+
+    currentSlide = 0;
+    currentSlides = buildSlides(p);
+    renderMedia(currentSlides);
+    renderThumbs(currentSlides);
     renderPills(p);
+    renderHeroImage(p);
     renderDescription(p);
     renderContributions(p);
     renderLinks(p);
     renderDetails(p);
     renderTech(p);
-    renderGallery(p);
+    bindShare();
   }
 
-  function renderMedia(p) {
+  function buildSlides(p) {
+    var slides = [];
+    var videoId = p.video ? U.extractVideoId(p.video) : null;
+    if (videoId) {
+      slides.push({
+        kind: 'video',
+        videoId: videoId,
+        thumb: 'https://i.ytimg.com/vi/' + U.escapeAttr(videoId) + '/hqdefault.jpg',
+        label: 'TRAILER'
+      });
+    }
+    (p.images || []).forEach(function (src, i) {
+      var url = U.safeUrl(src);
+      if (url) slides.push({ kind: 'image', url: url, label: 'SCREENSHOT ' + String(i + 1).padStart(2, '0') });
+    });
+    if (slides.length === 0 && p.thumbnail) {
+      var thumbUrl = U.safeUrl(p.thumbnail);
+      if (thumbUrl) slides.push({ kind: 'image', url: thumbUrl, label: 'CAPSULE' });
+    }
+    if (slides.length === 0) {
+      slides.push({ kind: 'placeholder', label: 'NO MEDIA' });
+    }
+    return slides;
+  }
+
+  function renderMedia(slides) {
     var media = document.getElementById('pdp-media');
+    var label = document.getElementById('pdp-player-label');
+    var counter = document.getElementById('pdp-player-counter');
     if (!media) return;
     media.innerHTML = '';
 
-    var videoId = p.video ? U.extractVideoId(p.video) : null;
-    if (videoId) {
+    var s = slides[currentSlide] || slides[0];
+    if (label) label.textContent = s.label || '';
+    if (counter) counter.textContent = (currentSlide + 1) + ' / ' + slides.length;
+
+    if (s.kind === 'video') {
       var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/' + U.escapeAttr(videoId);
+      iframe.src = 'https://www.youtube.com/embed/' + U.escapeAttr(s.videoId) + '?autoplay=1&rel=0';
       iframe.setAttribute('allowfullscreen', '');
-      iframe.setAttribute('allow', 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
       iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
       media.appendChild(iframe);
-    } else if (p.thumbnail) {
+    } else if (s.kind === 'image') {
       var img = document.createElement('img');
-      img.src = U.escapeAttr(p.thumbnail);
-      img.alt = U.escapeAttr(p.title || 'Project thumbnail');
+      img.src = U.escapeAttr(s.url);
+      img.alt = U.escapeAttr((window._pdpTitle || 'Project') + ' - ' + (s.label || 'media'));
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', function () {
+        openLightboxFromSlides(slides, currentSlide);
+      });
       media.appendChild(img);
     } else {
       var ph = document.createElement('div');
@@ -107,6 +169,84 @@
       ph.textContent = '🎮';
       media.appendChild(ph);
     }
+  }
+
+  function renderThumbs(slides) {
+    var container = document.getElementById('pdp-thumbs');
+    var wrap = document.getElementById('pdp-thumbs-wrap');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (slides.length <= 1) {
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
+
+    if (wrap) wrap.style.display = '';
+
+    slides.forEach(function (s, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pdp-thumb';
+      if (idx === currentSlide) btn.classList.add('is-active');
+      btn.setAttribute('data-idx', String(idx));
+      btn.setAttribute('aria-label', s.label || ('Media ' + (idx + 1)));
+
+      if (s.kind === 'video') {
+        btn.classList.add('is-video');
+        var img = document.createElement('img');
+        img.src = U.escapeAttr(s.thumb);
+        img.alt = '';
+        img.loading = 'lazy';
+        btn.appendChild(img);
+        var play = document.createElement('span');
+        play.className = 'pdp-thumb-play';
+        play.setAttribute('aria-hidden', 'true');
+        play.textContent = '▶';
+        btn.appendChild(play);
+      } else if (s.kind === 'image') {
+        var img = document.createElement('img');
+        img.src = U.escapeAttr(s.url);
+        img.alt = '';
+        img.loading = 'lazy';
+        btn.appendChild(img);
+      } else {
+        var ph = document.createElement('span');
+        ph.className = 'pdp-thumb-ph';
+        ph.textContent = '🎮';
+        btn.appendChild(ph);
+      }
+
+      var num = document.createElement('span');
+      num.className = 'pdp-thumb-num';
+      num.textContent = String(idx + 1).padStart(2, '0');
+      btn.appendChild(num);
+
+      btn.addEventListener('click', function () {
+        if (currentSlide === idx) return;
+        currentSlide = idx;
+        var allThumbs = container.querySelectorAll('.pdp-thumb');
+        allThumbs.forEach(function (t) { t.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        renderMedia(slides);
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
+  function openLightboxFromSlides(slides, index) {
+    var images = [];
+    slides.forEach(function (s) {
+      if (s.kind === 'image') images.push({ url: s.url, alt: s.label });
+    });
+    if (images.length === 0) return;
+    var imgIdx = 0;
+    for (var i = 0; i <= index && i < slides.length; i++) {
+      if (slides[i].kind === 'image') imgIdx++;
+    }
+    imgIdx = Math.max(0, imgIdx - 1);
+    openLightbox(images, imgIdx, document.title);
   }
 
   function renderPills(p) {
@@ -131,8 +271,31 @@
     });
   }
 
+  function renderHeroImage(p) {
+    var wrap = document.getElementById('pdp-hero-image');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    var thumb = p.thumbnail ? U.safeUrl(p.thumbnail) : null;
+    if (thumb) {
+      wrap.classList.add('has-image');
+      var img = document.createElement('img');
+      img.src = U.escapeAttr(thumb);
+      img.alt = U.escapeAttr(p.title || 'Project cover');
+      img.loading = 'eager';
+      wrap.appendChild(img);
+    } else {
+      wrap.classList.remove('has-image');
+      var ph = document.createElement('div');
+      ph.className = 'pdp-hero-image-placeholder';
+      ph.textContent = '🎮';
+      wrap.appendChild(ph);
+    }
+  }
+
   function renderDescription(p) {
-    setText('pdp-desc', p.descriptionLong || p.description || '');
+    setText('pdp-desc', p.description || '');
+    setText('pdp-desc-long', p.descriptionLong || p.description || '');
   }
 
   function renderContributions(p) {
@@ -266,41 +429,43 @@
     });
   }
 
-  function renderGallery(p) {
-    var container = document.getElementById('pdp-gallery');
-    if (!container) return;
-    container.innerHTML = '';
-
-    var images = [];
-    (p.images || []).forEach(function (src) {
-      var url = U.safeUrl(src);
-      if (url) images.push({ url: url, alt: U.escapeAttr(p.title || 'Screenshot') });
+  function bindShare() {
+    var btns = document.querySelectorAll('.pdp-share-btn');
+    if (!btns.length) return;
+    btns.forEach(function (btn) {
+      if (btn._bound) return;
+      btn._bound = true;
+      btn.addEventListener('click', function () {
+        var type = btn.getAttribute('data-share');
+        var url = encodeURIComponent(window.location.href);
+        var title = encodeURIComponent(document.title);
+        if (type === 'twitter') {
+          window.open('https://twitter.com/intent/tweet?text=' + title + '&url=' + url, '_blank', 'noopener,noreferrer');
+        } else if (type === 'linkedin') {
+          window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + url, '_blank', 'noopener,noreferrer');
+        } else if (type === 'copy') {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(window.location.href).then(function () {
+              btn.textContent = '✓';
+              setTimeout(function () { btn.textContent = '⎘'; }, 1500);
+            }).catch(function () { fallbackCopy(window.location.href); });
+          } else {
+            fallbackCopy(window.location.href);
+          }
+        }
+      });
     });
-    if (p.thumbnail && images.length === 0) {
-      var thumbUrl = U.safeUrl(p.thumbnail);
-      if (thumbUrl) images.push({ url: thumbUrl, alt: U.escapeAttr(p.title || 'Cover') });
-    }
+  }
 
-    images.forEach(function (it, idx) {
-      var item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'pdp-gallery-item';
-      item.setAttribute('data-idx', String(idx));
-      item.setAttribute('aria-label', 'Open image ' + (idx + 1) + ' of ' + images.length);
-      var img = document.createElement('img');
-      img.src = it.url;
-      img.alt = it.alt;
-      img.loading = 'lazy';
-      var zoom = document.createElement('span');
-      zoom.className = 'pdp-gallery-zoom';
-      zoom.setAttribute('aria-hidden', 'true');
-      zoom.textContent = '+';
-      item.appendChild(img);
-      item.appendChild(zoom);
-      container.appendChild(item);
-    });
-
-    container._lightboxImages = images;
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
   }
 
   function setText(id, value) {
@@ -456,15 +621,6 @@
 
     return lb;
   }
-
-  document.addEventListener('click', function (e) {
-    var item = e.target.closest && e.target.closest('.pdp-gallery-item');
-    if (!item) return;
-    var container = document.getElementById('pdp-gallery');
-    if (!container || !container._lightboxImages) return;
-    var idx = parseInt(item.getAttribute('data-idx') || '0', 10);
-    openLightbox(container._lightboxImages, idx, document.title);
-  });
 
   document.addEventListener('keydown', function (e) {
     var lb = document.getElementById('pdp-lightbox');

@@ -1,17 +1,23 @@
 ﻿/* Ryan Jhider Portfolio - PS2 Horror Style */
+/* Color theory: WCAG AA contrast on dark backgrounds
+   - text-primary:  ~13.5:1 on bg-void  (headings, hero values)
+   - text-secondary: ~8.5:1 on bg-void (body text, descriptions)
+   - text-muted:     ~5.2:1 on bg-void (labels, metadata)
+   Accent green reserved for primary actions (Play button) and rare featured badge.
+*/
 
 :root {
   --bg-void: #0a0908;
-  --bg-primary: #111210;
-  --bg-surface: #1c1e1a;
-  --bg-elevated: #242621;
-  --text-primary: #e2d8c8;
-  --text-secondary: #9a9e95;
-  --text-muted: #5a5d56;
+  --bg-primary: #131513;
+  --bg-surface: #1f221d;
+  --bg-elevated: #2a2d27;
+  --text-primary: #f2ead8;
+  --text-secondary: #b8bdb2;
+  --text-muted: #8a8e85;
   --accent-phosphor: #3dff5e;
   --accent-blood: #7a1515;
-  --border-subtle: rgba(200,190,170,0.08);
-  --border-medium: rgba(200,190,170,0.15);
+  --border-subtle: rgba(200,190,170,0.10);
+  --border-medium: rgba(200,190,170,0.20);
   --glow-phosphor: 0 0 15px rgba(61,255,94,0.3);
   --glow-blood: 0 0 20px rgba(122,21,21,0.4);
   --ease-snap: cubic-bezier(0.25, 0, 0, 1);
@@ -399,62 +405,229 @@ a:hover { text-shadow: var(--glow-phosphor); }
 .footer-link:hover { color: var(--accent-phosphor); }
 .footer-copy { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
 
-/* Project Detail Page (PDP) */
+/* ============================================
+   Project Detail Page (PDP) - Steam-like layout
+   Recruiter-friendly: green reserved for action/active
+   ============================================ */
+
 .pdp-page {
-  padding: 7rem 2rem 4rem;
-  max-width: 1100px;
+  padding: 6.5rem 2rem 5rem;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.pdp-nav {
-  margin-bottom: 1.5rem;
+/* =================== HERO IMAGE (sidebar cover) =================== */
+.pdp-hero-image {
+  width: 100%;
+  height: 175px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pdp-back {
+.pdp-hero-image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.pdp-hero-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  color: var(--text-muted);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
+}
+
+/* =================== SHORT DESCRIPTION =================== */
+.pdp-shortdesc-card {
+  padding: 0.9rem 1.1rem;
+}
+
+.pdp-shortdesc {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--border-medium);
+}
+
+/* =================== BREADCRUMB =================== */
+.pdp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+}
+
+.pdp-crumb {
+  color: var(--text-muted);
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.pdp-back:hover {
-  color: var(--accent-phosphor);
+.pdp-crumb:hover { color: var(--text-primary); }
+
+.pdp-crumb-sep {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
-/* Hero */
-.pdp-hero {
-  margin-bottom: 2rem;
+.pdp-crumb-current {
+  color: var(--text-secondary);
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =================== TITLE BAR =================== */
+.pdp-titlebar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pdp-titlebar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.pdp-titlebar-right {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.pdp-hero-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.pdp-hero-badge.is-featured {
+  border-color: var(--accent-phosphor);
+  color: var(--accent-phosphor);
+  background: rgba(61,255,94,0.06);
+}
+
+.pdp-hero-badge.is-draft {
+  border-color: var(--accent-blood);
+  color: var(--accent-blood);
+  background: rgba(122,21,21,0.08);
 }
 
 .pdp-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
   color: var(--text-primary);
   line-height: 1;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+  margin: 0;
 }
 
 .pdp-subtitle {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 1rem;
-  color: var(--accent-phosphor);
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  margin: 0;
 }
 
-.pdp-media {
-  width: 100%;
-  aspect-ratio: 21/9;
+.pdp-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.pdp-pill {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* =================== STAGE (Player + Sidebar) =================== */
+.pdp-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 375px;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 2.5rem;
+}
+
+.pdp-stage-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.pdp-stage-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: sticky;
+  top: 6rem;
+}
+
+/* =================== PLAYER =================== */
+.pdp-player {
+  position: relative;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
 }
 
-.pdp-media iframe,
-.pdp-media img {
+.pdp-player-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+
+.pdp-player-media iframe,
+.pdp-player-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .pdp-media-placeholder {
@@ -463,76 +636,213 @@ a:hover { text-shadow: var(--glow-phosphor); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: 5rem;
+  color: var(--text-muted);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
+}
+
+/* Chrome bar (subtle, neutral) */
+.pdp-player-chrome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
-/* Pills */
-.pdp-pills {
+.pdp-player-label {
+  color: var(--text-secondary);
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
-  margin-bottom: 2.5rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
 }
 
-.pdp-pill {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.75rem;
-  padding: 0.4rem 0.8rem;
+.pdp-player-label::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--text-muted);
+}
+
+.pdp-player-counter {
+  color: var(--text-muted);
+}
+
+.pdp-player-counter::before { content: "[ "; opacity: 0.5; }
+.pdp-player-counter::after { content: " ]"; opacity: 0.5; }
+
+/* =================== THUMBNAILS STRIP =================== */
+.pdp-thumbs-wrap {
+  position: relative;
   background: var(--bg-surface);
-  border: 1px solid var(--border-medium);
-  color: var(--accent-phosphor);
+  border: 1px solid var(--border-subtle);
+  padding: 0.75rem;
 }
 
-/* Content Grid */
+.pdp-thumbs {
+  display: flex;
+  flex-direction: row;
+  gap: 0.6rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) var(--bg-void);
+  padding-bottom: 4px;
+}
+
+.pdp-thumbs::-webkit-scrollbar { height: 6px; }
+.pdp-thumbs::-webkit-scrollbar-track { background: var(--bg-void); }
+.pdp-thumbs::-webkit-scrollbar-thumb { background: var(--border-medium); }
+
+.pdp-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 200px;
+  aspect-ratio: 16/9;
+  padding: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  overflow: hidden;
+  display: block;
+  transition: border-color 0.2s, transform 0.2s, opacity 0.2s;
+}
+
+.pdp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.7;
+  transition: opacity 0.25s, transform 0.3s;
+}
+
+.pdp-thumb:hover {
+  border-color: var(--text-secondary);
+  transform: translateY(-2px);
+}
+
+.pdp-thumb:hover img {
+  opacity: 0.95;
+}
+
+.pdp-thumb.is-active {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--text-primary);
+}
+
+.pdp-thumb.is-active img {
+  opacity: 1;
+}
+
+.pdp-thumb.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--text-primary);
+}
+
+.pdp-thumb-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  text-shadow: 0 0 12px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+
+.pdp-thumb-num {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: rgba(10,9,8,0.85);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  z-index: 2;
+}
+
+.pdp-thumb.is-video .pdp-thumb-num {
+  color: var(--accent-blood);
+  border-color: rgba(122,21,21,0.5);
+}
+
+.pdp-thumb-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+/* =================== CONTENT GRID (below stage) =================== */
 .pdp-content {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
+  display: block;
+  margin-top: 0.5rem;
 }
 
 .pdp-left {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.pdp-right {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
+.pdp-spacer { display: none; }
 
-/* Sections */
+/* =================== SECTIONS =================== */
 .pdp-section {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  padding: 1.5rem;
+  padding: 1.5rem 1.75rem;
 }
 
 .pdp-section-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.pdp-description {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
+.pdp-section-title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.1em;
+  background: var(--text-secondary);
 }
 
-/* Contributions */
+/* =================== CONTRIBUTIONS =================== */
 .pdp-contributions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .pdp-contrib-card {
@@ -540,27 +850,28 @@ a:hover { text-shadow: var(--glow-phosphor); }
   padding: 1rem 1.1rem;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--accent-phosphor);
-  transition: border-color 0.2s var(--ease-snap), transform 0.2s var(--ease-snap);
+  border-left: 3px solid var(--text-secondary);
+  transition: border-color 0.2s var(--ease-snap), transform 0.2s var(--ease-snap), background 0.2s;
 }
 
 .pdp-contrib-card:hover {
-  border-left-color: var(--accent-blood);
-  transform: translateX(2px);
+  border-left-color: var(--text-primary);
+  background: var(--bg-surface);
+  transform: translateX(3px);
 }
 
 .pdp-contrib-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--text-primary);
   letter-spacing: 0.05em;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.4rem;
   text-transform: uppercase;
 }
 
 .pdp-contrib-desc {
   font-size: 0.9rem;
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
@@ -570,165 +881,249 @@ a:hover { text-shadow: var(--glow-phosphor); }
 .markdown-body li { margin-bottom: 0.2em; color: var(--text-secondary); }
 .markdown-body strong { color: var(--text-primary); font-weight: 600; }
 .markdown-body em { color: var(--text-primary); font-style: italic; }
-.markdown-body code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 5px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--accent-phosphor); }
-.markdown-body a { color: var(--accent-phosphor); text-decoration: underline; text-decoration-style: dotted; }
-.markdown-body a:hover { text-shadow: var(--glow-phosphor); }
+.markdown-body code { font-family: 'Share Tech Mono', monospace; font-size: 0.85em; padding: 1px 5px; background: var(--bg-primary); border: 1px solid var(--border-subtle); color: var(--text-primary); }
+.markdown-body a { color: var(--text-primary); text-decoration: underline; text-decoration-style: dotted; }
+.markdown-body a:hover { color: var(--accent-phosphor); }
 
-/* Links */
+/* =================== BUY BOX =================== */
+.pdp-buybox {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  padding: 0;
+  overflow: hidden;
+}
+
+.pdp-buybox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.1rem;
+  background: rgba(10,9,8,0.4);
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.pdp-buybox-platform {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pdp-buybox-release {
+  color: var(--text-muted);
+}
+
+.pdp-buybox-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+  padding: 1rem 1.1rem 0.5rem;
+  line-height: 1.05;
+}
+
+.pdp-buybox-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 0 1.1rem 1rem;
+}
+
+.pdp-buybox-status:empty { display: none; }
+
 .pdp-links {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1.1rem 1.1rem;
 }
 
 .pdp-link-btn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.9rem;
-  padding: 0.6rem 1.25rem;
-  background: var(--accent-blood);
-  border: 1px solid var(--accent-blood);
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.pdp-link-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-blood);
-}
-
-.pdp-no-links {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-/* Gallery */
-.pdp-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.85rem;
-}
-
-.pdp-gallery-item {
-  aspect-ratio: 16/9;
-  overflow: hidden;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface, #1c1e1a);
-  padding: 0;
-  cursor: zoom-in;
-  display: block;
-  position: relative;
-  isolation: isolate;
-  transition: border-color 0.35s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.4s ease;
-  animation: galleryFadeUp 0.6s cubic-bezier(0.2, 0.9, 0.2, 1) backwards;
-}
-
-.pdp-gallery-item:nth-child(1) { animation-delay: 0.04s; }
-.pdp-gallery-item:nth-child(2) { animation-delay: 0.10s; }
-.pdp-gallery-item:nth-child(3) { animation-delay: 0.16s; }
-.pdp-gallery-item:nth-child(4) { animation-delay: 0.22s; }
-.pdp-gallery-item:nth-child(5) { animation-delay: 0.28s; }
-.pdp-gallery-item:nth-child(6) { animation-delay: 0.34s; }
-.pdp-gallery-item:nth-child(n+7) { animation-delay: 0.40s; }
-
-.pdp-gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.2, 1), filter 0.35s ease;
-  filter: brightness(0.92) saturate(0.95);
-}
-
-.pdp-gallery-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(10, 9, 8, 0.6) 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.pdp-gallery-item::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(100deg, transparent 0%, rgba(61, 255, 94, 0.18) 50%, transparent 100%);
-  transition: left 0.7s cubic-bezier(0.2, 0.9, 0.2, 1);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.pdp-gallery-item .pdp-gallery-zoom {
-  position: absolute;
-  bottom: 0.6rem;
-  right: 0.6rem;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.95rem;
-  color: var(--accent-phosphor, #3dff5e);
-  background: rgba(10, 9, 8, 0.7);
-  border: 1px solid rgba(61, 255, 94, 0.4);
-  z-index: 3;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-  pointer-events: none;
+  letter-spacing: 0.1em;
+  padding: 0.85rem 1rem;
+  background: var(--accent-phosphor);
+  border: 1px solid var(--accent-phosphor);
+  color: var(--bg-void);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.2s, transform 0.15s;
+  cursor: pointer;
 }
 
-.pdp-gallery-item:hover,
-.pdp-gallery-item:focus-visible {
-  border-color: var(--accent-phosphor, #3dff5e);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(61, 255, 94, 0.25), 0 0 24px rgba(61, 255, 94, 0.12);
-  outline: none;
+.pdp-link-btn::before {
+  content: "▶";
+  font-size: 0.7rem;
+  color: var(--bg-void);
 }
 
-.pdp-gallery-item:hover img,
-.pdp-gallery-item:focus-visible img {
-  transform: scale(1.08);
-  filter: brightness(1.02) saturate(1.05);
+.pdp-link-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
-.pdp-gallery-item:hover::before,
-.pdp-gallery-item:focus-visible::before {
-  opacity: 1;
-}
-
-.pdp-gallery-item:hover::after,
-.pdp-gallery-item:focus-visible::after {
-  left: 120%;
-}
-
-.pdp-gallery-item:hover .pdp-gallery-zoom,
-.pdp-gallery-item:focus-visible .pdp-gallery-zoom {
-  opacity: 1;
+.pdp-link-btn:active {
   transform: translateY(0);
-  background: rgba(10, 9, 8, 0.9);
-  box-shadow: 0 0 12px rgba(61, 255, 94, 0.35);
 }
 
-@keyframes galleryFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.pdp-no-links {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.5rem 0;
+  text-align: center;
 }
 
-/* Lightbox */
+.pdp-buybox-share {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(10,9,8,0.3);
+}
+
+.pdp-buybox-share-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-right: auto;
+  text-transform: uppercase;
+}
+
+.pdp-share-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.pdp-share-btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* =================== CARDS (sidebar) =================== */
+.pdp-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 1.1rem 1.25rem;
+}
+
+.pdp-card-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pdp-card-title::before {
+  content: "//";
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* =================== TECH TAGS =================== */
+.pdp-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pdp-tech-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.55rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: border-color 0.2s, color 0.2s;
+  cursor: default;
+}
+
+.pdp-tech-tag:hover {
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+/* =================== DETAILS (key-value list) =================== */
+.pdp-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.pdp-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.pdp-detail-row:last-child { border-bottom: none; }
+
+.pdp-detail-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  flex-shrink: 0;
+}
+
+.pdp-detail-value {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* =================== ABOUT (long description) =================== */
+.pdp-about {
+  margin-bottom: 0;
+}
+
+.pdp-description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* =================== LIGHTBOX =================== */
 .pdp-lightbox {
   position: fixed;
   inset: 0;
@@ -955,8 +1350,6 @@ a:hover { text-shadow: var(--glow-phosphor); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pdp-gallery-item,
-  .pdp-gallery-item img,
   .pdp-lightbox,
   .pdp-lightbox-img {
     animation: none !important;
@@ -964,90 +1357,43 @@ a:hover { text-shadow: var(--glow-phosphor); }
   }
 }
 
-/* Card */
-.pdp-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  padding: 1.25rem;
-}
-
-.pdp-card-title {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.8rem;
-  color: var(--accent-phosphor);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-/* Details */
-.pdp-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.pdp-detail-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.pdp-detail-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.pdp-detail-value {
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  text-align: right;
-}
-
-/* Tech Tags */
-.pdp-tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.pdp-tech-tag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  padding: 0.3rem 0.5rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-}
-
-/* Responsive */
-@media (max-width: 800px) {
-  .pdp-content {
+/* =================== PDP RESPONSIVE =================== */
+@media (max-width: 1100px) {
+  .pdp-stage {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-  
-  .pdp-right {
-    order: -1;
+
+  .pdp-stage-right {
+    position: static;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
-  
-  .pdp-media {
-    aspect-ratio: 16/9;
+}
+
+@media (max-width: 1000px) {
+  .pdp-stage-right {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 500px) {
-  .pdp-right {
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
+  .pdp-page {
+    padding: 5.5rem 1rem 3rem;
   }
-  
-  .pdp-gallery {
-    grid-template-columns: 1fr;
+
+  .pdp-titlebar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pdp-pills {
+    justify-content: flex-start;
+  }
+
+  .pdp-thumb {
+    width: 160px;
   }
 }
 .project-page {
