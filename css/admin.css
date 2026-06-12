@@ -24,7 +24,9 @@
 .admin-filters .filter-btn { padding: 0.5rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-secondary); cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; transition: all 0.2s; }
 .admin-filters .filter-btn:hover, .admin-filters .filter-btn.active { background: var(--accent-phosphor); color: var(--bg-void); border-color: var(--accent-phosphor); }
 .admin-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.admin-project-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); overflow: hidden; display: flex; flex-direction: column; }
+.admin-project-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); overflow: hidden; display: flex; flex-direction: column; position: relative; transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s; }
+.admin-project-card.dragging { opacity: 0.4; }
+.admin-project-card.drag-over { border-color: var(--accent-phosphor); box-shadow: 0 0 0 2px var(--accent-phosphor); }
 .admin-project-card .thumbnail { height: 150px; overflow: hidden; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; }
 .admin-project-card .thumbnail img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .admin-project-card .thumbnail-placeholder { font-size: 2rem; color: var(--text-muted); }
@@ -35,6 +37,17 @@
 .admin-project-card .badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--accent-phosphor); color: var(--bg-void); border-radius: 2px; }
 .admin-project-card .badge-draft { background: var(--text-muted); }
 .admin-project-card .actions { display: flex; gap: 0.5rem; }
+
+/* Drag handle */
+.admin-drag-handle { position: absolute; top: 6px; left: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: rgba(10, 9, 8, 0.75); color: var(--text-secondary); cursor: grab; font-size: 1rem; line-height: 1; z-index: 2; user-select: none; transition: background 0.15s, color 0.15s; }
+.admin-drag-handle:hover { background: var(--accent-phosphor); color: var(--bg-void); }
+.admin-drag-handle:active { cursor: grabbing; }
+
+/* Reorder hint */
+.admin-reorder-hint { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; margin: 0 0 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--text-muted); border: 1px dashed var(--border-subtle); background: var(--bg-primary); }
+.admin-reorder-hint .hint-icon { color: var(--accent-phosphor); font-size: 1rem; }
+.admin-reorder-hint .hint-link { margin-left: auto; background: none; border: 1px solid var(--border-medium); color: var(--text-secondary); padding: 2px 8px; font-family: inherit; font-size: 0.7rem; cursor: pointer; transition: all 0.15s; }
+.admin-reorder-hint .hint-link:hover { border-color: var(--accent-phosphor); color: var(--accent-phosphor); }
 
 /* ============================================ */
 /* NEW PROJECT FORM LAYOUT (2 columns)          */

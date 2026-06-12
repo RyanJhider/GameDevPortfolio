@@ -29,7 +29,7 @@
               out.push(data);
             });
             if (out.length > 0) {
-              projectsData = U.sortProjectsByDateDesc(out);
+              projectsData = U.sortProjectsByOrder(out);
               afterLoad();
             } else {
               loadFromJSON();
@@ -52,7 +52,7 @@
       })
       .then(function (data) {
         if (data.projects && data.projects.length > 0) {
-          projectsData = U.sortProjectsByDateDesc(data.projects);
+          projectsData = U.sortProjectsByOrder(data.projects);
           afterLoad();
         }
       })

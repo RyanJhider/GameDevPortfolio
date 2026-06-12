@@ -114,6 +114,20 @@
     return null;
   }
 
+  // Sort by manual `order` first (lower = first), then fall back to date desc.
+  // Projects without an explicit `order` are placed at the end, sorted by date.
+  function sortProjectsByOrder(list) {
+    return list.slice().sort(function (a, b) {
+      var ao = (typeof a.order === 'number' && !isNaN(a.order)) ? a.order : null;
+      var bo = (typeof b.order === 'number' && !isNaN(b.order)) ? b.order : null;
+      if (ao !== null && bo !== null) return ao - bo;
+      if (ao !== null) return -1;
+      if (bo !== null) return 1;
+      return String(b.date || b.year || '').localeCompare(String(a.date || a.year || ''));
+    });
+  }
+
+  // Kept for backward compatibility (alias of the date-only fallback path).
   function sortProjectsByDateDesc(list) {
     return list.slice().sort(function (a, b) {
       return String(b.date || b.year || '').localeCompare(String(a.date || a.year || ''));
@@ -220,6 +234,7 @@
     formatDate: formatDate,
     extractVideoId: extractVideoId,
     sortProjectsByDateDesc: sortProjectsByDateDesc,
+    sortProjectsByOrder: sortProjectsByOrder,
     renderMarkdown: renderMarkdown
   };
 })(window);

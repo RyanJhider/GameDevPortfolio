@@ -129,6 +129,8 @@ Layout deux colonnes:
 - Auth Firebase (email/password)
 - Upload d'images: compression canvas cote client (max 600/1280/400px selon usage)
 - CRUD projets (create, edit, delete, list, filter)
+- **Reordonner les projets par drag-and-drop** (poignee `≡` sur chaque carte) -> champ `order` (number) stocke dans Firestore
+- Bouton "Reinitialiser (tri par date)" -> efface le champ `order` sur tous les projets
 - Edition profil
 - Import JSON vers Firestore (projets + profil)
 
@@ -159,7 +161,8 @@ Layout deux colonnes:
 - `linkLabel(type)` : 'Itch.io', 'Steam', 'GitHub', etc.
 - `getTagColor(category)` : couleur par categorie
 - `extractVideoId(video)` : extrait ID YouTube depuis watch/embed/youtu.be/raw
-- `sortProjectsByDateDesc(list)` : tri stable
+- `sortProjectsByDateDesc(list)` : tri stable (fallback si pas d'`order`)
+- `sortProjectsByOrder(list)` : tri par `order` asc, fallback date desc pour projets sans `order`
 
 ### `js/main.js`
 - `loadData()` : Firebase -> fallback JSON

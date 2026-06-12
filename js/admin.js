@@ -218,8 +218,15 @@
         snapshot.forEach(function (doc) {
           var data = doc.data();
           data.id = data.id || doc.id;
+          // Normalize order: Firestore returns numbers as-is, but be defensive
+          if (typeof data.order !== 'undefined' && typeof data.order !== 'number') {
+            var n = parseInt(data.order, 10);
+            data.order = isNaN(n) ? undefined : n;
+          }
           projects.push(data);
         });
+        // Apply the same sort as the public site so the admin view matches
+        projects = U.sortProjectsByOrder(projects);
         renderProjects(projects);
       })
       .catch(function (error) {
@@ -240,6 +247,7 @@
       return;
     }
     grid.innerHTML = list.map(function (p) { return renderProjectCard(p); }).join('');
+    wireDragAndDrop();
   }
 
   function renderProjectCard(p) {
@@ -249,13 +257,18 @@
     var featured = p.featured ? '<span class="badge">Featured</span>' : '';
     var draft = p.status === 'draft' ? '<span class="badge badge-draft">Brouillon</span>' : '';
     var safeId = U.escapeAttr(p.id);
+    var orderedClass = (typeof p.order === 'number' && !isNaN(p.order)) ? ' has-order' : '';
+    var orderBadge = (typeof p.order === 'number' && !isNaN(p.order))
+      ? '<span class="badge" title="Ordre personnalise">#' + p.order + '</span>'
+      : '';
 
-    return '<div class="admin-project-card">' +
+    return '<div class="admin-project-card' + orderedClass + '" data-project-id="' + safeId + '">' +
+      '<div class="admin-drag-handle" draggable="true" title="Glisser pour reordonner" aria-label="Reordonner">&#8801;</div>' +
       '<div class="thumbnail">' + thumb + '</div>' +
       '<div class="info">' +
         '<h3>' + U.escapeHtml(p.title || 'Sans titre') + '</h3>' +
         '<p>' + U.escapeHtml(p.description || '') + '</p>' +
-        '<div class="tags-row">' + featured + draft + '</div>' +
+        '<div class="tags-row">' + featured + draft + orderBadge + '</div>' +
         '<div class="actions">' +
           '<button class="btn btn-primary btn-sm" data-action="edit" data-id="' + safeId + '">Editer</button>' +
           '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + safeId + '">Supprimer</button>' +
@@ -289,6 +302,185 @@
         renderProjects(filtered);
       });
     }
+  }
+
+  // ============== DRAG & DROP REORDER ==============
+
+  function wireDragAndDrop() {
+    var grid = document.getElementById('projects-list');
+    if (!grid) return;
+    var cards = grid.querySelectorAll('.admin-project-card');
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      // Only the handle starts the drag (cleaner UX than the whole card)
+      var handle = card.querySelector('.admin-drag-handle');
+      if (handle) {
+        handle.setAttribute('draggable', 'true');
+        handle.addEventListener('dragstart', onHandleDragStart);
+        handle.addEventListener('dragend', onHandleDragEnd);
+      }
+      // The card itself receives drop events
+      card.addEventListener('dragover', onCardDragOver);
+      card.addEventListener('dragleave', onCardDragLeave);
+      card.addEventListener('drop', onCardDrop);
+    }
+    var resetBtn = document.getElementById('reset-order-btn');
+    if (resetBtn && !resetBtn.dataset.wired) {
+      resetBtn.dataset.wired = '1';
+      resetBtn.addEventListener('click', resetAllOrders);
+    }
+  }
+
+  var draggedProjectId = null;
+
+  function onHandleDragStart(e) {
+    var card = this.closest('.admin-project-card');
+    if (!card) return;
+    draggedProjectId = card.getAttribute('data-project-id');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      // Some browsers require setData to actually start the drag
+      try { e.dataTransfer.setData('text/plain', draggedProjectId); } catch (err) { /* noop */ }
+    }
+    card.classList.add('dragging');
+  }
+
+  function onHandleDragEnd() {
+    var card = this.closest('.admin-project-card');
+    if (card) card.classList.remove('dragging');
+    // Clear all drag-over highlights
+    var grid = document.getElementById('projects-list');
+    if (grid) {
+      var over = grid.querySelectorAll('.drag-over');
+      for (var i = 0; i < over.length; i++) over[i].classList.remove('drag-over');
+    }
+    draggedProjectId = null;
+  }
+
+  function onCardDragOver(e) {
+    if (!draggedProjectId) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    if (this.getAttribute('data-project-id') !== draggedProjectId) {
+      this.classList.add('drag-over');
+    }
+  }
+
+  function onCardDragLeave() {
+    this.classList.remove('drag-over');
+  }
+
+  function onCardDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.classList.remove('drag-over');
+    var targetId = this.getAttribute('data-project-id');
+    if (!draggedProjectId || !targetId || targetId === draggedProjectId) return;
+    reorderProjects(draggedProjectId, targetId);
+  }
+
+  // Move `sourceId` to the position of `targetId` in the current visible list,
+  // then assign a sequential `order` (0,1,2,...) to every visible project and
+  // persist to Firestore.
+  function reorderProjects(sourceId, targetId) {
+    // Reorder the in-memory `projects` array (which is the master list of ALL
+    // projects; the visible sub-list is just a filtered view). We compute the
+    // new index based on the visible order, then apply it to the master list.
+    var grid = document.getElementById('projects-list');
+    if (!grid) return;
+    var visibleCards = grid.querySelectorAll('.admin-project-card');
+    var visibleOrder = [];
+    for (var i = 0; i < visibleCards.length; i++) {
+      var pid = visibleCards[i].getAttribute('data-project-id');
+      if (pid) visibleOrder.push(pid);
+    }
+
+    var srcIdx = visibleOrder.indexOf(sourceId);
+    var tgtIdx = visibleOrder.indexOf(targetId);
+    if (srcIdx < 0 || tgtIdx < 0) return;
+
+    // Remove source from visible order, then insert it at target's position
+    visibleOrder.splice(srcIdx, 1);
+    visibleOrder.splice(tgtIdx, 0, sourceId);
+
+    // Rebuild the full `projects` array so the new visible order is reflected
+    // for both filtered and unfiltered views. Items not currently visible keep
+    // their existing position relative to each other.
+    var visibleSet = {};
+    for (var j = 0; j < visibleOrder.length; j++) visibleSet[visibleOrder[j]] = visibleOrder[j];
+    var visibleItems = [];
+    var hiddenItems = [];
+    for (var k = 0; k < projects.length; k++) {
+      if (visibleSet[projects[k].id]) visibleItems.push(projects[k]);
+      else hiddenItems.push(projects[k]);
+    }
+    // Re-order visibleItems to match visibleOrder
+    var byId = {};
+    for (var m = 0; m < visibleItems.length; m++) byId[visibleItems[m].id] = visibleItems[m];
+    var reorderedVisible = [];
+    for (var n = 0; n < visibleOrder.length; n++) {
+      if (byId[visibleOrder[n]]) reorderedVisible.push(byId[visibleOrder[n]]);
+    }
+    projects = reorderedVisible.concat(hiddenItems);
+
+    // Assign sequential `order` to ALL projects (so hidden ones also get a
+    // defined position; this prevents date-only fallback from reshuffling
+    // them unpredictably). User-initiated reorder sets the manual order.
+    for (var p = 0; p < projects.length; p++) {
+      projects[p].order = p;
+    }
+
+    // Re-render with the current filter still active
+    var activeFilter = document.querySelector('.admin-filters .filter-btn.active');
+    var filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
+    var filtered = projects;
+    if (filter === 'featured') filtered = projects.filter(function (x) { return x.featured; });
+    else if (filter === 'published') filtered = projects.filter(function (x) { return x.status !== 'draft'; });
+    else if (filter === 'draft') filtered = projects.filter(function (x) { return x.status === 'draft'; });
+    renderProjects(filtered);
+    wireDragAndDrop();
+
+    // Persist the new order to Firestore
+    persistOrder();
+  }
+
+  function resetAllOrders() {
+    if (!confirm('Reinitialiser l\'ordre ? Les projets seront retries par date (le plus recent en premier).')) return;
+    // Strip the `order` field on every project (sortProjectsByOrder will then
+    // fall back to date desc for these).
+    for (var i = 0; i < projects.length; i++) {
+      delete projects[i].order;
+    }
+    projects = U.sortProjectsByDateDesc(projects);
+    renderProjects(projects);
+    wireDragAndDrop();
+    persistOrder(/* clearOnly */ true);
+  }
+
+  function persistOrder(clearOnly) {
+    if (!firebaseReady()) { showToast('Firebase non configure', 'error'); return; }
+    var batch = firebase.firestore().batch();
+    var count = 0;
+    for (var i = 0; i < projects.length; i++) {
+      var p = projects[i];
+      var ref = firebase.firestore().collection('projects').doc(p.id);
+      if (clearOnly && typeof p.order === 'undefined') continue; // already cleared in memory, nothing to write
+      var update = clearOnly
+        ? { order: firebase.firestore.FieldValue.delete() }
+        : { order: p.order };
+      batch.update(ref, update);
+      count++;
+    }
+    if (count === 0) { showToast('Ordre enregistre'); return; }
+    batch.commit()
+      .then(function () {
+        showToast(clearOnly ? 'Ordre reinitialise' : 'Ordre enregistre');
+        // Reload so the local state matches Firestore exactly
+        loadProjects();
+      })
+      .catch(function (e) {
+        showToast('Erreur sauvegarde ordre: ' + e.message, 'error');
+      });
   }
 
   function editProject(id) {
