@@ -72,8 +72,17 @@
                 <span class="projects-section-label-dot"></span>
                 <span>FEATURED</span>
                 <span class="projects-section-label-count" id="featured-count">0</span>
+                <div class="featured-nav">
+                    <button type="button" class="featured-nav-btn" id="featured-prev" aria-label="Previous featured">‹</button>
+                    <button type="button" class="featured-nav-btn" id="featured-next" aria-label="Next featured">›</button>
+                </div>
             </div>
-            <div class="projects-featured" id="projects-featured"></div>
+            <div class="projects-featured-viewport">
+                <div class="projects-featured" id="projects-featured"></div>
+                <div class="featured-edge featured-edge-left" id="featured-edge-left"></div>
+                <div class="featured-edge featured-edge-right" id="featured-edge-right"></div>
+            </div>
+            <div class="featured-dots" id="featured-dots"></div>
         </div>
 
         <!-- Main Grid -->

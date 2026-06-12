@@ -291,6 +291,7 @@
         featuredWrap.hidden = false;
         if (featuredCount) featuredCount.textContent = featured.length;
         featuredEl.innerHTML = featured.map(function (p, i) { return renderFeaturedCard(p, i); }).join('');
+        initFeaturedCarousel();
       } else {
         featuredWrap.hidden = true;
         featuredEl.innerHTML = '';
@@ -312,6 +313,107 @@
     } else {
       grid.innerHTML = others.map(function (p, i) { return renderCard(p, i); }).join('');
     }
+  }
+
+  // ========================================
+  // Featured Carousel
+  // ========================================
+
+  function initFeaturedCarousel() {
+    var track = document.getElementById('projects-featured');
+    var prevBtn = document.getElementById('featured-prev');
+    var nextBtn = document.getElementById('featured-next');
+    var dotsEl = document.getElementById('featured-dots');
+    if (!track) return;
+
+    var cards = track.querySelectorAll('.featured-card');
+    var total = cards.length;
+    if (total === 0) {
+      if (dotsEl) dotsEl.innerHTML = '';
+      return;
+    }
+
+    // Build dots
+    if (dotsEl) {
+      var dotsHtml = '';
+      for (var i = 0; i < total; i++) {
+        dotsHtml += '<button type="button" class="featured-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
+      }
+      dotsEl.innerHTML = dotsHtml;
+      dotsEl.querySelectorAll('.featured-dot').forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          var idx = parseInt(this.getAttribute('data-index'), 10) || 0;
+          scrollToCard(idx);
+        });
+      });
+    }
+
+    function getStep() {
+      if (!cards.length) return 0;
+      var first = cards[0];
+      var styles = window.getComputedStyle(track);
+      var gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+      return first.getBoundingClientRect().width + gap;
+    }
+
+    function scrollToCard(idx) {
+      var step = getStep();
+      if (!step) return;
+      track.scrollTo({ left: step * idx, behavior: 'smooth' });
+    }
+
+    function updateNav() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      var sl = track.scrollLeft;
+      if (prevBtn) prevBtn.disabled = sl <= 2;
+      if (nextBtn) nextBtn.disabled = sl >= maxScroll - 2;
+      var edgeL = document.getElementById('featured-edge-left');
+      var edgeR = document.getElementById('featured-edge-right');
+      if (edgeL) edgeL.classList.toggle('visible', sl > 4);
+      if (edgeR) edgeR.classList.toggle('visible', sl < maxScroll - 4);
+      // Update dots based on closest card
+      if (dotsEl && total > 0) {
+        var step = getStep();
+        var active = step > 0 ? Math.round(sl / step) : 0;
+        active = Math.max(0, Math.min(total - 1, active));
+        dotsEl.querySelectorAll('.featured-dot').forEach(function (d, i) {
+          d.classList.toggle('active', i === active);
+        });
+      }
+    }
+
+    if (prevBtn) {
+      prevBtn.onclick = function () {
+        var step = getStep();
+        track.scrollBy({ left: -step, behavior: 'smooth' });
+      };
+    }
+    if (nextBtn) {
+      nextBtn.onclick = function () {
+        var step = getStep();
+        track.scrollBy({ left: step, behavior: 'smooth' });
+      };
+    }
+
+    track.onscroll = updateNav;
+    window.addEventListener('resize', updateNav);
+
+    // Keyboard arrows when hovering
+    track.setAttribute('tabindex', '0');
+    track.onkeydown = function (e) {
+      if (e.key === 'ArrowRight') { track.scrollBy({ left: getStep(), behavior: 'smooth' }); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { track.scrollBy({ left: -getStep(), behavior: 'smooth' }); e.preventDefault(); }
+    };
+
+    // Wheel: vertical scroll converted to horizontal when over carousel
+    track.onwheel = function (e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        track.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    };
+
+    updateNav();
   }
 
   // ========================================
