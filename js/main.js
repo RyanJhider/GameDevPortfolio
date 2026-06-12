@@ -317,7 +317,7 @@
   }
 
   // ========================================
-  // Featured Carousel - Single slide, autoplay + loop, stateful
+  // Featured Carousel - scroll-snap based, autoplay + loop
   // ========================================
 
   var featuredCarousel = null;
@@ -330,28 +330,19 @@
     var prevBtn = document.getElementById('featured-prev');
     var nextBtn = document.getElementById('featured-next');
     var dotsEl = document.getElementById('featured-dots');
-    var viewport = grid ? grid.parentElement : null;
-    if (!grid || !viewport) return null;
+    if (!grid) return null;
 
     var state = {
       index: 0,
       autoMs: 5000,
       timer: null,
       paused: false,
-      touchStartX: 0,
-      touchDragging: false,
       resizeTimer: null,
-      bound: false
+      suppressScrollEvt: false
     };
 
     function getCards() {
       return Array.prototype.slice.call(grid.querySelectorAll('.featured-card'));
-    }
-
-    function getStep() {
-      var cards = getCards();
-      if (!cards.length) return 0;
-      return cards[0].offsetWidth;
     }
 
     function buildDots(total) {
@@ -361,8 +352,7 @@
         html += '<button type="button" class="featured-dot' + (i === state.index ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
       }
       dotsEl.innerHTML = html;
-      var dots = dotsEl.querySelectorAll('.featured-dot');
-      dots.forEach(function (dot) {
+      dotsEl.querySelectorAll('.featured-dot').forEach(function (dot) {
         dot.addEventListener('click', function () {
           var idx = parseInt(this.getAttribute('data-index'), 10) || 0;
           goTo(idx);
@@ -371,22 +361,7 @@
       });
     }
 
-    function applyTransform() {
-      var step = getStep();
-      if (!step) { grid.style.transform = 'translateX(0)'; return; }
-      // Measure: where does the first card's left edge sit relative to viewport's left?
-      var vpRect = viewport.getBoundingClientRect();
-      var first = getCards()[0];
-      if (!first) { grid.style.transform = 'translateX(0)'; return; }
-      var firstRect = first.getBoundingClientRect();
-      var cardLeftInViewport = firstRect.left - vpRect.left;
-      // We want card #N's left edge at viewport's left edge.
-      // Transform needed: -N * step - cardLeftInViewport
-      var offset = -state.index * step - cardLeftInViewport;
-      grid.style.transform = 'translateX(' + offset + 'px)';
-    }
-
-    function updateDots(total) {
+    function updateDots() {
       if (!dotsEl) return;
       dotsEl.querySelectorAll('.featured-dot').forEach(function (d, j) {
         d.classList.toggle('active', j === state.index);
@@ -400,8 +375,14 @@
       if (i < 0) i = total - 1;
       if (i >= total) i = 0;
       state.index = i;
-      applyTransform();
-      updateDots(total);
+      var target = cards[i];
+      if (!target) return;
+      // Use scrollIntoView for reliable native centering with scroll-snap-align
+      var left = target.offsetLeft;
+      state.suppressScrollEvt = true;
+      grid.scrollTo({ left: left, behavior: 'smooth' });
+      setTimeout(function () { state.suppressScrollEvt = false; }, 700);
+      updateDots();
     }
 
     function next() { goTo(state.index + 1); }
@@ -420,32 +401,39 @@
 
     function restartAuto() { startAuto(); }
 
+    function onScroll() {
+      if (state.suppressScrollEvt) return;
+      var cards = getCards();
+      if (!cards.length) return;
+      var scrollLeft = grid.scrollLeft;
+      var closest = 0;
+      var closestDist = Infinity;
+      for (var i = 0; i < cards.length; i++) {
+        var d = Math.abs(cards[i].offsetLeft - scrollLeft);
+        if (d < closestDist) { closestDist = d; closest = i; }
+      }
+      if (closest !== state.index) {
+        state.index = closest;
+        updateDots();
+      }
+    }
+
     function onPrev() { prev(); restartAuto(); }
     function onNext() { next(); restartAuto(); }
 
-    function onTouchStart(e) {
-      state.touchStartX = e.touches[0].clientX;
-      state.touchDragging = true;
-    }
-
-    function onTouchEnd(e) {
-      if (!state.touchDragging) return;
-      var dx = e.changedTouches[0].clientX - state.touchStartX;
-      if (Math.abs(dx) > 40) {
-        if (dx < 0) next(); else prev();
-        restartAuto();
-      }
-      state.touchDragging = false;
-    }
-
     function onKeyDown(e) {
-      if (e.key === 'ArrowRight') { next(); restartAuto(); }
-      if (e.key === 'ArrowLeft') { prev(); restartAuto(); }
+      if (e.key === 'ArrowRight') { onNext(); }
+      if (e.key === 'ArrowLeft') { onPrev(); }
     }
 
     function onResize() {
       clearTimeout(state.resizeTimer);
-      state.resizeTimer = setTimeout(function () { applyTransform(); }, 100);
+      state.resizeTimer = setTimeout(function () {
+        var cards = getCards();
+        if (cards[state.index]) {
+          grid.scrollTo({ left: cards[state.index].offsetLeft, behavior: 'auto' });
+        }
+      }, 100);
     }
 
     // Bind once
@@ -457,27 +445,26 @@
       wrap.setAttribute('tabindex', '0');
       wrap.addEventListener('keydown', onKeyDown);
     }
-    grid.addEventListener('touchstart', onTouchStart, { passive: true });
-    grid.addEventListener('touchend', onTouchEnd, { passive: true });
+    grid.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
 
-    state.bound = true;
     featuredCarousel = {
       state: state,
       refresh: function () {
         var cards = getCards();
         var total = cards.length;
-        // Hide nav if 0 or 1 cards
         if (prevBtn) prevBtn.style.display = (total <= 1) ? 'none' : '';
         if (nextBtn) nextBtn.style.display = (total <= 1) ? 'none' : '';
-        // Clamp index
         if (state.index >= total) state.index = 0;
         if (state.index < 0) state.index = 0;
         buildDots(total);
-        // Wait one frame so layout is up-to-date, then apply
+        // After layout, jump to current index without animation
         requestAnimationFrame(function () {
-          applyTransform();
-          updateDots(total);
+          var c = getCards();
+          if (c[state.index]) {
+            grid.scrollTo({ left: c[state.index].offsetLeft, behavior: 'auto' });
+          }
+          updateDots();
         });
         if (!state.timer) startAuto();
       },
@@ -486,7 +473,7 @@
         if (prevBtn) prevBtn.style.display = '';
         if (nextBtn) nextBtn.style.display = '';
         if (dotsEl) dotsEl.innerHTML = '';
-        grid.style.transform = '';
+        grid.scrollTo({ left: 0, behavior: 'auto' });
       }
     };
     return featuredCarousel;

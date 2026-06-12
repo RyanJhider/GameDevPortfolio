@@ -2118,7 +2118,7 @@ a:hover { text-shadow: var(--glow-phosphor); }
   background: var(--bg-surface);
 }
 
-/* Featured Strip - Single vertical card slider, looped + autoplay */
+/* Featured Strip - Scroll-snap carousel, autoplay + loop */
 .projects-featured-wrap {
   position: relative;
   margin-bottom: 1rem;
@@ -2128,20 +2128,29 @@ a:hover { text-shadow: var(--glow-phosphor); }
 .projects-featured-viewport {
   position: relative;
   overflow: hidden;
-  margin: 0 -1rem;
-  padding: 0 1rem;
 }
 
 .projects-featured {
   display: flex;
-  transition: transform 0.7s cubic-bezier(0.25, 0, 0, 1);
-  will-change: transform;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.projects-featured::-webkit-scrollbar {
+  display: none;
 }
 
 .featured-card {
   position: relative;
   flex: 0 0 100%;
   min-width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   background: var(--bg-surface);
@@ -2150,9 +2159,8 @@ a:hover { text-shadow: var(--glow-phosphor); }
   text-decoration: none;
   color: inherit;
   transition: border-color 0.3s, box-shadow 0.4s;
-  margin: 0 0.5rem;
-  max-width: calc(100% - 1rem);
   max-height: 320px;
+  box-sizing: border-box;
 }
 
 .featured-card:hover {
