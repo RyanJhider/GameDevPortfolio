@@ -316,7 +316,7 @@
   }
 
   // ========================================
-  // Featured Carousel - Paged (2 cards visible, peek on sides)
+  // Featured Carousel - Single slide, vertical card, autoplay + loop
   // ========================================
 
   function initFeaturedCarousel() {
@@ -326,87 +326,109 @@
     var dotsEl = document.getElementById('featured-dots');
     var edgeL = document.getElementById('featured-edge-left');
     var edgeR = document.getElementById('featured-edge-right');
+    var wrap = document.getElementById('projects-featured-wrap');
     if (!grid) return;
 
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.featured-card'));
     var total = cards.length;
-    if (total === 0) {
+    if (total <= 1) {
+      if (prevBtn) prevBtn.style.display = 'none';
+      if (nextBtn) nextBtn.style.display = 'none';
       if (dotsEl) dotsEl.innerHTML = '';
       return;
     }
 
-    function pageSize() {
-      return window.innerWidth >= 1100 ? 2 : 1;
-    }
+    var index = 0;
+    var autoMs = 5000;
+    var autoTimer = null;
+    var paused = false;
 
-    var state = { page: 0, pages: Math.ceil(total / pageSize()) };
-
-    function rebuildDots() {
+    function buildDots() {
       if (!dotsEl) return;
       var html = '';
-      for (var i = 0; i < state.pages; i++) {
-        html += '<button type="button" class="featured-dot' + (i === state.page ? ' active' : '') + '" data-page="' + i + '" aria-label="Go to featured page ' + (i + 1) + '"></button>';
+      for (var i = 0; i < total; i++) {
+        html += '<button type="button" class="featured-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to featured ' + (i + 1) + '"></button>';
       }
       dotsEl.innerHTML = html;
       dotsEl.querySelectorAll('.featured-dot').forEach(function (dot) {
         dot.addEventListener('click', function () {
-          goTo(parseInt(this.getAttribute('data-page'), 10) || 0);
+          var idx = parseInt(this.getAttribute('data-index'), 10) || 0;
+          goTo(idx);
+          restartAuto();
         });
       });
     }
 
-    function goTo(page) {
-      var ps = pageSize();
-      state.pages = Math.ceil(total / ps);
-      if (page < 0) page = 0;
-      if (page >= state.pages) page = state.pages - 1;
-      state.page = page;
-      update();
-    }
-
-    function update() {
-      var ps = pageSize();
-      var start = state.page * ps;
-      var end = start + ps;
-      cards.forEach(function (c, i) {
-        if (i >= start && i < end) {
-          c.classList.remove('is-peek');
-        } else {
-          c.classList.add('is-peek');
-        }
-      });
-
-      if (prevBtn) prevBtn.disabled = state.page === 0;
-      if (nextBtn) nextBtn.disabled = state.page >= state.pages - 1;
-
-      if (edgeL) edgeL.classList.toggle('visible', state.page > 0);
-      if (edgeR) edgeR.classList.toggle('visible', state.page < state.pages - 1);
-
+    function goTo(i) {
+      if (i < 0) i = total - 1;
+      if (i >= total) i = 0;
+      index = i;
+      grid.style.transform = 'translateX(' + (-index * 100) + '%)';
       if (dotsEl) {
-        dotsEl.querySelectorAll('.featured-dot').forEach(function (d, i) {
-          d.classList.toggle('active', i === state.page);
+        dotsEl.querySelectorAll('.featured-dot').forEach(function (d, j) {
+          d.classList.toggle('active', j === index);
         });
       }
     }
 
-    if (prevBtn) prevBtn.onclick = function () { goTo(state.page - 1); };
-    if (nextBtn) nextBtn.onclick = function () { goTo(state.page + 1); };
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
 
-    function rebuild() {
-      state.pages = Math.ceil(total / pageSize());
-      if (state.page >= state.pages) state.page = state.pages - 1;
-      if (state.page < 0) state.page = 0;
-      rebuildDots();
-      update();
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(function () {
+        if (!paused) next();
+      }, autoMs);
     }
 
-    rebuild();
+    function stopAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
 
-    var resizeTimer;
-    window.addEventListener('resize', function () {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(rebuild, 150);
-    });
+    function restartAuto() {
+      startAuto();
+    }
+
+    if (prevBtn) prevBtn.onclick = function () { prev(); restartAuto(); };
+    if (nextBtn) nextBtn.onclick = function () { next(); restartAuto(); };
+
+    // Pause on hover
+    if (wrap) {
+      wrap.addEventListener('mouseenter', function () { paused = true; });
+      wrap.addEventListener('mouseleave', function () { paused = false; });
+    }
+
+    // Keyboard arrows
+    if (wrap) {
+      wrap.setAttribute('tabindex', '0');
+      wrap.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { next(); restartAuto(); }
+        if (e.key === 'ArrowLeft') { prev(); restartAuto(); }
+      });
+    }
+
+    // Hide edges: we loop, so no "more on this side" needed
+    if (edgeL) edgeL.style.display = 'none';
+    if (edgeR) edgeR.style.display = 'none';
+
+    // Touch swipe
+    var startX = 0, dragging = false;
+    grid.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      dragging = true;
+    }, { passive: true });
+    grid.addEventListener('touchend', function (e) {
+      if (!dragging) return;
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) {
+        if (dx < 0) next(); else prev();
+        restartAuto();
+      }
+      dragging = false;
+    }, { passive: true });
+
+    buildDots();
+    startAuto();
   }
 
   // ========================================
