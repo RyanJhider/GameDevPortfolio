@@ -284,7 +284,6 @@
     // Split featured vs others (only when no search/tag filter active, to keep the section meaningful)
     var showFeaturedSplit = !searchQuery && activeTags.length === 0;
     var featured = showFeaturedSplit ? list.filter(function (p) { return p.featured; }) : [];
-    var others = showFeaturedSplit ? list.filter(function (p) { return !p.featured; }) : list;
 
     if (featuredWrap && featuredEl) {
       if (featured.length > 0) {
@@ -300,19 +299,15 @@
     }
 
     if (gridLabel && gridLabelText && gridCount) {
-      if (featured.length > 0) {
-        gridLabel.hidden = false;
-        gridLabelText.textContent = 'ALL PROJECTS';
-        gridCount.textContent = others.length;
-      } else {
-        gridLabel.hidden = true;
-      }
+      gridLabel.hidden = false;
+      gridLabelText.textContent = 'ALL PROJECTS';
+      gridCount.textContent = list.length;
     }
 
-    if (others.length === 0) {
+    if (list.length === 0) {
       grid.innerHTML = '';
     } else {
-      grid.innerHTML = others.map(function (p, i) { return renderCard(p, i); }).join('');
+      grid.innerHTML = list.map(function (p, i) { return renderCard(p, i); }).join('');
     }
   }
 
