@@ -70,6 +70,7 @@
   function renderProject(p) {
     document.title = (p.title || 'Project') + ' | Ryan Jhider';
     window._pdpTitle = p.title || 'Project';
+    window._pdpVideoOrientation = (p.videoOrientation === 'vertical') ? 'vertical' : 'landscape';
 
     setText('pdp-title', p.title || 'Untitled');
     setText('pdp-crumb-title', p.title || 'Project');
@@ -99,6 +100,7 @@
 
     currentSlide = 0;
     currentSlides = buildSlides(p);
+    preloadImageOrientations(currentSlides);
     renderMedia(currentSlides);
     renderThumbs(currentSlides);
     renderPills(p);
@@ -109,26 +111,30 @@
     renderDetails(p);
     renderTech(p);
     bindShare();
+    bindPlayerArrows();
+    updatePlayerArrows();
   }
 
   function buildSlides(p) {
     var slides = [];
     var videoId = p.video ? U.extractVideoId(p.video) : null;
+    var videoOrientation = (p.videoOrientation === 'vertical') ? 'vertical' : 'landscape';
     if (videoId) {
       slides.push({
         kind: 'video',
         videoId: videoId,
+        orientation: videoOrientation,
         thumb: 'https://i.ytimg.com/vi/' + U.escapeAttr(videoId) + '/hqdefault.jpg',
         label: 'TRAILER'
       });
     }
     (p.images || []).forEach(function (src, i) {
       var url = U.safeUrl(src);
-      if (url) slides.push({ kind: 'image', url: url, label: 'SCREENSHOT ' + String(i + 1).padStart(2, '0') });
+      if (url) slides.push({ kind: 'image', url: url, orientation: 'pending', label: 'SCREENSHOT ' + String(i + 1).padStart(2, '0') });
     });
     if (slides.length === 0 && p.thumbnail) {
       var thumbUrl = U.safeUrl(p.thumbnail);
-      if (thumbUrl) slides.push({ kind: 'image', url: thumbUrl, label: 'CAPSULE' });
+      if (thumbUrl) slides.push({ kind: 'image', url: thumbUrl, orientation: 'pending', label: 'CAPSULE' });
     }
     if (slides.length === 0) {
       slides.push({ kind: 'placeholder', label: 'NO MEDIA' });
@@ -136,24 +142,66 @@
     return slides;
   }
 
+  // Preload every image slide off-screen so we know its natural dimensions
+  // BEFORE the user clicks the thumbnail. This prevents the player from
+  // resizing mid-render (the source of the layout flash).
+  function preloadImageOrientations(slides) {
+    slides.forEach(function (s) {
+      if (s.kind !== 'image') return;
+      if (s.orientation && s.orientation !== 'pending') return;
+      var probe = new Image();
+      probe.onload = function () {
+        var w = probe.naturalWidth || 0;
+        var h = probe.naturalHeight || 0;
+        s.orientation = (w > 0 && h > w) ? 'vertical' : 'landscape';
+      };
+      probe.onerror = function () { s.orientation = 'landscape'; };
+      probe.src = s.url;
+    });
+  }
+
   function renderMedia(slides) {
     var media = document.getElementById('pdp-media');
     var label = document.getElementById('pdp-player-label');
     var counter = document.getElementById('pdp-player-counter');
+    var player = document.querySelector('.pdp-player');
     if (!media) return;
-    media.innerHTML = '';
 
     var s = slides[currentSlide] || slides[0];
     if (label) label.textContent = s.label || '';
     if (counter) counter.textContent = (currentSlide + 1) + ' / ' + slides.length;
 
+    // 1) Resolve the target orientation BEFORE touching the DOM. For images
+    //    this was preloaded by preloadImageOrientations(); if for some
+    //    reason it's still pending, fall back to landscape (the container
+    //    stays 16/9 briefly, but we'll never re-flow once the image paints).
+    var orient = s.orientation;
+    if (orient === 'pending' || !orient) {
+      orient = (s.kind === 'video') ? (s.orientation || 'landscape') : 'landscape';
+    }
+
+    // 2) Set the orientation class on the player FIRST. The player container
+    //    resizes to the new aspect-ratio here. Then we swap the media
+    //    contents in the same frame so the user never sees a blank/stretched
+    //    frame in between.
+    if (player) {
+      if (orient === 'vertical') player.classList.add('is-vertical');
+      else player.classList.remove('is-vertical');
+    }
+
+    // 3) Swap the media contents. We build the new node off-DOM first, then
+    //    replace in a single innerHTML write to minimize reflow flicker.
+    var next = null;
     if (s.kind === 'video') {
       var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/' + U.escapeAttr(s.videoId) + '?autoplay=1&rel=0';
+      var embedUrl = orient === 'vertical'
+        ? 'https://www.youtube.com/embed/' + U.escapeAttr(s.videoId) + '?autoplay=1&rel=0&playsinline=1'
+        : 'https://www.youtube.com/embed/' + U.escapeAttr(s.videoId) + '?autoplay=1&rel=0';
+      iframe.src = embedUrl;
       iframe.setAttribute('allowfullscreen', '');
       iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
       iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-      media.appendChild(iframe);
+      next = iframe;
     } else if (s.kind === 'image') {
       var img = document.createElement('img');
       img.src = U.escapeAttr(s.url);
@@ -162,13 +210,16 @@
       img.addEventListener('click', function () {
         openLightboxFromSlides(slides, currentSlide);
       });
-      media.appendChild(img);
+      next = img;
     } else {
       var ph = document.createElement('div');
       ph.className = 'pdp-media-placeholder';
       ph.textContent = '🎮';
-      media.appendChild(ph);
+      next = ph;
     }
+
+    media.innerHTML = '';
+    media.appendChild(next);
   }
 
   function renderThumbs(slides) {
@@ -471,6 +522,73 @@
   function setText(id, value) {
     var el = document.getElementById(id);
     if (el) el.textContent = value;
+  }
+
+  // ----- Player prev/next arrows -----
+  function bindPlayerArrows() {
+    var prev = document.getElementById('pdp-player-prev');
+    var next = document.getElementById('pdp-player-next');
+    if (prev && !prev._bound) {
+      prev._bound = true;
+      prev.addEventListener('click', function (e) {
+        e.stopPropagation();
+        goToSlide(currentSlide - 1);
+      });
+    }
+    if (next && !next._bound) {
+      next._bound = true;
+      next.addEventListener('click', function (e) {
+        e.stopPropagation();
+        goToSlide(currentSlide + 1);
+      });
+    }
+
+    // Keyboard arrows when the player area is in view (or always when no
+    // lightbox is open). Left/Right cycle through slides.
+    if (!window._pdpKeysBound) {
+      window._pdpKeysBound = true;
+      document.addEventListener('keydown', function (e) {
+        var lb = document.getElementById('pdp-lightbox');
+        if (lb && lb.classList.contains('is-open')) return;
+        if (!currentSlides || currentSlides.length < 2) return;
+        var t = e.target;
+        var tag = t && t.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (t && t.isContentEditable)) return;
+        if (e.key === 'ArrowLeft') { goToSlide(currentSlide - 1); e.preventDefault(); }
+        else if (e.key === 'ArrowRight') { goToSlide(currentSlide + 1); e.preventDefault(); }
+      });
+    }
+  }
+
+  function updatePlayerArrows() {
+    var prev = document.getElementById('pdp-player-prev');
+    var next = document.getElementById('pdp-player-next');
+    if (!prev || !next) return;
+    var multi = currentSlides && currentSlides.length > 1;
+    var has = function (el, on) { if (on) el.removeAttribute('hidden'); else el.setAttribute('hidden', ''); };
+    has(prev, multi);
+    has(next, multi);
+  }
+
+  function goToSlide(idx) {
+    if (!currentSlides || currentSlides.length < 2) return;
+    var n = currentSlides.length;
+    var wrapped = ((idx % n) + n) % n;
+    if (wrapped === currentSlide) return;
+    currentSlide = wrapped;
+
+    var thumbs = document.querySelectorAll('#pdp-thumbs .pdp-thumb');
+    thumbs.forEach(function (t) { t.classList.remove('is-active'); });
+    var active = thumbs[currentSlide];
+    if (active) {
+      active.classList.add('is-active');
+      // Keep the active thumb in view in the horizontal strip
+      if (active.scrollIntoView) {
+        try { active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }); }
+        catch (e) { active.scrollIntoView(); }
+      }
+    }
+    renderMedia(currentSlides);
   }
 
   // ----- Lightbox -----

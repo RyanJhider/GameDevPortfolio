@@ -98,20 +98,32 @@
 
   function extractVideoId(video) {
     if (!video) return null;
-    if (video.includes('youtube.com/watch?v=')) {
-      var m = video.match(/v=([^&]+)/);
+    var s = String(video).trim();
+    if (!s) return null;
+    if (s.length === 11 && /^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+    if (/youtube\.com\/shorts\//i.test(s)) {
+      var m = s.match(/shorts\/([A-Za-z0-9_-]{11})/);
       return m ? m[1] : null;
     }
-    if (video.includes('youtu.be/')) {
-      var m = video.match(/youtu\.be\/([^?]+)/);
+    if (/youtube\.com\/watch\?v=/i.test(s)) {
+      var m = s.match(/[?&]v=([A-Za-z0-9_-]{11})/);
       return m ? m[1] : null;
     }
-    if (video.includes('youtube.com/embed/')) {
-      var m = video.match(/embed\/([^?]+)/);
+    if (/youtu\.be\//i.test(s)) {
+      var m = s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
       return m ? m[1] : null;
     }
-    if (video.length === 11) return video;
-    return null;
+    if (/youtube\.com\/embed\//i.test(s)) {
+      var m = s.match(/embed\/([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+    if (/youtube\.com\/live\//i.test(s)) {
+      var m = s.match(/live\/([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+    // Last resort: grab the first 11-char token that looks like a YouTube ID
+    var m = s.match(/([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
   }
 
   // Sort by manual `order` first (lower = first), then fall back to date desc.

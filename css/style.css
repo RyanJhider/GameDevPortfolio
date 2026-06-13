@@ -612,6 +612,7 @@ a:hover { text-shadow: var(--glow-phosphor); }
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
+  transition: padding 0.25s ease;
 }
 
 .pdp-player-media {
@@ -620,6 +621,7 @@ a:hover { text-shadow: var(--glow-phosphor); }
   aspect-ratio: 16/9;
   background: #000;
   overflow: hidden;
+  transition: aspect-ratio 0.25s ease, max-width 0.25s ease;
 }
 
 .pdp-player-media iframe,
@@ -628,6 +630,59 @@ a:hover { text-shadow: var(--glow-phosphor); }
   height: 100%;
   object-fit: cover;
   display: block;
+  animation: pdp-media-fade 0.2s ease-out;
+}
+
+@keyframes pdp-media-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =================== VERTICAL VIDEO (Shorts / mobile) =================== */
+/* Switches the player to a 9:16 frame for short-form content (e.g. mobile
+   game trailers). The player stays centered and capped in width so it doesn't
+   dominate the page on wide screens. */
+.pdp-player.is-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #000;
+  padding-bottom: 0.5rem;
+}
+
+.pdp-player.is-vertical .pdp-player-media {
+  aspect-ratio: 9/16;
+  max-width: 380px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 0 0 auto;
+}
+
+.pdp-player.is-vertical .pdp-player-media iframe {
+  object-fit: contain;
+}
+
+/* When vertical, the chrome (label + counter) goes underneath, centered and
+   stacked so it always reads as a clean bottom bar regardless of player width. */
+.pdp-player.is-vertical .pdp-player-chrome {
+  width: 100%;
+  max-width: 380px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  border-top: none;
+  background: transparent;
+  text-align: center;
+}
+
+/* Thumbnails: when a vertical slide is active, soften the cover crop and
+   slightly increase the thumb height so vertical previews don't feel squashed. */
+.pdp-player.is-vertical ~ .pdp-thumbs-wrap .pdp-thumb img,
+.pdp-player.is-vertical + .pdp-thumbs-wrap .pdp-thumb img {
+  object-fit: contain;
+  background: var(--bg-void);
 }
 
 .pdp-media-placeholder {
@@ -654,6 +709,64 @@ a:hover { text-shadow: var(--glow-phosphor); }
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* =================== PLAYER ARROWS (prev/next) =================== */
+/* Transparent side arrows that let the user cycle through slides without
+   scrolling back to the thumbnail strip. Visible on hover (desktop) or
+   always faintly visible (touch devices). */
+.pdp-player-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 2.5rem; /* stop above the chrome bar */
+  width: 18%;
+  min-width: 48px;
+  background: transparent;
+  border: 0;
+  color: rgba(226, 216, 200, 0);
+  font-size: 2.2rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s ease, background 0.2s ease, text-shadow 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pdp-player-arrow-prev { left: 0; justify-content: flex-start; padding-left: 0.5rem; }
+.pdp-player-arrow-next { right: 0; justify-content: flex-end; padding-right: 0.5rem; }
+
+.pdp-player:hover .pdp-player-arrow {
+  color: rgba(226, 216, 200, 0.55);
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.9);
+}
+
+.pdp-player-arrow:hover {
+  color: rgba(61, 255, 94, 0.95) !important;
+  text-shadow: 0 0 14px rgba(61, 255, 94, 0.6), 0 0 4px rgba(0, 0, 0, 0.9);
+}
+
+.pdp-player-arrow:focus-visible {
+  outline: 1px solid var(--text-primary);
+  outline-offset: -4px;
+  color: rgba(226, 216, 200, 0.85);
+}
+
+.pdp-player-arrow[hidden] { display: none; }
+
+/* Always faintly visible on touch devices (no hover state) */
+@media (hover: none) {
+  .pdp-player-arrow {
+    color: rgba(226, 216, 200, 0.35);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+  }
+  .pdp-player-arrow:active {
+    color: rgba(61, 255, 94, 0.9);
+  }
 }
 
 .pdp-player-label {
@@ -1386,6 +1499,7 @@ a:hover { text-shadow: var(--glow-phosphor); }
   .pdp-titlebar {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
   }
 
   .pdp-pills {
@@ -1393,7 +1507,66 @@ a:hover { text-shadow: var(--glow-phosphor); }
   }
 
   .pdp-thumb {
-    width: 160px;
+    width: 140px;
+  }
+
+  .pdp-title {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .pdp-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .pdp-buybox {
+    padding: 1rem;
+  }
+
+  .pdp-buybox-title {
+    font-size: 1.15rem;
+  }
+
+  .pdp-link-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .pdp-content {
+    gap: 1.25rem;
+  }
+
+  .pdp-section-title {
+    font-size: 1.4rem;
+  }
+
+  .pdp-description {
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .pdp-card {
+    padding: 1rem;
+  }
+
+  .pdp-card-title {
+    font-size: 0.9rem;
+  }
+
+  /* Vertical player: let it breathe a bit more on small screens */
+  .pdp-player.is-vertical .pdp-player-media {
+    max-width: 320px;
+  }
+}
+
+/* Very narrow phones: keep player vertical but cap at 100% width */
+@media (max-width: 380px) {
+  .pdp-player.is-vertical .pdp-player-media {
+    max-width: 100%;
+  }
+
+  .pdp-thumb {
+    width: 120px;
   }
 }
 .project-page {

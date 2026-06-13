@@ -749,6 +749,8 @@
       var statusEl = document.getElementById('project-status');
       if (statusEl) statusEl.value = project.status || 'published';
       setVal('project-video', project.video);
+      var orientEl = document.getElementById('project-video-orientation');
+      if (orientEl) orientEl.value = project.videoOrientation === 'vertical' ? 'vertical' : 'landscape';
       var featEl = document.getElementById('project-featured');
       if (featEl) featEl.checked = !!project.featured;
       setVal('project-team', project.team);
@@ -1367,6 +1369,10 @@
       platform: (getVal('project-platform') || '').trim(),
       status: getVal('project-status') || 'published',
       video: (getVal('project-video') || '').trim(),
+      videoOrientation: (function () {
+        var v = getVal('project-video-orientation');
+        return v === 'vertical' ? 'vertical' : 'landscape';
+      })(),
       featured: !!(document.getElementById('project-featured') || {}).checked,
       team: (getVal('project-team') || '').trim(),
       context: getVal('project-context') || '',

@@ -215,6 +215,14 @@
                                 <input type="url" id="project-video" placeholder="https://www.youtube.com/embed/..." autocomplete="off">
                             </div>
                             <div class="form-group">
+                                <label>Orientation de la video</label>
+                                <select id="project-video-orientation">
+                                    <option value="landscape">Paysage (16/9) - par defaut</option>
+                                    <option value="vertical">Vertical (9/16) - YouTube Short / mobile</option>
+                                </select>
+                                <small>Active le mode vertical pour les Shorts ou trailers mobiles. Le player passera en 9/16 centre sur la page projet.</small>
+                            </div>
+                            <div class="form-group">
                                 <label>Galerie</label>
                                 <div class="dropzone dropzone-multi" id="gallery-dropzone">
                                     <input type="file" id="project-gallery-files" accept="image/*" multiple hidden>
