@@ -453,10 +453,11 @@
     if (p.team) {
       var teamList = U.normalizeTeam(p.team);
       if (teamList.length === 1) {
-        rows.push({ label: 'Team', value: teamList[0].count + 'x ' + teamList[0].role });
+        var m0 = teamList[0];
+        rows.push({ label: 'Team', value: m0.count > 0 ? (m0.count + 'x ' + m0.role) : m0.role });
       } else if (teamList.length > 1) {
         teamList.forEach(function (m) {
-          rows.push({ label: 'Team', value: m.count + 'x ' + m.role });
+          rows.push({ label: 'Team', value: m.count > 0 ? (m.count + 'x ' + m.role) : m.role });
         });
       }
     }
