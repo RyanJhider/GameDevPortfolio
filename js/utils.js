@@ -234,6 +234,38 @@
     return html;
   }
 
+  function normalizeTeam(team) {
+    if (!team) return [];
+    if (Array.isArray(team)) {
+      return team
+        .map(function (m) {
+          if (!m) return null;
+          if (typeof m === 'string') return { role: m.trim(), count: 1 };
+          var role = (m.role || m.name || '').toString().trim();
+          if (!role) return null;
+          var count = parseInt(m.count, 10);
+          if (!isFinite(count) || count < 1) count = 1;
+          return { role: role, count: count };
+        })
+        .filter(Boolean);
+    }
+    if (typeof team === 'string') {
+      var s = team.trim();
+      if (!s) return [];
+      // Legacy strings: keep them as a single "General" entry
+      return [{ role: s, count: 1 }];
+    }
+    return [];
+  }
+
+  function formatTeam(team) {
+    var list = normalizeTeam(team);
+    if (list.length === 0) return '';
+    return list.map(function (m) {
+      return m.count > 1 ? (m.count + 'x ' + m.role) : m.role;
+    }).join(', ');
+  }
+
   global.PortfolioUtils = {
     escapeHtml: escapeHtml,
     escapeAttr: escapeAttr,
@@ -247,6 +279,8 @@
     extractVideoId: extractVideoId,
     sortProjectsByDateDesc: sortProjectsByDateDesc,
     sortProjectsByOrder: sortProjectsByOrder,
-    renderMarkdown: renderMarkdown
+    renderMarkdown: renderMarkdown,
+    normalizeTeam: normalizeTeam,
+    formatTeam: formatTeam
   };
 })(window);

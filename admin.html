@@ -106,8 +106,9 @@
                     <button class="filter-btn" data-filter="visible">Visibles</button>
                     <button class="filter-btn" data-filter="hidden">Caches</button>
                     <button class="filter-btn" data-filter="featured">Featured</button>
-                    <button class="filter-btn" data-filter="published">Publics</button>
-                    <button class="filter-btn" data-filter="draft">Brouillons</button>
+                    <button class="filter-btn" data-filter="released">Sortis</button>
+                    <button class="filter-btn" data-filter="wishlist">Wishlist</button>
+                    <button class="filter-btn" data-filter="draft">En developpement</button>
                 </div>
 
                 <p class="admin-reorder-hint">
@@ -165,14 +166,15 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="project-date">Annee</label>
+                                    <label for="project-date">Release</label>
                                     <input type="text" id="project-date" placeholder="2025" maxlength="4">
                                 </div>
                                 <div class="form-group">
                                     <label for="project-status">Statut</label>
                                     <select id="project-status">
-                                        <option value="published">Public</option>
-                                        <option value="draft">Brouillon</option>
+                                        <option value="draft">En developpement</option>
+                                        <option value="wishlist">Wishlist</option>
+                                        <option value="released">Sorti</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -316,10 +318,16 @@
                                         <label for="project-platform">Plateforme</label>
                                         <input type="text" id="project-platform" placeholder="PC, Mobile, Steam...">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="project-team">Equipe</label>
-                                        <input type="text" id="project-team" placeholder="Solo, 5 developers...">
+                                <div class="form-group">
+                                    <label>Equipe</label>
+                                    <div id="team-display" class="chips-container"></div>
+                                    <div class="team-input-row">
+                                        <input type="text" id="team-role-input" placeholder="Role (ex: Game Designer)" autocomplete="off" maxlength="60">
+                                        <input type="number" id="team-count-input" placeholder="Nb" min="1" max="99" value="1">
+                                        <button type="button" class="btn btn-primary btn-sm" id="add-team-btn">+</button>
                                     </div>
+                                    <div id="existing-roles-list" class="existing-tags-list"></div>
+                                </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
@@ -332,16 +340,12 @@
                                             <option value="Freelance">Freelance</option>
                                         </select>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="project-duration">Duree</label>
-                                        <input type="text" id="project-duration" placeholder="2 mois, 6 semaines...">
-                                    </div>
-                                </div>
                                 <div class="form-group">
-                                    <label for="project-role">Mon role</label>
-                                    <input type="text" id="project-role" placeholder="Game Designer & Programmer">
+                                    <label for="project-duration">Duree</label>
+                                    <input type="text" id="project-duration" placeholder="2 mois, 6 semaines...">
                                 </div>
                             </div>
+                        </div>
                         </div>
 
                         <!-- Actions bottom -->
@@ -367,6 +371,12 @@
                                     <p class="preview-subtitle" id="preview-subtitle">Description courte</p>
                                     <div class="preview-meta" id="preview-meta"></div>
                                     <div class="preview-pills" id="preview-pills"></div>
+                                    <div class="preview-section">
+                                        <span class="preview-label-small">Equipe</span>
+                                        <div class="preview-team" id="preview-team">
+                                            <span class="preview-empty">Aucune equipe</span>
+                                        </div>
+                                    </div>
                                     <div class="preview-section">
                                         <span class="preview-label-small">Tags</span>
                                         <div class="preview-tags" id="preview-tags">

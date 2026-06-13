@@ -162,6 +162,7 @@
     if (emailEl && firebase.auth().currentUser) emailEl.textContent = firebase.auth().currentUser.email || '';
     loadProjects();
     loadExistingTags();
+    loadExistingRoles();
   }
 
   function toggle(id, hidden) {
@@ -257,7 +258,11 @@
       ? '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="">'
       : '<div class="thumbnail-placeholder">?</div>';
     var featured = p.featured ? '<span class="badge">Featured</span>' : '';
-    var draft = p.status === 'draft' ? '<span class="badge badge-draft">Brouillon</span>' : '';
+    var statusBadge = '';
+    if (p.status === 'draft') statusBadge = '<span class="badge badge-draft">En developpement</span>';
+    else if (p.status === 'wishlist') statusBadge = '<span class="badge badge-wishlist">Wishlist</span>';
+    else if (p.status === 'published') statusBadge = '<span class="badge badge-published-legacy">Sorti</span>';
+    else if (p.status === 'released') statusBadge = '<span class="badge badge-released">Sorti</span>';
     var hidden = !!p.hidden;
     var hiddenBadge = hidden ? '<span class="badge badge-hidden" title="Cache du public">Cache</span>' : '';
     var safeId = U.escapeAttr(p.id);
@@ -276,7 +281,7 @@
       '<div class="info">' +
         '<h3>' + U.escapeHtml(p.title || 'Sans titre') + '</h3>' +
         '<p>' + U.escapeHtml(p.description || '') + '</p>' +
-        '<div class="tags-row">' + featured + draft + hiddenBadge + orderBadge + '</div>' +
+        '<div class="tags-row">' + featured + statusBadge + hiddenBadge + orderBadge + '</div>' +
         '<div class="actions">' +
           '<button class="btn btn-secondary btn-sm" data-action="toggle-visibility" data-id="' + safeId + '" title="' + visibilityTitle + '" aria-label="' + visibilityLabel + '"><span class="visibility-icon">' + visibilityIcon + '</span> ' + visibilityLabel + '</button>' +
           '<button class="btn btn-primary btn-sm" data-action="edit" data-id="' + safeId + '">Editer</button>' +
@@ -308,13 +313,24 @@
 
         var filtered = projects;
         if (filter === 'featured') filtered = projects.filter(function (p) { return p.featured; });
-        else if (filter === 'published') filtered = projects.filter(function (p) { return p.status !== 'draft'; });
+        else if (filter === 'released') filtered = projects.filter(function (p) { return p.status === 'released' || p.status === 'published'; });
+        else if (filter === 'wishlist') filtered = projects.filter(function (p) { return p.status === 'wishlist'; });
         else if (filter === 'draft') filtered = projects.filter(function (p) { return p.status === 'draft'; });
         else if (filter === 'hidden') filtered = projects.filter(function (p) { return !!p.hidden; });
         else if (filter === 'visible') filtered = projects.filter(function (p) { return !p.hidden; });
         renderProjects(filtered);
       });
     }
+  }
+
+  function applyProjectFilter(list, filter) {
+    if (filter === 'featured') return list.filter(function (p) { return p.featured; });
+    if (filter === 'released') return list.filter(function (p) { return p.status === 'released' || p.status === 'published'; });
+    if (filter === 'wishlist') return list.filter(function (p) { return p.status === 'wishlist'; });
+    if (filter === 'draft') return list.filter(function (p) { return p.status === 'draft'; });
+    if (filter === 'hidden') return list.filter(function (p) { return !!p.hidden; });
+    if (filter === 'visible') return list.filter(function (p) { return !p.hidden; });
+    return list;
   }
 
   function toggleProjectVisibility(id) {
@@ -330,13 +346,7 @@
         // Re-render the visible list, preserving the active filter
         var activeFilter = document.querySelector('.admin-filters .filter-btn.active');
         var filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
-        var filtered = projects;
-        if (filter === 'featured') filtered = projects.filter(function (x) { return x.featured; });
-        else if (filter === 'published') filtered = projects.filter(function (x) { return x.status !== 'draft'; });
-        else if (filter === 'draft') filtered = projects.filter(function (x) { return x.status === 'draft'; });
-        else if (filter === 'hidden') filtered = projects.filter(function (x) { return !!x.hidden; });
-        else if (filter === 'visible') filtered = projects.filter(function (x) { return !x.hidden; });
-        renderProjects(filtered);
+        renderProjects(applyProjectFilter(projects, filter));
         wireDragAndDrop();
       })
       .catch(function (e) { showToast('Erreur: ' + e.message, 'error'); });
@@ -471,13 +481,7 @@
     // Re-render with the current filter still active
     var activeFilter = document.querySelector('.admin-filters .filter-btn.active');
     var filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
-    var filtered = projects;
-    if (filter === 'featured') filtered = projects.filter(function (x) { return x.featured; });
-    else if (filter === 'published') filtered = projects.filter(function (x) { return x.status !== 'draft'; });
-    else if (filter === 'draft') filtered = projects.filter(function (x) { return x.status === 'draft'; });
-    else if (filter === 'hidden') filtered = projects.filter(function (x) { return !!x.hidden; });
-    else if (filter === 'visible') filtered = projects.filter(function (x) { return !x.hidden; });
-    renderProjects(filtered);
+    renderProjects(applyProjectFilter(projects, filter));
     wireDragAndDrop();
 
     // Persist the new order to Firestore
@@ -620,6 +624,32 @@
       });
     }
 
+    // Team input (role + count)
+    var teamRoleInput = document.getElementById('team-role-input');
+    var teamCountInput = document.getElementById('team-count-input');
+    var addTeamBtn = document.getElementById('add-team-btn');
+    function addTeamFromInput() {
+      var role = (teamRoleInput.value || '').trim();
+      if (!role) { showToast('Role requis', 'error'); return; }
+      var count = parseInt(teamCountInput.value, 10);
+      if (!isFinite(count) || count < 1) count = 1;
+      addTeamMember(role, count);
+      teamRoleInput.value = '';
+      teamCountInput.value = '1';
+      teamRoleInput.focus();
+    }
+    if (addTeamBtn) addTeamBtn.addEventListener('click', addTeamFromInput);
+    if (teamRoleInput) {
+      teamRoleInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addTeamFromInput(); }
+      });
+    }
+    if (teamCountInput) {
+      teamCountInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addTeamFromInput(); }
+      });
+    }
+
     // Markdown editor tabs (Edition / Apercu)
     var mdTabs = document.querySelectorAll('.md-editor .md-tab');
     mdTabs.forEach(function (tab) {
@@ -657,7 +687,7 @@
     }, true);
 
     // Live preview
-    var previewFields = ['project-title', 'project-description', 'project-date', 'project-platform', 'project-status', 'project-video', 'project-role'];
+    var previewFields = ['project-title', 'project-description', 'project-date', 'project-platform', 'project-status', 'project-video'];
     previewFields.forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', updateLivePreview);
@@ -731,10 +761,12 @@
     currentTags = [];
     currentLinks = [];
     currentContributions = [];
+    currentTeam = [];
     renderGalleryPreview();
     renderTagChips();
     renderLinkChips();
     renderContributionCards();
+    renderTeamChips();
     updateThumbnailPreview();
     updateLivePreview();
 
@@ -747,17 +779,21 @@
       setVal('project-date', project.date || project.year);
       setVal('project-platform', project.platform);
       var statusEl = document.getElementById('project-status');
-      if (statusEl) statusEl.value = project.status || 'published';
+      if (statusEl) {
+        // Legacy: old projects had 'published' value. Map it to 'released'.
+        statusEl.value = project.status === 'published' ? 'released' : (project.status || 'draft');
+      }
       setVal('project-video', project.video);
       var orientEl = document.getElementById('project-video-orientation');
       if (orientEl) orientEl.value = project.videoOrientation === 'vertical' ? 'vertical' : 'landscape';
       var featEl = document.getElementById('project-featured');
       if (featEl) featEl.checked = !!project.featured;
-      setVal('project-team', project.team);
       var ctxEl = document.getElementById('project-context');
       if (ctxEl) ctxEl.value = project.context || '';
       setVal('project-duration', project.duration);
-      setVal('project-role', project.role);
+      // Team: accept both legacy strings and the new array format
+      currentTeam = U.normalizeTeam(project.team);
+      renderTeamChips();
 
       if (project.thumbnail) {
         uploadedFiles.thumbnail = project.thumbnail;
@@ -845,6 +881,8 @@
   var currentTags = [];
   var currentLinks = [];
   var currentContributions = [];
+  var currentTeam = [];
+  var existingRoles = [];
 
   function addTag(name, category) {
     name = (name || '').trim();
@@ -1021,6 +1059,127 @@
     }
   }
 
+  // ---- TEAM : role + count chips ----
+
+  function addTeamMember(role, count) {
+    role = (role || '').trim();
+    if (!role) return;
+    count = parseInt(count, 10);
+    if (!isFinite(count) || count < 1) count = 1;
+    var key = role.toLowerCase();
+    // If the role already exists, bump its count instead of duplicating
+    for (var i = 0; i < currentTeam.length; i++) {
+      if (currentTeam[i].role.toLowerCase() === key) {
+        currentTeam[i].count = (currentTeam[i].count || 1) + count;
+        renderTeamChips();
+        updateLivePreview();
+        return;
+      }
+    }
+    currentTeam.push({ role: role, count: count });
+    // Remember this role for future suggestions
+    var exists = false;
+    for (var k = 0; k < existingRoles.length; k++) {
+      if (existingRoles[k].toLowerCase() === key) { exists = true; break; }
+    }
+    if (!exists) existingRoles.push(role);
+    renderTeamChips();
+    renderExistingRoles();
+    updateLivePreview();
+  }
+
+  function removeTeamMember(idx) {
+    currentTeam.splice(idx, 1);
+    renderTeamChips();
+    updateLivePreview();
+  }
+
+  function renderTeamChips() {
+    var container = document.getElementById('team-display');
+    if (!container) return;
+    if (currentTeam.length === 0) {
+      container.innerHTML = '<span class="chips-empty">Aucun membre. Ajoutez-en ci-dessous.</span>';
+      return;
+    }
+    container.innerHTML = currentTeam.map(function (m, i) {
+      var display = (m.count && m.count > 1) ? (m.count + 'x ') : '';
+      return '<span class="chip chip-team">' +
+        '<span class="chip-team-count">' + U.escapeHtml(String(m.count || 1)) + '</span>' +
+        '<span class="chip-team-role">' + U.escapeHtml(m.role) + '</span>' +
+        '<button type="button" class="chip-x" data-team-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+      '</span>';
+    }).join('');
+  }
+
+  function loadExistingRoles() {
+    if (existingRoles.length > 0) return; // already loaded
+    // First try Firestore (authoritative), fall back to data/projects.json
+    if (firebaseReady()) {
+      firebase.firestore().collection('projects').get()
+        .then(function (snapshot) {
+          var seen = {};
+          snapshot.forEach(function (doc) {
+            var data = doc.data();
+            var team = U.normalizeTeam(data.team);
+            team.forEach(function (m) {
+              var key = m.role.toLowerCase();
+              if (!seen[key]) seen[key] = m.role;
+            });
+          });
+          existingRoles = Object.keys(seen).map(function (k) { return seen[k]; });
+          renderExistingRoles();
+        })
+        .catch(function () { loadExistingRolesFromJSON(); });
+    } else {
+      loadExistingRolesFromJSON();
+    }
+  }
+
+  function loadExistingRolesFromJSON() {
+    fetch('data/projects.json?t=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.projects) return;
+        var seen = {};
+        data.projects.forEach(function (p) {
+          var team = U.normalizeTeam(p.team);
+          team.forEach(function (m) {
+            var key = m.role.toLowerCase();
+            if (!seen[key]) seen[key] = m.role;
+          });
+        });
+        existingRoles = Object.keys(seen).map(function (k) { return seen[k]; });
+        renderExistingRoles();
+      })
+      .catch(function () {});
+  }
+
+  function renderExistingRoles() {
+    var container = document.getElementById('existing-roles-list');
+    if (!container) return;
+    if (existingRoles.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = '<span class="existing-tags-label">Roles suggeres :</span>' +
+      existingRoles.map(function (r) {
+        return '<button type="button" class="suggest-tag suggest-role-tag" data-role="' + U.escapeAttr(r) + '">' + U.escapeHtml(r) + '</button>';
+      }).join('');
+    container.querySelectorAll('.suggest-role-tag').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var role = this.getAttribute('data-role');
+        var roleInput = document.getElementById('team-role-input');
+        var countInput = document.getElementById('team-count-input');
+        if (roleInput) {
+          roleInput.value = role;
+          roleInput.focus();
+        }
+        if (countInput) {
+          countInput.value = '1';
+          countInput.select();
+        }
+      });
+    });
+  }
+
   // ---- THUMBNAIL preview ----
 
   function updateThumbnailPreview() {
@@ -1063,6 +1222,8 @@
     if (cs) { saveContribution(parseInt(cs.getAttribute('data-contrib-save'), 10)); return; }
     var cc = e.target.closest('[data-contrib-cancel]');
     if (cc) { cancelEditContribution(parseInt(cc.getAttribute('data-contrib-cancel'), 10)); return; }
+    var tr = e.target.closest('[data-team-remove]');
+    if (tr) { removeTeamMember(parseInt(tr.getAttribute('data-team-remove'), 10)); return; }
   });
 
   // Keyboard support inside edit fields: Escape cancels, Ctrl/Cmd+Enter saves
@@ -1279,9 +1440,8 @@
     var desc = getVal('project-description') || 'Description courte';
     var date = getVal('project-date') || '';
     var platform = getVal('project-platform') || '';
-    var status = getVal('project-status') || 'published';
+    var status = getVal('project-status') || 'draft';
     var featured = !!(document.getElementById('project-featured') || {}).checked;
-    var role = getVal('project-role') || '';
 
     var titleEl = document.getElementById('preview-title');
     var subEl = document.getElementById('preview-subtitle');
@@ -1306,9 +1466,26 @@
       var parts = [];
       if (date) parts.push('<span>' + U.escapeHtml(date) + '</span>');
       if (platform) parts.push('<span>' + U.escapeHtml(platform) + '</span>');
-      parts.push('<span class="preview-status status-' + U.escapeAttr(status) + '">' + (status === 'draft' ? 'Brouillon' : 'Public') + '</span>');
-      if (role) parts.push('<span class="preview-role">' + U.escapeHtml(role) + '</span>');
+      parts.push('<span class="preview-status status-' + U.escapeAttr(status) + '">' + (function () {
+        if (status === 'draft') return 'En developpement';
+        if (status === 'wishlist') return 'Wishlist';
+        if (status === 'released') return 'Sorti';
+        return 'Sorti';
+      })() + '</span>');
       meta.innerHTML = parts.join('<span class="meta-sep">//</span>');
+    }
+
+    // Team preview line
+    var teamLine = document.getElementById('preview-team');
+    if (teamLine) {
+      if (currentTeam.length === 0) {
+        teamLine.innerHTML = '<span class="preview-empty">Aucune equipe</span>';
+      } else {
+        teamLine.innerHTML = currentTeam.map(function (m) {
+          var label = (m.count && m.count > 1) ? (m.count + 'x ') : '';
+          return '<span class="preview-team-chip">' + U.escapeHtml(label + m.role) + '</span>';
+        }).join('');
+      }
     }
 
     // Pills (engine + genre from tags)
@@ -1367,17 +1544,19 @@
       date: dateVal,
       year: dateVal,
       platform: (getVal('project-platform') || '').trim(),
-      status: getVal('project-status') || 'published',
+      status: (function () {
+        var v = getVal('project-status');
+        return v === 'released' || v === 'wishlist' || v === 'draft' ? v : 'draft';
+      })(),
       video: (getVal('project-video') || '').trim(),
       videoOrientation: (function () {
         var v = getVal('project-video-orientation');
         return v === 'vertical' ? 'vertical' : 'landscape';
       })(),
       featured: !!(document.getElementById('project-featured') || {}).checked,
-      team: (getVal('project-team') || '').trim(),
+      team: currentTeam.slice(),
       context: getVal('project-context') || '',
       duration: (getVal('project-duration') || '').trim(),
-      role: (getVal('project-role') || '').trim(),
       thumbnail: uploadedFiles.thumbnail,
       images: uploadedFiles.gallery.slice(),
       tags: currentTags.slice(),

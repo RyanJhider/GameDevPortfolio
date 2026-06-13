@@ -79,7 +79,8 @@
     var year = p.year || p.date || '';
     var platform = p.platform || 'PC';
     var subtitleParts = [year, platform];
-    if (p.status === 'draft') subtitleParts.push('DRAFT');
+    if (p.status === 'draft') subtitleParts.push('IN DEV');
+    else if (p.status === 'wishlist') subtitleParts.push('WISHLIST');
     setText('pdp-subtitle', subtitleParts.filter(Boolean).join(' // '));
 
     setText('pdp-buybox-platform', platform);
@@ -87,14 +88,20 @@
 
     var statusBadge = document.getElementById('pdp-status-badge');
     if (statusBadge) {
-      statusBadge.textContent = p.status === 'draft' ? 'DRAFT' : (p.featured ? 'FEATURED' : 'PROJECT');
-      statusBadge.className = 'pdp-hero-badge ' + (p.status === 'draft' ? 'is-draft' : (p.featured ? 'is-featured' : 'is-default'));
+      var badgeText, badgeClass;
+      if (p.status === 'draft') { badgeText = 'IN DEV'; badgeClass = 'is-draft'; }
+      else if (p.status === 'wishlist') { badgeText = 'WISHLIST'; badgeClass = 'is-wishlist'; }
+      else if (p.featured) { badgeText = 'FEATURED'; badgeClass = 'is-featured'; }
+      else { badgeText = 'RELEASED'; badgeClass = 'is-released'; }
+      statusBadge.textContent = badgeText;
+      statusBadge.className = 'pdp-hero-badge ' + badgeClass;
     }
 
     var buyboxStatus = document.getElementById('pdp-buybox-status');
     if (buyboxStatus) {
       if (p.status === 'draft') buyboxStatus.textContent = 'In Development';
-      else if (p.status === 'published') buyboxStatus.textContent = 'Released';
+      else if (p.status === 'wishlist') buyboxStatus.textContent = 'Wishlist';
+      else if (p.status === 'released' || p.status === 'published') buyboxStatus.textContent = 'Released';
       else buyboxStatus.textContent = '';
     }
 
@@ -425,10 +432,16 @@
     container.innerHTML = '';
 
     var rows = [];
-    if (p.date) rows.push({ label: 'Release', value: p.date });
-    if (p.year) rows.push({ label: 'Year', value: p.year });
+    var release = p.date || p.year;
+    if (release) rows.push({ label: 'Release', value: release });
     if (p.platform) rows.push({ label: 'Platform', value: p.platform });
-    if (p.status) rows.push({ label: 'Status', value: p.status === 'published' ? 'Released' : 'Draft' });
+    if (p.status) {
+      var statusLabel;
+      if (p.status === 'draft') statusLabel = 'In Development';
+      else if (p.status === 'wishlist') statusLabel = 'Wishlist';
+      else statusLabel = 'Released';
+      rows.push({ label: 'Status', value: statusLabel });
+    }
     if (p.featured) rows.push({ label: 'Featured', value: 'Yes' });
 
     var roles = [];
@@ -437,8 +450,10 @@
     });
     if (roles.length) rows.push({ label: 'My Role', value: roles.join(', ') });
 
-    if (p.role && roles.indexOf(p.role) === -1) rows.push({ label: 'Role', value: p.role });
-    if (p.team) rows.push({ label: 'Team', value: p.team });
+    if (p.team) {
+      var teamStr = U.formatTeam(p.team);
+      if (teamStr) rows.push({ label: 'Team', value: teamStr });
+    }
     if (p.context) rows.push({ label: 'Context', value: p.context });
     if (p.duration) rows.push({ label: 'Duration', value: p.duration });
 

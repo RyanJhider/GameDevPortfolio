@@ -36,6 +36,9 @@
 .admin-project-card .tags-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
 .admin-project-card .badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--accent-phosphor); color: var(--bg-void); border-radius: 2px; }
 .admin-project-card .badge-draft { background: var(--text-muted); }
+.admin-project-card .badge-wishlist { background: #f59e0b; color: #000; }
+.admin-project-card .badge-released { background: var(--accent-phosphor); color: var(--bg-void); }
+.admin-project-card .badge-published-legacy { background: var(--accent-phosphor); color: var(--bg-void); }
 .admin-project-card .badge-hidden { background: var(--accent-blood); color: #fff; }
 .admin-project-card .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
@@ -125,16 +128,30 @@
 .chip-link { border-color: var(--accent-phosphor); gap: 8px; }
 .chip-link .chip-type { color: var(--accent-phosphor); font-weight: 600; }
 .chip-link .chip-url { color: var(--text-secondary); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; }
+.chip-team { border-color: #4ecdc4; gap: 6px; }
+.chip-team-count { background: #4ecdc4; color: var(--bg-void); padding: 0 6px; font-weight: 700; min-width: 18px; text-align: center; }
+.chip-team-role { color: var(--text-primary); }
+
+.preview-team { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.preview-team-chip { padding: 3px 8px; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; border: 1px solid #4ecdc4; color: #4ecdc4; background: rgba(78,205,196,0.06); }
 
 .tag-input-row, .link-input-row { display: grid; grid-template-columns: 1fr 140px 44px; gap: 0.5rem; }
 .tag-input-row input, .link-input-row input, .tag-input-row select, .link-input-row select { padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; }
 .tag-input-row input:focus, .link-input-row input:focus { outline: none; border-color: var(--accent-phosphor); }
+.team-input-row { display: grid; grid-template-columns: 1fr 80px 44px; gap: 0.5rem; }
+.team-input-row input { padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 0.85rem; font-family: inherit; }
+.team-input-row input:focus { outline: none; border-color: var(--accent-phosphor); }
 .tag-cat-select { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; }
 
 .existing-tags-list { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin-top: 0.6rem; }
 .existing-tags-label { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
 .suggest-tag { padding: 3px 8px; background: transparent; border: 1px dashed var(--border-medium); color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; }
 .suggest-tag:hover { border-style: solid; border-color: var(--accent-phosphor); color: var(--accent-phosphor); }
+
+.suggest-role-tag { border-color: #4ecdc4; color: #4ecdc4; }
+.suggest-role-tag:hover { border-color: #4ecdc4; color: var(--bg-void); background: #4ecdc4; }
+
+.btn-xs { padding: 2px 6px; font-size: 0.7rem; }
 
 /* Contributions (admin) */
 .contributions-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
@@ -256,9 +273,9 @@
 .preview-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); }
 .meta-sep { color: var(--accent-phosphor); margin: 0 2px; }
 .preview-status { padding: 1px 6px; border: 1px solid currentColor; }
-.preview-status.status-published { color: var(--accent-phosphor); }
+.preview-status.status-released, .preview-status.status-published { color: var(--accent-phosphor); }
+.preview-status.status-wishlist { color: #f59e0b; }
 .preview-status.status-draft { color: var(--text-muted); }
-.preview-role { color: var(--accent-phosphor); }
 
 .preview-pills { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.85rem; }
 .preview-pill { padding: 3px 8px; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid; }
@@ -314,4 +331,4 @@
 .btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
 
 @media (max-width: 1100px) { .project-form-layout { grid-template-columns: 1fr; } .preview-sticky { position: static; } }
-@media (max-width: 768px) { .admin-sidebar { width: 100%; position: relative; height: auto; } .admin-main { margin-left: 0; } .admin-projects-grid { grid-template-columns: 1fr; } .tag-input-row, .link-input-row { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .admin-sidebar { width: 100%; position: relative; height: auto; } .admin-main { margin-left: 0; } .admin-projects-grid { grid-template-columns: 1fr; } .tag-input-row, .link-input-row, .team-input-row { grid-template-columns: 1fr; } }
