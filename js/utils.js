@@ -262,8 +262,8 @@
     var list = normalizeTeam(team);
     if (list.length === 0) return '';
     return list.map(function (m) {
-      return m.count > 1 ? (m.count + 'x ' + m.role) : m.role;
-    }).join(', ');
+      return m.count + 'x ' + m.role;
+    }).join(' \u00b7 ');
   }
 
   global.PortfolioUtils = {

@@ -451,8 +451,14 @@
     if (roles.length) rows.push({ label: 'My Role', value: roles.join(', ') });
 
     if (p.team) {
-      var teamStr = U.formatTeam(p.team);
-      if (teamStr) rows.push({ label: 'Team', value: teamStr });
+      var teamList = U.normalizeTeam(p.team);
+      if (teamList.length === 1) {
+        rows.push({ label: 'Team', value: teamList[0].count + 'x ' + teamList[0].role });
+      } else if (teamList.length > 1) {
+        teamList.forEach(function (m) {
+          rows.push({ label: 'Team', value: m.count + 'x ' + m.role });
+        });
+      }
     }
     if (p.context) rows.push({ label: 'Context', value: p.context });
     if (p.duration) rows.push({ label: 'Duration', value: p.duration });
