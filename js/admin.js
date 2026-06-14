@@ -776,6 +776,7 @@
       setVal('project-title', project.title);
       setVal('project-description', project.description);
       setVal('project-description-long', project.descriptionLong);
+      setVal('project-role', project.role);
       setVal('project-date', project.date || project.year);
       setVal('project-platform', project.platform);
       var statusEl = document.getElementById('project-status');
@@ -1541,6 +1542,7 @@
       title: (getVal('project-title') || '').trim(),
       description: (getVal('project-description') || '').trim(),
       descriptionLong: (getVal('project-description-long') || '').trim(),
+      role: (getVal('project-role') || '').trim(),
       date: dateVal,
       year: dateVal,
       platform: (getVal('project-platform') || '').trim(),
