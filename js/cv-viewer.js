@@ -1,346 +1,202 @@
 // ========================================
-// CV VIEWER - Lecteur PDF integre (PDF.js)
-// Rendu page par page, navigation, zoom, telechargement
+// CV VIEWER - Lecteur PDF integre (simple, robuste)
 // ========================================
 
 (function () {
   'use strict';
 
   var PDFJS = window.pdfjsLib;
-  var pdfDoc = null;
-  var currentPage = 1;
-  var currentZoom = 1.0;
-  var rendering = false;
-  var pendingPage = null;
-  var activeRenderTask = null;
-  var activeRenderToken = 0;
-  var ZOOM_STEP = 0.2;
-  var ZOOM_MIN = 0.5;
-  var ZOOM_MAX = 3.0;
-  var RENDER_TIMEOUT_MS = 15000;
-  var workerInitialized = false;
-  var docLoadingTask = null;
+  var PDF_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.worker.min.js';
+  var PDF_LIB = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js';
 
   function $(id) { return document.getElementById(id); }
 
   function setStatus(msg, isError) {
     var el = $('cv-status');
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.toggle('cv-viewer-status-error', !!isError);
+    if (el) {
+      el.textContent = msg;
+      el.classList.toggle('cv-viewer-status-error', !!isError);
+    }
   }
 
-  function showLoader() {
-    var l = $('cv-loader');
-    var c = $('cv-canvas-wrap');
-    if (l) l.hidden = false;
-    if (c) c.hidden = true;
-  }
-
-  function showCanvas() {
-    var l = $('cv-loader');
-    var c = $('cv-canvas-wrap');
-    if (l) l.hidden = true;
-    if (c) c.hidden = false;
-  }
+  function show(elId) { var el = $(elId); if (el) el.hidden = false; }
+  function hide(elId) { var el = $(elId); if (el) el.hidden = true; }
 
   function setControlsEnabled(enabled) {
-    var ids = ['cv-prev', 'cv-next', 'cv-zoom-in', 'cv-zoom-out', 'cv-page-num'];
-    ids.forEach(function (id) {
+    ['cv-prev', 'cv-next', 'cv-zoom-in', 'cv-zoom-out', 'cv-page-num'].forEach(function (id) {
       var el = $(id);
-      if (!el) return;
-      el.disabled = !enabled;
+      if (el) el.disabled = !enabled;
     });
   }
 
-  function updateCounter() {
-    var numEl = $('cv-page-num');
-    var countEl = $('cv-page-count');
-    if (numEl) numEl.value = currentPage;
-    if (countEl && pdfDoc) countEl.textContent = pdfDoc.numPages;
-  }
-
-  function updateZoomLabel() {
-    var el = $('cv-zoom-level');
-    if (el) el.textContent = Math.round(currentZoom * 100) + '%';
-  }
-
-  function withTimeout(promise, ms, label) {
+  // Charge la lib PDF.js a la demande si pas deja disponible
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
     return new Promise(function (resolve, reject) {
-      var done = false;
-      var t = setTimeout(function () {
-        if (done) return;
-        done = true;
-        reject(new Error(label + ' : delai d\'attente depasse (' + Math.round(ms / 1000) + 's)'));
-      }, ms);
-      promise.then(function (v) {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        resolve(v);
-      }, function (e) {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        reject(e);
-      });
+      var s = document.createElement('script');
+      s.src = PDF_LIB;
+      s.onload = function () {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER;
+          resolve(window.pdfjsLib);
+        } else {
+          reject(new Error('pdfjsLib indisponible apres chargement'));
+        }
+      };
+      s.onerror = function () { reject(new Error('Impossible de charger pdf.js')); };
+      document.head.appendChild(s);
     });
   }
 
-  function cancelActiveRender() {
-    if (activeRenderTask) {
-      try { activeRenderTask.cancel(); } catch (e) {}
-      activeRenderTask = null;
+  var state = {
+    doc: null,
+    page: 1,
+    numPages: 0,
+    scale: 1.2,
+    task: null,
+    rendering: false
+  };
+
+  function clearCanvas() {
+    var c = $('cv-canvas');
+    if (!c) return;
+    var ctx = c.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, c.width, c.height);
+  }
+
+  function cancelRender() {
+    if (state.task) {
+      try { state.task.cancel(); } catch (e) {}
+      state.task = null;
     }
   }
 
   function renderPage(num) {
-    if (!pdfDoc) return;
-    if (rendering) { pendingPage = num; cancelActiveRender(); return; }
-    rendering = true;
-    showLoader();
-    setStatus('Rendu de la page ' + num + '...');
-    cancelActiveRender();
+    if (!state.doc) return;
+    cancelRender();
+    state.rendering = true;
 
-    var myToken = ++activeRenderToken;
+    state.doc.getPage(num).then(function (page) {
+      var canvas = $('cv-canvas');
+      if (!canvas) { state.rendering = false; return; }
 
-    withTimeout(pdfDoc.getPage(num), RENDER_TIMEOUT_MS, 'Chargement page')
-      .then(function (page) {
-        if (myToken !== activeRenderToken) { rendering = false; return; }
-        var canvas = $('cv-canvas');
-        if (!canvas) { rendering = false; return; }
-        showCanvas();
-        var ctx = canvas.getContext('2d');
+      // 1) Calcul d'un viewport adapte a la largeur du container
+      var stage = $('cv-stage');
+      var containerWidth = stage ? stage.clientWidth : 800;
+      var baseVp = page.getViewport({ scale: 1 });
+      var fitScale = containerWidth / baseVp.width;
+      var finalScale = fitScale * state.scale;
 
-        var stage = canvas.parentElement ? canvas.parentElement.parentElement : null;
-        var stageWidth = stage ? stage.clientWidth : 0;
-        var baseViewport = page.getViewport({ scale: 1 });
-        var padding = 48;
-        var fitScale = currentZoom;
-        if (stageWidth > padding) {
-          var maxCssWidth = stageWidth - padding;
-          if (baseViewport.width > maxCssWidth) {
-            fitScale = (maxCssWidth / baseViewport.width) * currentZoom;
-          }
-        }
-        if (fitScale < 0.1) fitScale = 0.1;
-        var renderViewport = page.getViewport({ scale: fitScale });
-        var dpr = 1;
+      // 2) Construction du viewport final
+      var vp = page.getViewport({ scale: finalScale });
 
-        var cssW = Math.floor(renderViewport.width);
-        var cssH = Math.floor(renderViewport.height);
-        canvas.style.width = cssW + 'px';
-        canvas.style.height = cssH + 'px';
-        canvas.width = cssW;
-        canvas.height = cssH;
+      // 3) Dimensionne le canvas en pixels reels (1:1, pas de DPR)
+      var w = Math.floor(vp.width);
+      var h = Math.floor(vp.height);
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
 
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // 4) Reset transform puis rend
+      var ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
-        var renderTask = page.render({ canvasContext: ctx, viewport: renderViewport });
-        activeRenderTask = renderTask;
+      setStatus('Rendu de la page ' + num + '/' + state.numPages + '...');
+      show('cv-loader');
+      hide('cv-canvas-wrap');
 
-        return withTimeout(renderTask.promise, RENDER_TIMEOUT_MS, 'Rendu canvas')
-          .then(function () {
-            if (myToken !== activeRenderToken) return;
-            rendering = false;
-            activeRenderTask = null;
-            currentPage = num;
-            updateCounter();
-            if (pendingPage !== null && pendingPage !== num) {
-              var next = pendingPage;
-              pendingPage = null;
-              renderPage(next);
-            }
-          })
-          .catch(function (err) {
-            if (myToken !== activeRenderToken) return;
-            rendering = false;
-            activeRenderTask = null;
-            if (err && err.name === 'RenderingCancelledException') return;
-            setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue') + '. Essayez de recharger la page.', true);
-          });
-      })
-      .catch(function (err) {
-        if (myToken !== activeRenderToken) return;
-        rendering = false;
-        activeRenderTask = null;
-        setStatus('Impossible de charger la page: ' + (err && err.message ? err.message : 'inconnue'), true);
+      state.task = page.render({ canvasContext: ctx, viewport: vp });
+      return state.task.promise.then(function () {
+        state.rendering = false;
+        state.task = null;
+        state.page = num;
+        hide('cv-loader');
+        show('cv-canvas-wrap');
+        var numEl = $('cv-page-num');
+        var countEl = $('cv-page-count');
+        if (numEl) numEl.value = num;
+        if (countEl) countEl.textContent = state.numPages;
       });
-  }
-
-  function goPrev() {
-    if (!pdfDoc || currentPage <= 1) return;
-    renderPage(currentPage - 1);
-  }
-
-  function goNext() {
-    if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
-    renderPage(currentPage + 1);
-  }
-
-  function zoomIn() {
-    if (currentZoom >= ZOOM_MAX) return;
-    currentZoom = Math.min(ZOOM_MAX, currentZoom + ZOOM_STEP);
-    updateZoomLabel();
-    renderPage(currentPage);
-  }
-
-  function zoomOut() {
-    if (currentZoom <= ZOOM_MIN) return;
-    currentZoom = Math.max(ZOOM_MIN, currentZoom - ZOOM_STEP);
-    updateZoomLabel();
-    renderPage(currentPage);
-  }
-
-  function destroyDoc() {
-    cancelActiveRender();
-    activeRenderToken++;
-    if (docLoadingTask) {
-      try { docLoadingTask.destroy(); } catch (e) {}
-      docLoadingTask = null;
-    }
-    if (pdfDoc) {
-      try { pdfDoc.destroy(); } catch (e) {}
-      pdfDoc = null;
-    }
-    rendering = false;
-    pendingPage = null;
-  }
-
-  function ensureWorker(useWorker) {
-    if (workerInitialized || !PDFJS) return;
-    try {
-      if (useWorker) {
-        PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-      }
-      workerInitialized = true;
-    } catch (e) {
-      console.warn('[CV] worker init failed', e);
-    }
-  }
-
-  function loadFromSource(src) {
-    if (!PDFJS) {
-      setStatus('Lecteur PDF non disponible (connexion requise).', true);
-      return;
-    }
-    if (!src) return;
-
-    if (/^data:application\/pdf/i.test(src)) {
-      var approxBytes = Math.floor(src.length * 0.75);
-      if (approxBytes > 850000) {
-        var mb = (approxBytes / 1024 / 1024).toFixed(2);
-        setStatus('CV trop volumineux pour stockage base64 (' + mb + ' MB > 800 KB). Compressez le PDF ou hebergez-le (champ URL).', true);
-        return;
-      }
-    }
-
-    destroyDoc();
-    ensureWorker(!isDataUrl);
-
-    showLoader();
-    setStatus('Chargement du document...');
-    setControlsEnabled(false);
-
-    var isDataUrl = /^data:/i.test(src);
-    var params = { url: src, withCredentials: false };
-    if (isDataUrl) {
-      params.disableRange = true;
-      params.disableStream = true;
-    }
-
-    try {
-      docLoadingTask = PDFJS.getDocument(params);
-    } catch (e) {
-      setStatus('Impossible d\'ouvrir le document (' + e.message + ').', true);
-      return;
-    }
-
-    docLoadingTask.onProgress = function (p) {
-      if (p && typeof p.loaded === 'number' && typeof p.total === 'number' && p.total > 0) {
-        var pct = Math.round((p.loaded / p.total) * 100);
-        setStatus('Telechargement PDF... ' + pct + '%');
-      }
-    };
-
-    withTimeout(docLoadingTask.promise, RENDER_TIMEOUT_MS, 'Telechargement PDF')
-      .then(function (doc) {
-        pdfDoc = doc;
-        currentPage = 1;
-        currentZoom = 1.0;
-        updateZoomLabel();
-        setControlsEnabled(true);
-        renderPage(1);
-      })
-      .catch(function (err) {
-        var msg = err && err.message ? err.message : 'erreur';
-        var hint = isDataUrl
-          ? ' Stockage base64 limite. Utilisez le champ "URL du CV" en placant le PDF sur Firebase Hosting (ex: cv/cv.pdf).'
-          : ' Verifiez l\'URL ou la taille du fichier.';
-        setStatus('Impossible de charger le PDF (' + msg + ').' + hint, true);
-        setControlsEnabled(false);
-      });
+    }).catch(function (err) {
+      state.rendering = false;
+      state.task = null;
+      if (err && err.name === 'RenderingCancelledException') return;
+      setStatus('Erreur: ' + (err && err.message ? err.message : 'rendu'), true);
+    });
   }
 
   function bindControls() {
-    var prev = $('cv-prev');
-    var next = $('cv-next');
-    var inBtn = $('cv-zoom-in');
-    var outBtn = $('cv-zoom-out');
+    $('cv-prev').addEventListener('click', function () {
+      if (state.page > 1) renderPage(state.page - 1);
+    });
+    $('cv-next').addEventListener('click', function () {
+      if (state.page < state.numPages) renderPage(state.page + 1);
+    });
+    $('cv-zoom-in').addEventListener('click', function () {
+      state.scale = Math.min(state.scale + 0.2, 3);
+      var zl = $('cv-zoom-level');
+      if (zl) zl.textContent = Math.round(state.scale * 100) + '%';
+      renderPage(state.page);
+    });
+    $('cv-zoom-out').addEventListener('click', function () {
+      state.scale = Math.max(state.scale - 0.2, 0.4);
+      var zl = $('cv-zoom-level');
+      if (zl) zl.textContent = Math.round(state.scale * 100) + '%';
+      renderPage(state.page);
+    });
     var numInput = $('cv-page-num');
-    if (prev) prev.addEventListener('click', goPrev);
-    if (next) next.addEventListener('click', goNext);
-    if (inBtn) inBtn.addEventListener('click', zoomIn);
-    if (outBtn) outBtn.addEventListener('click', zoomOut);
     if (numInput) {
       numInput.addEventListener('change', function () {
-        if (!pdfDoc) return;
         var v = parseInt(numInput.value, 10);
-        if (isNaN(v)) v = 1;
-        if (v < 1) v = 1;
-        if (v > pdfDoc.numPages) v = pdfDoc.numPages;
-        renderPage(v);
-      });
-      numInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); numInput.blur(); }
+        if (!isNaN(v) && v >= 1 && v <= state.numPages) renderPage(v);
       });
     }
+  }
 
-    document.addEventListener('keydown', function (e) {
-      var root = $('cv-viewer');
-      if (!root || root.classList.contains('cv-viewer-empty')) return;
-      var tag = (e.target && e.target.tagName) || '';
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
-      else if (e.key === '+' || e.key === '=') { zoomIn(); }
-      else if (e.key === '-' || e.key === '_') { zoomOut(); }
-    });
+  function load(src) {
+    if (!src) return;
+    setStatus('Chargement du lecteur...');
+    show('cv-loader');
+    hide('cv-canvas-wrap');
+    setControlsEnabled(false);
 
-    var resizeTimer = null;
-    window.addEventListener('resize', function () {
-      if (resizeTimer) clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () {
-        if (pdfDoc) renderPage(currentPage);
-      }, 150);
+    loadPdfJs().then(function (pdfjs) {
+      setStatus('Ouverture du document...');
+      // Pour data:URL on desactive range/stream (plus fiable)
+      var isData = /^data:/i.test(src);
+      var opts = { url: src, withCredentials: false };
+      if (isData) { opts.disableRange = true; opts.disableStream = true; }
+
+      var task = pdfjs.getDocument(opts);
+      return task.promise.then(function (doc) {
+        state.doc = doc;
+        state.numPages = doc.numPages;
+        state.page = 1;
+        state.scale = 1.2;
+        var zl = $('cv-zoom-level');
+        if (zl) zl.textContent = '120%';
+        setControlsEnabled(true);
+        renderPage(1);
+      });
+    }).catch(function (err) {
+      setStatus('Echec du chargement: ' + (err && err.message ? err.message : 'inconnu'), true);
+      setControlsEnabled(false);
     });
   }
 
   window.initCvViewer = function () {
     var root = $('cv-viewer');
-    if (!root || root.classList.contains('cv-viewer-initialized')) return;
-    var srcEl = $('cv-source');
-    var src = srcEl ? srcEl.value : '';
+    if (!root || root.dataset.inited === '1') return;
+    var src = $('cv-source') ? $('cv-source').value : '';
     if (!src) return;
-    root.classList.add('cv-viewer-initialized');
+    root.dataset.inited = '1';
     root.classList.remove('cv-viewer-empty');
-    var placeholder = root.querySelector('.cv-viewer-placeholder');
-    if (placeholder) placeholder.hidden = true;
-    if (!root.dataset.bound) {
-      bindControls();
-      root.dataset.bound = '1';
-    }
-    loadFromSource(src);
+    var ph = root.querySelector('.cv-viewer-placeholder');
+    if (ph) ph.hidden = true;
+    bindControls();
+    load(src);
   };
 })();
