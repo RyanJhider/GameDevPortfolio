@@ -109,24 +109,32 @@
         if (myToken !== activeRenderToken) { rendering = false; return; }
         var canvas = $('cv-canvas');
         if (!canvas) { rendering = false; return; }
+        showCanvas();
         var ctx = canvas.getContext('2d');
-        var viewport = page.getViewport({ scale: currentZoom });
-        var dpr = Math.max(1, window.devicePixelRatio || 1);
 
         var stage = canvas.parentElement ? canvas.parentElement.parentElement : null;
-        var availableWidth = stage ? (stage.clientWidth - 48) : 0;
-        var naturalWidth = viewport.width;
-        var cssScale = currentZoom;
-        if (availableWidth > 0 && naturalWidth > availableWidth) {
-          cssScale = currentZoom * (availableWidth / naturalWidth);
+        var stageWidth = stage ? stage.clientWidth : 0;
+        var baseViewport = page.getViewport({ scale: 1 });
+        var padding = 48;
+        var fitScale = currentZoom;
+        if (stageWidth > padding) {
+          var maxCssWidth = stageWidth - padding;
+          if (baseViewport.width > maxCssWidth) {
+            fitScale = (maxCssWidth / baseViewport.width) * currentZoom;
+          }
         }
-        var renderViewport = page.getViewport({ scale: cssScale });
+        if (fitScale < 0.1) fitScale = 0.1;
+        var renderViewport = page.getViewport({ scale: fitScale });
+        var dpr = 1;
 
-        canvas.width = Math.floor(renderViewport.width * dpr);
-        canvas.height = Math.floor(renderViewport.height * dpr);
-        canvas.style.width = Math.floor(renderViewport.width) + 'px';
-        canvas.style.height = Math.floor(renderViewport.height) + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        var cssW = Math.floor(renderViewport.width);
+        var cssH = Math.floor(renderViewport.height);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = cssW;
+        canvas.height = cssH;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         var renderTask = page.render({ canvasContext: ctx, viewport: renderViewport });
@@ -137,7 +145,6 @@
             if (myToken !== activeRenderToken) return;
             rendering = false;
             activeRenderTask = null;
-            showCanvas();
             currentPage = num;
             updateCounter();
             if (pendingPage !== null && pendingPage !== num) {
