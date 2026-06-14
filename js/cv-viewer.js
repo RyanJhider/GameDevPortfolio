@@ -12,6 +12,8 @@
   var currentZoom = 1.0;
   var rendering = false;
   var pendingPage = null;
+  var activeRenderTask = null;
+  var activeRenderToken = 0;
   var ZOOM_STEP = 0.2;
   var ZOOM_MIN = 0.5;
   var ZOOM_MAX = 3.0;
@@ -85,15 +87,26 @@
     });
   }
 
+  function cancelActiveRender() {
+    if (activeRenderTask) {
+      try { activeRenderTask.cancel(); } catch (e) {}
+      activeRenderTask = null;
+    }
+  }
+
   function renderPage(num) {
     if (!pdfDoc) return;
-    if (rendering) { pendingPage = num; return; }
+    if (rendering) { pendingPage = num; cancelActiveRender(); return; }
     rendering = true;
     showLoader();
     setStatus('Rendu de la page ' + num + '...');
+    cancelActiveRender();
+
+    var myToken = ++activeRenderToken;
 
     withTimeout(pdfDoc.getPage(num), RENDER_TIMEOUT_MS, 'Chargement page')
       .then(function (page) {
+        if (myToken !== activeRenderToken) { rendering = false; return; }
         var canvas = $('cv-canvas');
         if (!canvas) { rendering = false; return; }
         var ctx = canvas.getContext('2d');
@@ -117,9 +130,13 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         var renderTask = page.render({ canvasContext: ctx, viewport: renderViewport });
+        activeRenderTask = renderTask;
+
         return withTimeout(renderTask.promise, RENDER_TIMEOUT_MS, 'Rendu canvas')
           .then(function () {
+            if (myToken !== activeRenderToken) return;
             rendering = false;
+            activeRenderTask = null;
             showCanvas();
             currentPage = num;
             updateCounter();
@@ -130,13 +147,17 @@
             }
           })
           .catch(function (err) {
+            if (myToken !== activeRenderToken) return;
             rendering = false;
-            try { renderTask.cancel(); } catch (e) {}
+            activeRenderTask = null;
+            if (err && err.name === 'RenderingCancelledException') return;
             setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue') + '. Essayez de recharger la page.', true);
           });
       })
       .catch(function (err) {
+        if (myToken !== activeRenderToken) return;
         rendering = false;
+        activeRenderTask = null;
         setStatus('Impossible de charger la page: ' + (err && err.message ? err.message : 'inconnue'), true);
       });
   }
@@ -166,6 +187,8 @@
   }
 
   function destroyDoc() {
+    cancelActiveRender();
+    activeRenderToken++;
     if (docLoadingTask) {
       try { docLoadingTask.destroy(); } catch (e) {}
       docLoadingTask = null;
