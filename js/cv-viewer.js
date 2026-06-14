@@ -15,7 +15,9 @@
   var ZOOM_STEP = 0.2;
   var ZOOM_MIN = 0.5;
   var ZOOM_MAX = 3.0;
-  var initialized = false;
+  var RENDER_TIMEOUT_MS = 15000;
+  var workerInitialized = false;
+  var docLoadingTask = null;
 
   function $(id) { return document.getElementById(id); }
 
@@ -61,6 +63,28 @@
     if (el) el.textContent = Math.round(currentZoom * 100) + '%';
   }
 
+  function withTimeout(promise, ms, label) {
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      var t = setTimeout(function () {
+        if (done) return;
+        done = true;
+        reject(new Error(label + ' : delai d\'attente depasse (' + Math.round(ms / 1000) + 's)'));
+      }, ms);
+      promise.then(function (v) {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        resolve(v);
+      }, function (e) {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        reject(e);
+      });
+    });
+  }
+
   function renderPage(num) {
     if (!pdfDoc) return;
     if (rendering) { pendingPage = num; return; }
@@ -68,37 +92,43 @@
     showLoader();
     setStatus('Rendu de la page ' + num + '...');
 
-    pdfDoc.getPage(num).then(function (page) {
-      var canvas = $('cv-canvas');
-      if (!canvas) { rendering = false; return; }
-      var ctx = canvas.getContext('2d');
-      var viewport = page.getViewport({ scale: currentZoom });
-      var dpr = Math.max(1, window.devicePixelRatio || 1);
-      canvas.width = Math.floor(viewport.width * dpr);
-      canvas.height = Math.floor(viewport.height * dpr);
-      canvas.style.width = Math.floor(viewport.width) + 'px';
-      canvas.style.height = Math.floor(viewport.height) + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    withTimeout(pdfDoc.getPage(num), RENDER_TIMEOUT_MS, 'Chargement page')
+      .then(function (page) {
+        var canvas = $('cv-canvas');
+        if (!canvas) { rendering = false; return; }
+        var ctx = canvas.getContext('2d');
+        var viewport = page.getViewport({ scale: currentZoom });
+        var dpr = Math.max(1, window.devicePixelRatio || 1);
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = Math.floor(viewport.width) + 'px';
+        canvas.style.height = Math.floor(viewport.height) + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      var renderTask = page.render({ canvasContext: ctx, viewport: viewport });
-      renderTask.promise.then(function () {
+        var renderTask = page.render({ canvasContext: ctx, viewport: viewport });
+        return withTimeout(renderTask.promise, RENDER_TIMEOUT_MS, 'Rendu canvas')
+          .then(function () {
+            rendering = false;
+            showCanvas();
+            currentPage = num;
+            updateCounter();
+            if (pendingPage !== null && pendingPage !== num) {
+              var next = pendingPage;
+              pendingPage = null;
+              renderPage(next);
+            }
+          })
+          .catch(function (err) {
+            rendering = false;
+            try { renderTask.cancel(); } catch (e) {}
+            setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue'), true);
+          });
+      })
+      .catch(function (err) {
         rendering = false;
-        showCanvas();
-        currentPage = num;
-        updateCounter();
-        if (pendingPage !== null && pendingPage !== num) {
-          var next = pendingPage;
-          pendingPage = null;
-          renderPage(next);
-        }
-      }).catch(function (err) {
-        rendering = false;
-        setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue'), true);
+        setStatus('Impossible de charger la page: ' + (err && err.message ? err.message : 'inconnue'), true);
       });
-    }).catch(function (err) {
-      rendering = false;
-      setStatus('Impossible de charger la page: ' + (err && err.message ? err.message : 'inconnue'), true);
-    });
   }
 
   function goPrev() {
@@ -125,38 +155,71 @@
     renderPage(currentPage);
   }
 
+  function destroyDoc() {
+    if (docLoadingTask) {
+      try { docLoadingTask.destroy(); } catch (e) {}
+      docLoadingTask = null;
+    }
+    if (pdfDoc) {
+      try { pdfDoc.destroy(); } catch (e) {}
+      pdfDoc = null;
+    }
+    rendering = false;
+    pendingPage = null;
+  }
+
+  function ensureWorker() {
+    if (workerInitialized || !PDFJS) return;
+    try {
+      PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      workerInitialized = true;
+    } catch (e) {
+      console.warn('[CV] worker init failed', e);
+    }
+  }
+
   function loadFromSource(src) {
     if (!PDFJS) {
       setStatus('Lecteur PDF non disponible (connexion requise).', true);
       return;
     }
     if (!src) return;
-    if (!initialized) {
-      try {
-        PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        initialized = true;
-      } catch (e) {
-        setStatus('Impossible d\'initialiser le lecteur PDF.', true);
-        return;
-      }
-    }
+
+    destroyDoc();
+    ensureWorker();
 
     showLoader();
     setStatus('Chargement du document...');
     setControlsEnabled(false);
 
-    var loadingTask = PDFJS.getDocument({ url: src, withCredentials: false });
-    loadingTask.promise.then(function (doc) {
-      pdfDoc = doc;
-      currentPage = 1;
-      currentZoom = 1.0;
-      updateZoomLabel();
-      setControlsEnabled(true);
-      renderPage(1);
-    }).catch(function (err) {
-      setStatus('Impossible de charger le PDF (' + (err && err.message ? err.message : 'erreur') + '). Verifiez l\'URL ou la taille du fichier.', true);
-      setControlsEnabled(false);
-    });
+    var params = {};
+    if (/^https?:\/\//i.test(src)) {
+      params.url = src;
+      params.withCredentials = false;
+    } else {
+      params.url = src;
+    }
+
+    try {
+      docLoadingTask = PDFJS.getDocument(params);
+    } catch (e) {
+      setStatus('Impossible d\'ouvrir le document (' + e.message + ').', true);
+      return;
+    }
+
+    withTimeout(docLoadingTask.promise, RENDER_TIMEOUT_MS, 'Telechargement PDF')
+      .then(function (doc) {
+        pdfDoc = doc;
+        currentPage = 1;
+        currentZoom = 1.0;
+        updateZoomLabel();
+        setControlsEnabled(true);
+        renderPage(1);
+      })
+      .catch(function (err) {
+        setStatus('Impossible de charger le PDF (' + (err && err.message ? err.message : 'erreur') + '). Verifiez l\'URL ou la taille du fichier.', true);
+        setControlsEnabled(false);
+      });
   }
 
   function bindControls() {
@@ -194,8 +257,12 @@
       else if (e.key === '-' || e.key === '_') { zoomOut(); }
     });
 
+    var resizeTimer = null;
     window.addEventListener('resize', function () {
-      if (pdfDoc) renderPage(currentPage);
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (pdfDoc) renderPage(currentPage);
+      }, 150);
     });
   }
 
