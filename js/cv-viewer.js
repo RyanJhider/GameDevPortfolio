@@ -99,14 +99,24 @@
         var ctx = canvas.getContext('2d');
         var viewport = page.getViewport({ scale: currentZoom });
         var dpr = Math.max(1, window.devicePixelRatio || 1);
-        canvas.width = Math.floor(viewport.width * dpr);
-        canvas.height = Math.floor(viewport.height * dpr);
-        canvas.style.width = Math.floor(viewport.width) + 'px';
-        canvas.style.height = Math.floor(viewport.height) + 'px';
+
+        var stage = canvas.parentElement ? canvas.parentElement.parentElement : null;
+        var availableWidth = stage ? (stage.clientWidth - 48) : 0;
+        var naturalWidth = viewport.width;
+        var cssScale = currentZoom;
+        if (availableWidth > 0 && naturalWidth > availableWidth) {
+          cssScale = currentZoom * (availableWidth / naturalWidth);
+        }
+        var renderViewport = page.getViewport({ scale: cssScale });
+
+        canvas.width = Math.floor(renderViewport.width * dpr);
+        canvas.height = Math.floor(renderViewport.height * dpr);
+        canvas.style.width = Math.floor(renderViewport.width) + 'px';
+        canvas.style.height = Math.floor(renderViewport.height) + 'px';
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        var renderTask = page.render({ canvasContext: ctx, viewport: viewport });
+        var renderTask = page.render({ canvasContext: ctx, viewport: renderViewport });
         return withTimeout(renderTask.promise, RENDER_TIMEOUT_MS, 'Rendu canvas')
           .then(function () {
             rendering = false;
@@ -122,7 +132,7 @@
           .catch(function (err) {
             rendering = false;
             try { renderTask.cancel(); } catch (e) {}
-            setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue'), true);
+            setStatus('Erreur de rendu: ' + (err && err.message ? err.message : 'inconnue') + '. Essayez de recharger la page.', true);
           });
       })
       .catch(function (err) {

@@ -2603,7 +2603,9 @@ a:hover { text-shadow: var(--glow-phosphor); }
 .cv-viewer-canvas-wrap {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 #cv-canvas {
@@ -2613,8 +2615,7 @@ a:hover { text-shadow: var(--glow-phosphor); }
     0 0 0 1px rgba(226, 216, 200, 0.15),
     0 0 30px rgba(0, 0, 0, 0.6),
     0 10px 40px rgba(0, 0, 0, 0.4);
-  max-width: 100%;
-  height: auto;
+  flex-shrink: 0;
 }
 
 .cv-viewer-loader {
