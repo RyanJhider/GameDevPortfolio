@@ -41,58 +41,131 @@
     applyText('.profile-location', p.location);
     applyText('.profile-bio', p.bio);
     applyText('.profile-description', p.description);
-    applyAttr('.profile-avatar', 'src', p.avatar);
+
     applySocial('.social-github', p.social && p.social.github);
     applySocial('.social-linkedin', p.social && p.social.linkedin);
     applySocial('.social-itchio', p.social && p.social.itchio);
     applySocial('.social-email', p.social && p.social.email, true);
-    applySkills('.skills-engines', p.skills && p.skills.engines);
-    applySkills('.skills-languages', p.skills && p.skills.languages);
-    applySkills('.skills-tools', p.skills && p.skills.tools);
-    applySkills('.skills-soft', p.skills && p.skills.softSkills);
+
+    applyShowWhen('school', p.school);
+    applyShowWhen('location', p.location);
+    applyAvatar(p.avatar);
+    applySkillsSection(p.skills);
+    applyEducation(p.education);
     applyCv(p);
   }
 
+  function applyShowWhen(field, value) {
+    var sel = '[data-show-when="' + field + '"]';
+    var els = document.querySelectorAll(sel);
+    els.forEach(function (el) {
+      if (value) el.removeAttribute('hidden');
+      else el.setAttribute('hidden', '');
+    });
+  }
+
+  function applyAvatar(value) {
+    var wrap = document.getElementById('about-avatar-wrap');
+    var img = document.querySelector('.profile-avatar');
+    if (!img) return;
+    if (!value) {
+      if (wrap) wrap.setAttribute('hidden', '');
+      img.removeAttribute('src');
+      return;
+    }
+    img.setAttribute('src', U.escapeAttr(value));
+    if (wrap) wrap.removeAttribute('hidden');
+  }
+
+  function applySkillsSection(skills) {
+    var section = document.getElementById('about-skills-section');
+    if (!section) return;
+    var groups = ['engines', 'languages', 'tools', 'softSkills'];
+    var hasAny = false;
+    groups.forEach(function (key) {
+      var list = skills && skills[key];
+      var group = section.querySelector('[data-skills-group="' + key + '"]');
+      if (!group) return;
+      var items = Array.isArray(list) ? list.filter(Boolean) : [];
+      if (items.length === 0) {
+        group.setAttribute('hidden', '');
+        return;
+      }
+      hasAny = true;
+      group.removeAttribute('hidden');
+      var container = group.querySelector('.skills-list');
+      container.innerHTML = items.map(function (s) {
+        return '<div class="skill-item">' + U.escapeHtml(s) + '</div>';
+      }).join('');
+    });
+    if (hasAny) section.removeAttribute('hidden');
+    else section.setAttribute('hidden', '');
+  }
+
+  function applyEducation(list) {
+    var root = document.getElementById('education-timeline');
+    if (!root) return;
+    if (!Array.isArray(list) || list.length === 0) { root.innerHTML = ''; return; }
+    var items = list
+      .filter(function (e) { return e && (e.year || e.label); })
+      .sort(function (a, b) { return String(b.year || '').localeCompare(String(a.year || '')); });
+    root.innerHTML = items.map(function (e) {
+      var year = U.escapeHtml(String(e.year || ''));
+      var label = e.label ? U.escapeHtml(String(e.label)) : '';
+      var meta = e.meta ? '<span class="timeline-meta">' + U.escapeHtml(String(e.meta)) + '</span>' : '';
+      var isCurrent = e.current === true;
+      var itemClass = 'timeline-item' + (isCurrent ? ' timeline-item-current' : '');
+      var badge = isCurrent ? '<span class="timeline-badge">// NOW</span>' : '';
+      return (
+        '<li class="' + itemClass + '">' +
+          '<span class="timeline-dot" aria-hidden="true"></span>' +
+          '<span class="timeline-year">' + year + badge + '</span>' +
+          '<span class="timeline-body">' +
+            '<span class="timeline-label">' + label + '</span>' +
+            meta +
+          '</span>' +
+        '</li>'
+      );
+    }).join('');
+  }
+
   function applyCv(p) {
+    var section = document.getElementById('about-cv-section');
     var root = document.getElementById('cv-viewer');
     if (!root) return;
     var source = p.cvData || p.cvUrl;
     if (!source) {
-      console.info('[CV] aucune source (cvData et cvUrl vides)');
-      root.classList.add('cv-viewer-empty');
+      if (section) section.hidden = true;
       return;
     }
     if (p.cvData && p.cvData.length < 200) {
       console.warn('[CV] cvData trop court (' + p.cvData.length + ' chars), probablement corrompu');
-      root.classList.add('cv-viewer-empty');
+      if (section) section.hidden = true;
       return;
     }
-    console.info('[CV] source:', source.slice(0, 60) + '...', '|', Math.round(source.length / 1024) + ' KB', '|', p.cvData ? 'cvData (base64)' : 'cvUrl');
-    root.classList.remove('cv-viewer-empty');
+    if (section) section.hidden = false;
     var sourceEl = document.getElementById('cv-source');
     if (sourceEl) sourceEl.value = source;
     var titleEl = root.querySelector('.cv-viewer-title');
     if (titleEl) titleEl.textContent = p.cvLabel || 'Curriculum Vitae';
     var dlHref = U.safeUrl(source) || '#';
     var dlName = (p.name || 'cv') + '.pdf';
-    var downloadEl = document.getElementById('cv-download');
-    if (downloadEl) { downloadEl.setAttribute('href', dlHref); downloadEl.setAttribute('download', dlName); }
-    var modalDl = document.getElementById('cv-modal-download');
-    if (modalDl) { modalDl.setAttribute('href', dlHref); modalDl.setAttribute('download', dlName); }
+    setDownload('cv-download', dlHref, dlName);
+    setDownload('cv-modal-download', dlHref, dlName);
     if (typeof window.initCvViewer === 'function') window.initCvViewer();
   }
 
-  function applyText(selector, value) {
-    if (!value) return;
-    document.querySelectorAll(selector).forEach(function (el) {
-      el.textContent = value;
-    });
+  function setDownload(id, href, name) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute('href', href);
+    el.setAttribute('download', name);
   }
 
-  function applyAttr(selector, attr, value) {
-    if (!value) return;
+  function applyText(selector, value) {
+    if (value == null) return;
     document.querySelectorAll(selector).forEach(function (el) {
-      el.setAttribute(attr, U.escapeAttr(value));
+      el.textContent = value;
     });
   }
 
@@ -105,17 +178,6 @@
         el.style.display = 'none';
       }
     });
-  }
-
-  function applySkills(selector, list) {
-    if (!Array.isArray(list) || list.length === 0) return;
-    var container = document.querySelector(selector);
-    if (!container) return;
-    var skills = list.filter(Boolean);
-    if (skills.length === 0) return;
-    container.innerHTML = skills.map(function (s) {
-      return '<div class="skill-item">' + U.escapeHtml(s) + '</div>';
-    }).join('');
   }
 
   document.addEventListener('DOMContentLoaded', window.loadProfile);

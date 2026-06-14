@@ -202,6 +202,11 @@
       "itchio": "",
       "twitter": "",
       "email": "ryanjhider@gmail.com"
-    }
+    },
+    "education": [
+      { "year": "2025", "label": "3rd Year — ISART Digital", "meta": "Game Design & Programming", "current": true },
+      { "year": "2024", "label": "2nd Year — ISART Digital", "meta": "Game Design & Programming" },
+      { "year": "2023", "label": "1st Year — ISART Digital", "meta": "Game Design & Programming" }
+    ]
   }
 }

@@ -195,11 +195,15 @@ a:hover { text-shadow: var(--glow-phosphor); }
 
 .hero-title .highlight { color: var(--accent-phosphor); }
 
+.hero .hero-subtitle,
 .hero-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 600px;
-  margin: 0 auto 2rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--accent-phosphor);
+  letter-spacing: 0.05em;
+  max-width: 620px;
+  margin: 0 auto 1.5rem;
+  text-align: center !important;
 }
 
 .hero-ctas {
@@ -1612,22 +1616,6 @@ a:hover { text-shadow: var(--glow-phosphor); }
 /* Hero Banner */
 .project-hero-banner {
   margin-bottom: 2rem;
-}
-
-.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  color: var(--text-primary);
-  line-height: 1;
-  margin-bottom: 0.5rem;
-}
-
-.hero-subtitle {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1rem;
-  color: var(--accent-phosphor);
-  letter-spacing: 0.05em;
-  margin-bottom: 1.5rem;
 }
 
 .hero-media {
@@ -3117,39 +3105,258 @@ body.cv-modal-open { overflow: hidden; }
   .cv-modal-bar { padding: 0.5rem 0.7rem; }
 }
 
-.about { padding: 8rem 2rem 4rem; }
-.about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1200px; margin: 0 auto; }
-
-.about-bio h3 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-
-.about-title {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.85rem;
-  color: var(--accent-phosphor);
-  margin-bottom: 1.5rem;
+/* ============================================
+   PAGE HEADER (About / Projects)
+   ============================================ */
+.page-header {
+  padding: 9rem 2rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
 }
 
-.about-desc { font-size: 0.95rem; margin-bottom: 1rem; color: var(--text-secondary); }
+.page-header::after {
+  content: "";
+  display: block;
+  margin-top: 1.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-phosphor) 0%, var(--accent-phosphor) 18%, transparent 100%);
+  opacity: 0.55;
+  box-shadow: 0 0 12px rgba(61, 255, 94, 0.35);
+}
 
-.about-timeline h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--text-primary); }
+.page-eyebrow {
+  display: inline-block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: var(--accent-phosphor);
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 8px rgba(61, 255, 94, 0.45);
+}
 
-.timeline-item { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border-subtle); }
+.page-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0;
+  text-shadow: 0 0 18px rgba(61, 255, 94, 0.18);
+}
+
+/* Section eyebrows / titles (shared) */
+.section-eyebrow {
+  display: inline-block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  color: var(--accent-phosphor);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 8px rgba(61, 255, 94, 0.35);
+}
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ============================================
+   ABOUT PAGE
+   ============================================ */
+
+.about { padding: 1.5rem 2rem 5rem; }
+.about-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.about-aside { display: none; }
+.about-aside[data-show="true"] { display: block; }
+
+.about-main { min-width: 0; }
+
+.about-head { margin-bottom: 1.25rem; }
+
+.about-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  text-shadow: 0 0 16px rgba(61, 255, 94, 0.18);
+}
+
+.about-role {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.about-role .profile-title { color: var(--accent-phosphor); }
+.about-role .profile-school { color: var(--text-primary); }
+.about-role-sep { color: var(--text-secondary); opacity: 0.5; }
+[hidden].about-role-sep { display: none; }
+
+.about-loc {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  margin: 0;
+  color: var(--text-secondary);
+}
+.about-loc[hidden] { display: none; }
+.about-loc .about-meta-label { color: var(--accent-phosphor); letter-spacing: 0.16em; font-size: 0.7rem; margin-right: 0.5rem; }
+
+/* Avatar (only if present) */
+#about-avatar-wrap {
+  width: 140px;
+  height: 140px;
+  border: 1px solid var(--accent-phosphor);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(61, 255, 94, 0.18) inset, 0 0 24px rgba(61, 255, 94, 0.12);
+}
+#about-avatar-wrap[hidden] { display: none; }
+#about-avatar-wrap .profile-avatar {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+/* Bio */
+.about-bio { margin: 1.25rem 0 1.75rem; max-width: 70ch; }
+.profile-description, .profile-bio {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  margin: 0 0 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Timeline */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 70ch;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 14px 90px 1fr;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.timeline-item:last-child { border-bottom: none; }
+
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--void);
+  border: 1px solid var(--accent-phosphor);
+  box-shadow: 0 0 6px rgba(61, 255, 94, 0.45);
+  justify-self: center;
+  align-self: center;
+}
+.timeline-item-current .timeline-dot {
+  background: var(--accent-phosphor);
+  box-shadow: 0 0 10px var(--accent-phosphor);
+}
 
 .timeline-year {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
   color: var(--accent-phosphor);
-  min-width: 50px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  text-shadow: 0 0 8px rgba(61, 255, 94, 0.3);
+}
+.timeline-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--accent-phosphor);
+  color: var(--accent-phosphor);
+  background: rgba(61, 255, 94, 0.08);
+}
+
+.timeline-body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; }
+.timeline-label { color: var(--text-primary); font-size: 0.95rem; }
+.timeline-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+/* Document / skills shared block */
+.about-doc { display: flex; flex-direction: column; gap: 1.25rem; }
+.about-doc[hidden] { display: none; }
+.about-doc-head { display: flex; flex-direction: column; gap: 0.15rem; }
+
+/* Skills */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.skills-group {
+  padding: 1rem 1rem 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+.skills-group[hidden] { display: none; }
+.skills-group-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--accent-phosphor);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.skills-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.skills-list .skill-item {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  background: var(--void);
+  letter-spacing: 0.04em;
 }
 
 /* Responsive */
+@media (max-width: 980px) {
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 768px) {
   .nav-panel { flex-wrap: wrap; gap: 1rem; }
   .nav-links { order: 3; width: 100%; justify-content: center; }
   .hero-title { font-size: 2rem; }
-  .skills-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-grid { gap: 1.5rem; }
-  .about-content { grid-template-columns: 1fr; gap: 2rem; }
+  .page-header { padding: 8rem 1.25rem 1.25rem; }
+  .page-header::after { margin-top: 1.1rem; }
+  .about { padding: 1rem 1.25rem 4rem; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .timeline-item { grid-template-columns: 14px 70px 1fr; gap: 0.6rem; }
 }
 
 @media (max-width: 480px) {

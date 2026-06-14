@@ -6,15 +6,12 @@
     <title>About | Ryan Jhider</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    
-    <!-- Firebase SDK -->
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Firebase Config (excluded from Git, see js/config.example.js) -->
     <script src="js/config.public.js"></script>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="nav-panel">
             <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
@@ -30,128 +27,155 @@
         </div>
     </header>
 
-    <!-- About -->
-    <section class="about">
+    <section class="page-header">
         <div class="container">
-            <div class="about-content">
+            <span class="page-eyebrow">// PROFILE_DUMP</span>
+            <h1 class="page-title">ABOUT</h1>
+        </div>
+    </section>
+
+    <section class="about" id="about-root">
+        <div class="container about-grid">
+
+            <aside class="about-aside" data-requires="avatar">
+                <div class="about-avatar-wrap" id="about-avatar-wrap" hidden>
+                    <img class="profile-avatar" alt="">
+                </div>
+            </aside>
+
+            <div class="about-main">
+                <header class="about-head">
+                    <h2 class="about-name profile-name">Ryan Jhider</h2>
+                    <p class="about-role">
+                        <span class="profile-title">Game Design &amp; Programming Student</span>
+                        <span class="about-role-sep" data-show-when="school">@</span>
+                        <span class="profile-school" data-show-when="school">ISART Digital</span>
+                    </p>
+                    <p class="about-loc" data-show-when="location">
+                        <span class="about-meta-label">LOC</span>
+                        <span class="profile-location">France</span>
+                    </p>
+                </header>
+
                 <div class="about-bio">
-                    <h3 class="profile-name">Ryan Jhider</h3>
-                    <p class="about-title"><span class="profile-title">Game Design &amp; Programming Student</span> at <span class="profile-school">ISART Digital</span></p>
-                    <p class="about-desc profile-description">Third-year student passionate about creating immersive gaming experiences. Specialized in Unity development, multiplayer networking systems, AI behavior programming, and horror game design.</p>
-                    <p class="about-desc profile-bio">Always looking for new challenges and opportunities to create games that leave a lasting impression.</p>
+                    <p class="profile-description">Third-year student passionate about creating immersive gaming experiences. Specialized in Unity development, multiplayer networking systems, AI behavior programming, and horror game design.</p>
+                    <p class="profile-bio">Always looking for new challenges and opportunities to create games that leave a lasting impression.</p>
                 </div>
-                <div class="about-timeline">
-                    <h3>Education</h3>
-                    <div class="timeline-item">
-                        <span class="timeline-year">2024</span>
-                        <p>3rd Year - <span class="profile-school">ISART Digital</span></p>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-year">2023</span>
-                        <p>2nd Year - <span class="profile-school">ISART Digital</span></p>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-year">2022</span>
-                        <p>1st Year - <span class="profile-school">ISART Digital</span></p>
-                    </div>
-                </div>
+
+                <ol class="timeline" id="education-timeline" aria-label="Education"></ol>
             </div>
 
-            <div id="cv-viewer" class="cv-viewer cv-viewer-empty" aria-label="Curriculum Vitae">
-                <div class="cv-viewer-header">
-                    <div class="cv-viewer-heading">
-                        <span class="cv-viewer-eyebrow">Document</span>
-                        <h3 class="cv-viewer-title">Curriculum Vitae</h3>
-                    </div>
+            <section class="about-doc about-cv" id="about-cv-section" data-requires="cv" hidden>
+                <header class="about-doc-head">
+                    <span class="section-eyebrow">// DOCUMENT</span>
+                    <h3 class="section-title cv-viewer-title">Curriculum Vitae</h3>
+                </header>
+
+                <div id="cv-viewer" class="cv-viewer cv-viewer-empty" aria-label="Curriculum Vitae">
                     <div class="cv-viewer-toolbar" role="toolbar" aria-label="Controles du lecteur">
                         <a href="#" class="cv-viewer-btn cv-viewer-download" id="cv-download" target="_blank" rel="noopener noreferrer">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             <span>T&eacute;l&eacute;charger</span>
                         </a>
                     </div>
-                </div>
 
-                <button type="button" class="cv-viewer-preview" id="cv-preview-btn" aria-label="Ouvrir le CV en grand" hidden>
-                    <div class="cv-viewer-preview-inner">
-                        <canvas id="cv-canvas"></canvas>
-                        <div class="cv-viewer-preview-hint">
-                            <span class="cv-viewer-preview-icon" aria-hidden="true">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                            </span>
-                            <span>Cliquer pour agrandir</span>
-                        </div>
-                    </div>
-                </button>
-
-                <div class="cv-viewer-loader" id="cv-loader">
-                    <div class="cv-viewer-spinner" aria-hidden="true"></div>
-                    <p class="cv-viewer-status" id="cv-status">Chargement du document&hellip;</p>
-                </div>
-
-                <div class="cv-viewer-placeholder" id="cv-placeholder">
-                    <div class="cv-viewer-placeholder-icon" aria-hidden="true">PDF</div>
-                    <p class="cv-viewer-placeholder-title">Aucun CV publi&eacute; pour le moment</p>
-                    <p class="cv-viewer-placeholder-hint">Ajoutez un CV depuis l'<a href="admin.html">administration</a> (champ &laquo;&nbsp;CV / Resume&nbsp;&raquo;).</p>
-                </div>
-
-                <input type="hidden" id="cv-source" value="">
-            </div>
-
-            <div id="cv-modal" class="cv-modal" hidden aria-hidden="true">
-                <div class="cv-modal-backdrop"></div>
-                <div class="cv-modal-panel" role="dialog" aria-modal="true" aria-label="Lecteur CV">
-                    <header class="cv-modal-bar">
-                        <div class="cv-modal-bar-left">
-                            <span class="cv-modal-eyebrow">Document</span>
-                            <span class="cv-modal-title">Curriculum Vitae</span>
-                        </div>
-                        <div class="cv-modal-bar-center">
-                            <div class="cv-modal-pill">
-                                <button type="button" class="cv-viewer-btn" id="cv-modal-prev" aria-label="Page precedente" title="Page precedente (fleche gauche)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                </button>
-                                <span class="cv-viewer-counter">
-                                    <span id="cv-modal-page-num">1</span>
-                                    <span class="cv-viewer-counter-sep">/</span>
-                                    <span id="cv-modal-page-count">1</span>
+                    <button type="button" class="cv-viewer-preview" id="cv-preview-btn" aria-label="Ouvrir le CV en grand" hidden>
+                        <div class="cv-viewer-preview-inner">
+                            <canvas id="cv-canvas"></canvas>
+                            <div class="cv-viewer-preview-hint">
+                                <span class="cv-viewer-preview-icon" aria-hidden="true">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                                 </span>
-                                <button type="button" class="cv-viewer-btn" id="cv-modal-next" aria-label="Page suivante" title="Page suivante (fleche droite)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                                <span>Cliquer pour agrandir</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="cv-viewer-loader" id="cv-loader">
+                        <div class="cv-viewer-spinner" aria-hidden="true"></div>
+                        <p class="cv-viewer-status" id="cv-status">Chargement du document&hellip;</p>
+                    </div>
+
+                    <input type="hidden" id="cv-source" value="">
+                </div>
+
+                <div id="cv-modal" class="cv-modal" hidden aria-hidden="true">
+                    <div class="cv-modal-backdrop"></div>
+                    <div class="cv-modal-panel" role="dialog" aria-modal="true" aria-label="Lecteur CV">
+                        <header class="cv-modal-bar">
+                            <div class="cv-modal-bar-center">
+                                <div class="cv-modal-pill">
+                                    <button type="button" class="cv-viewer-btn" id="cv-modal-prev" aria-label="Page precedente" title="Page precedente (fleche gauche)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                    </button>
+                                    <span class="cv-viewer-counter">
+                                        <span id="cv-modal-page-num">1</span>
+                                        <span class="cv-viewer-counter-sep">/</span>
+                                        <span id="cv-modal-page-count">1</span>
+                                    </span>
+                                    <button type="button" class="cv-viewer-btn" id="cv-modal-next" aria-label="Page suivante" title="Page suivante (fleche droite)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </button>
+                                </div>
+                                <div class="cv-modal-pill">
+                                    <button type="button" class="cv-viewer-btn" id="cv-modal-zoom-out" aria-label="Dezoomer" title="Dezoomer (-)">&minus;</button>
+                                    <span class="cv-viewer-zoom-level" id="cv-modal-zoom-level" title="Niveau de zoom">100%</span>
+                                    <button type="button" class="cv-viewer-btn" id="cv-modal-zoom-in" aria-label="Zoomer" title="Zoomer (+)">&plus;</button>
+                                    <button type="button" class="cv-viewer-btn cv-viewer-btn-text" id="cv-modal-fit" aria-label="Ajuster a la largeur" title="Ajuster (0)">Fit</button>
+                                </div>
+                            </div>
+                            <div class="cv-modal-bar-right">
+                                <a href="#" class="cv-viewer-btn cv-viewer-btn-text cv-viewer-download" id="cv-modal-download" target="_blank" rel="noopener noreferrer" title="Telecharger le PDF">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>T&eacute;l&eacute;charger</span>
+                                </a>
+                                <button type="button" class="cv-viewer-btn cv-modal-fullscreen" id="cv-modal-fullscreen" aria-label="Plein ecran" title="Plein ecran (F)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                </button>
+                                <button type="button" class="cv-viewer-btn cv-modal-close" id="cv-modal-close" aria-label="Fermer" title="Fermer (ESC)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                 </button>
                             </div>
-                            <div class="cv-modal-pill">
-                                <button type="button" class="cv-viewer-btn" id="cv-modal-zoom-out" aria-label="Dezoomer" title="Dezoomer (-)">&minus;</button>
-                                <span class="cv-viewer-zoom-level" id="cv-modal-zoom-level" title="Niveau de zoom">100%</span>
-                                <button type="button" class="cv-viewer-btn" id="cv-modal-zoom-in" aria-label="Zoomer" title="Zoomer (+)">&plus;</button>
-                                <button type="button" class="cv-viewer-btn cv-viewer-btn-text" id="cv-modal-fit" aria-label="Ajuster a la largeur" title="Ajuster (0)">Fit</button>
-                            </div>
+                        </header>
+                        <div class="cv-modal-stage" id="cv-modal-stage" tabindex="0">
+                            <div class="cv-modal-pages" id="cv-modal-pages"></div>
                         </div>
-                        <div class="cv-modal-bar-right">
-                            <a href="#" class="cv-viewer-btn cv-viewer-btn-text cv-viewer-download" id="cv-modal-download" target="_blank" rel="noopener noreferrer" title="Telecharger le PDF">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                <span>T&eacute;l&eacute;charger</span>
-                            </a>
-                            <button type="button" class="cv-viewer-btn cv-modal-fullscreen" id="cv-modal-fullscreen" aria-label="Plein ecran" title="Plein ecran (F)">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                            </button>
-                            <button type="button" class="cv-viewer-btn cv-modal-close" id="cv-modal-close" aria-label="Fermer" title="Fermer (ESC)">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                        </div>
-                    </header>
-                    <div class="cv-modal-stage" id="cv-modal-stage" tabindex="0">
-                        <div class="cv-modal-pages" id="cv-modal-pages"></div>
+                        <nav class="cv-modal-thumbs" id="cv-modal-thumbs" aria-label="Miniatures des pages"></nav>
                     </div>
-                    <nav class="cv-modal-thumbs" id="cv-modal-thumbs" aria-label="Miniatures des pages"></nav>
                 </div>
-            </div>
+            </section>
+
+            <section class="about-doc about-skills" id="about-skills-section" data-requires="skills" hidden>
+                <header class="about-doc-head">
+                    <span class="section-eyebrow">// LOADOUT</span>
+                    <h3 class="section-title">Skills</h3>
+                </header>
+                <div class="skills-grid">
+                    <div class="skills-group" data-skills-group="engines">
+                        <h4 class="skills-group-title">Engines</h4>
+                        <div class="skills-list skills-engines"></div>
+                    </div>
+                    <div class="skills-group" data-skills-group="languages">
+                        <h4 class="skills-group-title">Languages</h4>
+                        <div class="skills-list skills-languages"></div>
+                    </div>
+                    <div class="skills-group" data-skills-group="tools">
+                        <h4 class="skills-group-title">Tools</h4>
+                        <div class="skills-list skills-tools"></div>
+                    </div>
+                    <div class="skills-group" data-skills-group="softSkills">
+                        <h4 class="skills-group-title">Soft Skills</h4>
+                        <div class="skills-list skills-soft"></div>
+                    </div>
+                </div>
+            </section>
+
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p class="footer-copy">Made with coffee & Unity</p>
+            <p class="footer-copy">Made with coffee &amp; Unity</p>
             <div class="footer-links">
                 <a href="https://github.com" target="_blank" class="footer-link social-github" rel="noopener noreferrer">GitHub</a>
                 <a href="https://linkedin.com" target="_blank" class="footer-link social-linkedin" rel="noopener noreferrer">LinkedIn</a>

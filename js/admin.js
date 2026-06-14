@@ -1834,6 +1834,10 @@
         .then(function (base64) { uploadedAvatar = base64; var p = document.getElementById('avatar-preview'); if (p) p.innerHTML = '<div class="preview-item"><img src="' + U.escapeAttr(base64) + '"></div>'; showToast('Avatar compresse'); })
         .catch(function (e) { showToast('Erreur: ' + e.message, 'error'); });
     });
+    var addBtn = document.getElementById('education-add');
+    if (addBtn) addBtn.addEventListener('click', function () {
+      addEducationRow({ year: '', label: '', meta: '', current: false });
+    });
     var cvInput = document.getElementById('profile-cv-file');
     if (cvInput) cvInput.addEventListener('change', function () {
       var file = this.files[0];
@@ -1912,6 +1916,73 @@
         if (socialEl && data.social[socialData[k]]) socialEl.value = data.social[socialData[k]];
       }
     }
+    renderEducationRows(Array.isArray(data.education) ? data.education : []);
+  }
+
+  function renderEducationRows(list) {
+    var root = document.getElementById('education-list');
+    if (!root) return;
+    root.innerHTML = '';
+    if (list.length === 0) {
+      addEducationRow({ year: '', label: '', meta: '', current: false });
+      return;
+    }
+    list.forEach(function (e) { addEducationRow(e); });
+  }
+
+  function addEducationRow(data) {
+    var root = document.getElementById('education-list');
+    if (!root) return;
+    data = data || {};
+    var idx = root.children.length;
+    var row = document.createElement('div');
+    row.className = 'repeatable-row';
+    row.innerHTML =
+      '<div class="form-row">' +
+        '<div class="form-group" style="flex:0 0 110px">' +
+          '<label>Annee</label>' +
+          '<input type="text" class="edu-year" placeholder="2025" maxlength="4" value="' + U.escapeAttr(String(data.year || '')) + '">' +
+        '</div>' +
+        '<div class="form-group" style="flex:1">' +
+          '<label>Intitule</label>' +
+          '<input type="text" class="edu-label" placeholder="3rd Year — ISART Digital" value="' + U.escapeAttr(String(data.label || '')) + '">' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group" style="flex:1">' +
+          '<label>Sous-titre (optionnel)</label>' +
+          '<input type="text" class="edu-meta" placeholder="Game Design &amp; Programming" value="' + U.escapeAttr(String(data.meta || '')) + '">' +
+        '</div>' +
+        '<div class="form-group" style="flex:0 0 140px;align-self:end">' +
+          '<label class="checkbox-label"><input type="checkbox" class="edu-current"' + (data.current === true ? ' checked' : '') + '> Annee actuelle</label>' +
+        '</div>' +
+        '<div class="form-group" style="flex:0 0 auto;align-self:end">' +
+          '<button type="button" class="btn-danger edu-remove">Supprimer</button>' +
+        '</div>' +
+      '</div>';
+    row.querySelector('.edu-remove').addEventListener('click', function () {
+      row.remove();
+      if (!root.children.length) addEducationRow({});
+    });
+    root.appendChild(row);
+  }
+
+  function collectEducation() {
+    var root = document.getElementById('education-list');
+    if (!root) return [];
+    var rows = root.querySelectorAll('.repeatable-row');
+    var out = [];
+    rows.forEach(function (row) {
+      var year = (row.querySelector('.edu-year').value || '').trim();
+      var label = (row.querySelector('.edu-label').value || '').trim();
+      var meta = (row.querySelector('.edu-meta').value || '').trim();
+      var current = row.querySelector('.edu-current').checked === true;
+      if (!year && !label && !meta && !current) return;
+      var entry = { year: year, label: label, current: current };
+      if (meta) entry.meta = meta;
+      out.push(entry);
+    });
+    return out;
   }
 
   function saveProfile() {
@@ -1937,7 +2008,8 @@
         linkedin: (getVal('social-linkedin') || '').trim(),
         itchio: (getVal('social-itchio') || '').trim(),
         email: (getVal('social-email') || '').trim()
-      }
+      },
+      education: collectEducation()
     };
     if (!firebaseReady()) { showToast('Firebase non configure', 'error'); return; }
     firebase.firestore().collection('profile').doc('main').set(data)

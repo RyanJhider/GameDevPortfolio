@@ -1,5 +1,5 @@
 # PORTFOLIO ISART - CONTEXTE TECHNIQUE
-# Derniere mise a jour: 8 Juin 2026
+# Derniere mise a jour: 15 Juin 2026
 
 ## Structure du Projet
 ```
@@ -71,7 +71,12 @@ Projet: **mon-portfolio-a976b**
   },
   "cvUrl": "cv/ryan-jhider.pdf",
   "cvLabel": "Curriculum Vitae",
-  "cvData": ""
+  "cvData": "",
+  "education": [
+    { "year": "2025", "label": "3rd Year — ISART Digital", "meta": "Game Design & Programming", "current": true },
+    { "year": "2024", "label": "2nd Year — ISART Digital", "meta": "Game Design & Programming" },
+    { "year": "2023", "label": "1st Year — ISART Digital", "meta": "Game Design & Programming" }
+  ]
 }
 ```
 
@@ -184,8 +189,12 @@ Layout deux colonnes:
 ### `js/profile.js`
 - `loadProfile()` : Firebase -> fallback JSON
 - `applyProfile(data)` : peuple DOM (textContent, setAttribute, innerHTML escape)
-- Selecteurs : `.profile-name`, `.profile-title`, `.profile-school`, `.profile-description`, `.profile-bio`, `.profile-avatar`, `.social-*`, `.skills-engines`, `.skills-languages`, `.skills-tools`, `.skills-soft`
-- `applyCv(p)` : hydrate la section `#cv-viewer` (label + URL/base64) et declenche `initCvViewer()`
+- Selecteurs : `.profile-name`, `.profile-title`, `.profile-school`, `.profile-location`, `.profile-bio`, `.profile-description`, `.profile-avatar`, `.social-*`, `#education-timeline`, `#about-skills-section`, `#about-cv-section`, `[data-show-when="<field>"]`
+- `applyShowWhen(field, value)` : montre/cache les elements `[data-show-when="<field>"]` selon la presence de `p[field]`
+- `applyAvatar(value)` : affiche `#about-avatar-wrap` + `.profile-avatar` uniquement si `p.avatar` est renseigne
+- `applySkillsSection(skills)` : affiche `#about-skills-section` et chaque `[data-skills-group]` uniquement si le groupe a au moins une entree
+- `applyEducation(list)` : rend dynamiquement `#education-timeline` depuis `profile.education` (tri annee desc, badge `// NOW` + dot plein si `current`)
+- `applyCv(p)` : hydrate la section `#cv-viewer` (label + URL/base64) et declenche `initCvViewer()`; cache la section si aucune source
 
 ### `js/cv-viewer.js`
 - `initCvViewer()` : charge le PDF depuis `#cv-source` (data: URL ou URL externe)
@@ -233,8 +242,20 @@ Layout deux colonnes:
 - Grid 2 colonnes
 
 ### about.html
-- Bio + timeline education
-- Profile data chargee via `.profile-name`, `.profile-title`, etc.
+Sections :
+- Page header (`// PROFILE_DUMP` + `ABOUT` + ligne phosphor)
+- Bloc identite : nom (`.profile-name`) + role (`.profile-title` @ `.profile-school` via `[data-show-when="school"]`) + ligne LOC (`.profile-location` via `[data-show-when="location"]`)
+- Bio (`.profile-description` + `.profile-bio`)
+- Timeline education (`#education-timeline` rendue dynamiquement depuis `profile.education`)
+- Section DOCUMENT (CV) `#about-cv-section` : affichee uniquement si `cvUrl` ou `cvData` est renseigne
+- Section LOADOUT (Skills) `#about-skills-section` : affichee uniquement si au moins un groupe est renseigne; les groupes vides sont masques individuellement
+- Footer
+
+L'avatar (`#about-avatar-wrap` + `.profile-avatar`) n'est rendu que si `p.avatar` est defini dans Firebase.
+
+Profile data chargee via `.profile-name`, `.profile-title`, `.profile-school`, `.profile-location`, `.profile-bio`, `.profile-description`, `.profile-avatar`, `.social-*`, `#education-timeline`, `#about-cv-section`, `#about-skills-section`.
+
+**Pilotage conditionnel** : `js/profile.js` utilise `applyShowWhen(field, value)` pour montrer/cacher les elements `[data-show-when="<field>"]` selon la presence de `p[field]`, et `applyAvatar / applySkillsSection / applyCv` pour les sections qui dependent de la donnee.
 
 ### admin.html
 - Login screen
