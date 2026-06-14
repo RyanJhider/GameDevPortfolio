@@ -13,6 +13,7 @@
   var existingTags = [];
   var uploadedFiles = { thumbnail: null, gallery: [] };
   var uploadedAvatar = null;
+  var uploadedCv = null;
   var currentEditId = null;
   var isInitialized = false;
 
@@ -1833,6 +1834,26 @@
         .then(function (base64) { uploadedAvatar = base64; var p = document.getElementById('avatar-preview'); if (p) p.innerHTML = '<div class="preview-item"><img src="' + U.escapeAttr(base64) + '"></div>'; showToast('Avatar compresse'); })
         .catch(function (e) { showToast('Erreur: ' + e.message, 'error'); });
     });
+    var cvInput = document.getElementById('profile-cv-file');
+    if (cvInput) cvInput.addEventListener('change', function () {
+      var file = this.files[0];
+      if (!file) return;
+      if (file.type !== 'application/pdf') { showToast('Veuillez selectionner un PDF', 'error'); this.value = ''; return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = reader.result;
+        if (typeof base64 === 'string' && base64.length > 900000) {
+          showToast('PDF trop volumineux (' + Math.round(base64.length / 1024) + ' KB). Utilisez une URL externe.', 'error');
+          return;
+        }
+        uploadedCv = base64;
+        var prev = document.getElementById('cv-preview');
+        if (prev) prev.innerHTML = '<div class="preview-item cv-preview-item"><span class="cv-preview-icon">PDF</span><span class="cv-preview-name">' + U.escapeHtml(file.name) + '</span><span class="cv-preview-size">' + Math.round(file.size / 1024) + ' KB</span></div>';
+        showToast('CV charge (' + Math.round(file.size / 1024) + ' KB)');
+      };
+      reader.onerror = function () { showToast('Erreur lecture PDF', 'error'); };
+      reader.readAsDataURL(file);
+    });
   }
 
   function loadProfile() {
@@ -1848,11 +1869,15 @@
       var preview = document.getElementById('avatar-preview');
       if (preview) preview.innerHTML = '<div class="preview-item"><img src="' + U.escapeAttr(data.avatar) + '"></div>';
     }
-    var fields = ['profile-name', 'profile-title', 'profile-school', 'profile-location', 'profile-bio', 'profile-description'];
-    var dataFields = ['name', 'title', 'school', 'location', 'bio', 'description'];
+    var fields = ['profile-name', 'profile-title', 'profile-school', 'profile-location', 'profile-bio', 'profile-description', 'profile-cv-url', 'profile-cv-label'];
+    var dataFields = ['name', 'title', 'school', 'location', 'bio', 'description', 'cvUrl', 'cvLabel'];
     for (var i = 0; i < fields.length; i++) {
       var el = document.getElementById(fields[i]);
       if (el && data[dataFields[i]]) el.value = data[dataFields[i]];
+    }
+    if (data.cvData) {
+      var cvPrev = document.getElementById('cv-preview');
+      if (cvPrev) cvPrev.innerHTML = '<div class="preview-item cv-preview-item"><span class="cv-preview-icon">PDF</span><span class="cv-preview-name">CV (base64)</span><span class="cv-preview-size">' + Math.round((data.cvData.length * 3) / 4 / 1024) + ' KB</span></div>';
     }
     if (data.skills) {
       var skillFields = ['skills-engines', 'skills-languages', 'skills-tools', 'skills-soft'];
@@ -1881,6 +1906,9 @@
       bio: (getVal('profile-bio') || '').trim(),
       description: (getVal('profile-description') || '').trim(),
       avatar: uploadedAvatar || '',
+      cvUrl: (getVal('profile-cv-url') || '').trim(),
+      cvLabel: (getVal('profile-cv-label') || '').trim(),
+      cvData: uploadedCv || '',
       skills: {
         engines: parseList('skills-engines'),
         languages: parseList('skills-languages'),

@@ -56,6 +56,56 @@
                     </div>
                 </div>
             </div>
+
+            <div id="cv-viewer" class="cv-viewer cv-viewer-empty" aria-label="Curriculum Vitae">
+                <div class="cv-viewer-header">
+                    <div class="cv-viewer-heading">
+                        <span class="cv-viewer-eyebrow">// Document</span>
+                        <h3 class="cv-viewer-title">Curriculum Vitae</h3>
+                    </div>
+                    <div class="cv-viewer-toolbar" role="toolbar" aria-label="Controles du lecteur">
+                        <div class="cv-viewer-pages">
+                            <button type="button" class="cv-viewer-btn" id="cv-prev" aria-label="Page precedente">
+                                <span aria-hidden="true">&#x2190;</span>
+                            </button>
+                            <span class="cv-viewer-counter">
+                                <input type="number" id="cv-page-num" min="1" value="1" aria-label="Numero de page">
+                                <span class="cv-viewer-counter-sep">/</span>
+                                <span id="cv-page-count">1</span>
+                            </span>
+                            <button type="button" class="cv-viewer-btn" id="cv-next" aria-label="Page suivante">
+                                <span aria-hidden="true">&#x2192;</span>
+                            </button>
+                        </div>
+                        <div class="cv-viewer-zoom">
+                            <button type="button" class="cv-viewer-btn" id="cv-zoom-out" aria-label="Dezoomer">−</button>
+                            <span class="cv-viewer-zoom-level" id="cv-zoom-level">100%</span>
+                            <button type="button" class="cv-viewer-btn" id="cv-zoom-in" aria-label="Zoomer">+</button>
+                        </div>
+                        <a href="#" class="cv-viewer-btn cv-viewer-download" id="cv-download" target="_blank" rel="noopener noreferrer">
+                            <span aria-hidden="true">↓</span>
+                            <span>Telecharger</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="cv-viewer-stage">
+                    <div class="cv-viewer-loader" id="cv-loader">
+                        <div class="cv-viewer-spinner" aria-hidden="true"></div>
+                        <p class="cv-viewer-status" id="cv-status">Chargement du document...</p>
+                    </div>
+                    <div class="cv-viewer-canvas-wrap" id="cv-canvas-wrap" hidden>
+                        <canvas id="cv-canvas"></canvas>
+                    </div>
+                    <div class="cv-viewer-placeholder">
+                        <div class="cv-viewer-placeholder-icon" aria-hidden="true">PDF</div>
+                        <p class="cv-viewer-placeholder-title">Aucun CV publie pour le moment</p>
+                        <p class="cv-viewer-placeholder-hint">Ajoutez un CV depuis l'<a href="admin.html">administration</a> (champ "CV / Resume").</p>
+                    </div>
+                </div>
+
+                <input type="hidden" id="cv-source" value="">
+            </div>
         </div>
     </section>
 
@@ -74,5 +124,7 @@
 
     <script src="js/utils.js"></script>
     <script src="js/profile.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="js/cv-viewer.js"></script>
 </body>
 </html>

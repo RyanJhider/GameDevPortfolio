@@ -499,6 +499,30 @@
                     </div>
 
                     <div class="form-section">
+                        <h2>CV / Resume</h2>
+                        <p class="form-hint">Affiche un lecteur PDF integre sur la page About. Recommande : hebergez le PDF (ex: <code>cv/ryan-jhider.pdf</code>) et collez l'URL ci-dessous. Sinon, uploadez un PDF leger (&lt; 800 KB).</p>
+                        <div class="form-group">
+                            <label for="profile-cv-url">URL du CV (recommande)</label>
+                            <input type="url" id="profile-cv-url" placeholder="cv/ryan-jhider.pdf ou https://..." autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-cv-file">Ou televerser un PDF (max ~800 KB)</label>
+                            <div class="file-upload">
+                                <input type="file" id="profile-cv-file" accept="application/pdf">
+                                <div class="file-upload-area">
+                                    <span>+</span>
+                                    <p>Cliquez pour selectionner un PDF</p>
+                                </div>
+                            </div>
+                            <div id="cv-preview" class="image-preview"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-cv-label">Titre affiche (optionnel)</label>
+                            <input type="text" id="profile-cv-label" placeholder="Curriculum Vitae" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
                         <h2>Reseaux Sociaux</h2>
                         <div class="form-row">
                             <div class="form-group">

@@ -16,7 +16,8 @@
 │   ├── utils.js        # Helpers partages (escape, safeUrl, tags, links, video)
 │   ├── main.js         # Home + projects (Firebase + JSON fallback, filtre tags)
 │   ├── project.js      # Page detail (Firebase + JSON fallback)
-│   ├── profile.js      # Charge profil Firestore -> DOM
+│   ├── profile.js      # Charge profil Firestore -> DOM (incl. CV)
+│   ├── cv-viewer.js    # Lecteur PDF integre (PDF.js, navigation + zoom)
 │   ├── admin.js        # Administration (auth + CRUD + compression)
 │   └── config.example.js  # Template Firebase config
 ├── data/
@@ -67,7 +68,10 @@ Projet: **mon-portfolio-a976b**
     "linkedin": "https://linkedin.com/in/ryan-jhider",
     "itchio": "",
     "email": "ryanjhider@gmail.com"
-  }
+  },
+  "cvUrl": "cv/ryan-jhider.pdf",
+  "cvLabel": "Curriculum Vitae",
+  "cvData": ""
 }
 ```
 
@@ -181,6 +185,18 @@ Layout deux colonnes:
 - `loadProfile()` : Firebase -> fallback JSON
 - `applyProfile(data)` : peuple DOM (textContent, setAttribute, innerHTML escape)
 - Selecteurs : `.profile-name`, `.profile-title`, `.profile-school`, `.profile-description`, `.profile-bio`, `.profile-avatar`, `.social-*`, `.skills-engines`, `.skills-languages`, `.skills-tools`, `.skills-soft`
+- `applyCv(p)` : hydrate la section `#cv-viewer` (label + URL/base64) et declenche `initCvViewer()`
+
+### `js/cv-viewer.js`
+- `initCvViewer()` : charge le PDF depuis `#cv-source` (data: URL ou URL externe)
+- Navigation : boutons prev/next, saisie directe du n° de page, fleches ←/→
+- Zoom : boutons +/−, touches +/-, plage 50% -> 300% par pas de 20%
+- Rend chaque page sur `<canvas>` avec DPR adapte pour la nettete Retina
+- Loader + spinner pendant le rendu, gestion d'erreurs avec message explicite
+- Bouton "Telecharger" -> lien direct vers le PDF (`download` attribute)
+- Affiche un placeholder propre si aucun CV n'est renseigne
+
+**Section CV** : `#cv-viewer` dans `about.html` (apres le bloc Bio + Timeline). Style PS2 Horror (scanlines + glow phosphor). Toolbar en haut (pages, zoom, telechargement), zone de lecture en dessous.
 
 ### `js/admin.js`
 - `doLogin()` / `doLogout()` / `checkAuth()` : Firebase Auth

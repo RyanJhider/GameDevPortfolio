@@ -50,6 +50,28 @@
     applySkills('.skills-languages', p.skills && p.skills.languages);
     applySkills('.skills-tools', p.skills && p.skills.tools);
     applySkills('.skills-soft', p.skills && p.skills.softSkills);
+    applyCv(p);
+  }
+
+  function applyCv(p) {
+    var root = document.getElementById('cv-viewer');
+    if (!root) return;
+    var source = p.cvData || p.cvUrl;
+    if (!source) {
+      root.classList.add('cv-viewer-empty');
+      return;
+    }
+    root.classList.remove('cv-viewer-empty');
+    var sourceEl = document.getElementById('cv-source');
+    if (sourceEl) sourceEl.value = source;
+    var titleEl = root.querySelector('.cv-viewer-title');
+    if (titleEl) titleEl.textContent = p.cvLabel || 'Curriculum Vitae';
+    var downloadEl = document.getElementById('cv-download');
+    if (downloadEl) {
+      downloadEl.setAttribute('href', U.safeUrl(source) || '#');
+      downloadEl.setAttribute('download', (p.name || 'cv') + '.pdf');
+    }
+    if (typeof window.initCvViewer === 'function') window.initCvViewer();
   }
 
   function applyText(selector, value) {
