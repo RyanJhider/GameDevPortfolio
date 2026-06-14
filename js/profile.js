@@ -58,19 +58,27 @@
     if (!root) return;
     var source = p.cvData || p.cvUrl;
     if (!source) {
+      console.info('[CV] aucune source (cvData et cvUrl vides)');
       root.classList.add('cv-viewer-empty');
       return;
     }
+    if (p.cvData && p.cvData.length < 200) {
+      console.warn('[CV] cvData trop court (' + p.cvData.length + ' chars), probablement corrompu');
+      root.classList.add('cv-viewer-empty');
+      return;
+    }
+    console.info('[CV] source:', source.slice(0, 60) + '...', '|', Math.round(source.length / 1024) + ' KB', '|', p.cvData ? 'cvData (base64)' : 'cvUrl');
     root.classList.remove('cv-viewer-empty');
     var sourceEl = document.getElementById('cv-source');
     if (sourceEl) sourceEl.value = source;
     var titleEl = root.querySelector('.cv-viewer-title');
     if (titleEl) titleEl.textContent = p.cvLabel || 'Curriculum Vitae';
+    var dlHref = U.safeUrl(source) || '#';
+    var dlName = (p.name || 'cv') + '.pdf';
     var downloadEl = document.getElementById('cv-download');
-    if (downloadEl) {
-      downloadEl.setAttribute('href', U.safeUrl(source) || '#');
-      downloadEl.setAttribute('download', (p.name || 'cv') + '.pdf');
-    }
+    if (downloadEl) { downloadEl.setAttribute('href', dlHref); downloadEl.setAttribute('download', dlName); }
+    var modalDl = document.getElementById('cv-modal-download');
+    if (modalDl) { modalDl.setAttribute('href', dlHref); modalDl.setAttribute('download', dlName); }
     if (typeof window.initCvViewer === 'function') window.initCvViewer();
   }
 

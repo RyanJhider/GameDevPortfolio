@@ -1842,15 +1842,32 @@
       var reader = new FileReader();
       reader.onload = function () {
         var base64 = reader.result;
-        if (typeof base64 === 'string' && base64.length > 900000) {
-          showToast('PDF trop volumineux (' + Math.round(base64.length / 1024) + ' KB). Utilisez une URL externe.', 'error');
+        if (typeof base64 !== 'string') { showToast('Lecture PDF echouee', 'error'); this.value = ''; return; }
+        try {
+          var comma = base64.indexOf(',');
+          if (comma < 0) throw new Error('data:URL invalide');
+          var head = atob(base64.slice(comma + 1).slice(0, 8));
+          if (head.indexOf('%PDF-') !== 0) {
+            showToast('Fichier non PDF (signature invalide)', 'error');
+            this.value = '';
+            return;
+          }
+        } catch (e) {
+          showToast('PDF corrompu ou illisible', 'error');
+          this.value = '';
           return;
+        }
+        if (base64.length > 800000) {
+          if (!window.confirm('PDF volumineux (' + Math.round(base64.length / 1024) + ' KB). Risque de depasser la limite Firestore (1 MB). Continuer ou utiliser une URL externe ?')) {
+            this.value = '';
+            return;
+          }
         }
         uploadedCv = base64;
         var prev = document.getElementById('cv-preview');
         if (prev) prev.innerHTML = '<div class="preview-item cv-preview-item"><span class="cv-preview-icon">PDF</span><span class="cv-preview-name">' + U.escapeHtml(file.name) + '</span><span class="cv-preview-size">' + Math.round(file.size / 1024) + ' KB</span></div>';
         showToast('CV charge (' + Math.round(file.size / 1024) + ' KB)');
-      };
+      }.bind(this);
       reader.onerror = function () { showToast('Erreur lecture PDF', 'error'); };
       reader.readAsDataURL(file);
     });
@@ -1924,7 +1941,17 @@
     };
     if (!firebaseReady()) { showToast('Firebase non configure', 'error'); return; }
     firebase.firestore().collection('profile').doc('main').set(data)
-      .then(function () { showToast('Profil enregistre!'); })
+      .then(function () {
+        if (data.cvData) {
+          return firebase.firestore().collection('profile').doc('main').get()
+            .then(function (doc) {
+              var saved = doc.exists && doc.data().cvData;
+              if (!saved) showToast('Profil enregistre, mais cvData NON persiste (doc > 1 MB ?)', 'error');
+              else showToast('Profil enregistre! (' + Math.round(saved.length / 1024) + ' KB CV)');
+            });
+        }
+        showToast('Profil enregistre!');
+      })
       .catch(function (e) { showToast('Erreur: ' + e.message, 'error'); });
   }
 
