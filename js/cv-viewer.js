@@ -178,10 +178,12 @@
     pendingPage = null;
   }
 
-  function ensureWorker() {
+  function ensureWorker(useWorker) {
     if (workerInitialized || !PDFJS) return;
     try {
-      PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      if (useWorker) {
+        PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      }
       workerInitialized = true;
     } catch (e) {
       console.warn('[CV] worker init failed', e);
@@ -195,19 +197,27 @@
     }
     if (!src) return;
 
+    if (/^data:application\/pdf/i.test(src)) {
+      var approxBytes = Math.floor(src.length * 0.75);
+      if (approxBytes > 850000) {
+        var mb = (approxBytes / 1024 / 1024).toFixed(2);
+        setStatus('CV trop volumineux pour stockage base64 (' + mb + ' MB > 800 KB). Compressez le PDF ou hebergez-le (champ URL).', true);
+        return;
+      }
+    }
+
     destroyDoc();
-    ensureWorker();
+    ensureWorker(!isDataUrl);
 
     showLoader();
     setStatus('Chargement du document...');
     setControlsEnabled(false);
 
-    var params = {};
-    if (/^https?:\/\//i.test(src)) {
-      params.url = src;
-      params.withCredentials = false;
-    } else {
-      params.url = src;
+    var isDataUrl = /^data:/i.test(src);
+    var params = { url: src, withCredentials: false };
+    if (isDataUrl) {
+      params.disableRange = true;
+      params.disableStream = true;
     }
 
     try {
@@ -216,6 +226,13 @@
       setStatus('Impossible d\'ouvrir le document (' + e.message + ').', true);
       return;
     }
+
+    docLoadingTask.onProgress = function (p) {
+      if (p && typeof p.loaded === 'number' && typeof p.total === 'number' && p.total > 0) {
+        var pct = Math.round((p.loaded / p.total) * 100);
+        setStatus('Telechargement PDF... ' + pct + '%');
+      }
+    };
 
     withTimeout(docLoadingTask.promise, RENDER_TIMEOUT_MS, 'Telechargement PDF')
       .then(function (doc) {
@@ -227,7 +244,11 @@
         renderPage(1);
       })
       .catch(function (err) {
-        setStatus('Impossible de charger le PDF (' + (err && err.message ? err.message : 'erreur') + '). Verifiez l\'URL ou la taille du fichier.', true);
+        var msg = err && err.message ? err.message : 'erreur';
+        var hint = isDataUrl
+          ? ' Stockage base64 limite. Utilisez le champ "URL du CV" en placant le PDF sur Firebase Hosting (ex: cv/cv.pdf).'
+          : ' Verifiez l\'URL ou la taille du fichier.';
+        setStatus('Impossible de charger le PDF (' + msg + ').' + hint, true);
         setControlsEnabled(false);
       });
   }
