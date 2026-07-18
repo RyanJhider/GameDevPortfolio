@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Projects | Ryan Jhider</title>
-    <link rel="stylesheet" href="css/style.css">
+    <script>
+(function () {
+  var html = document.documentElement;
+  html.classList.add('dark');
+  html.setAttribute('data-theme', 'dark');
+  html.style.colorScheme = 'dark';
+})();
+</script>
+    <link rel="stylesheet" href="css/style.css?v=10">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
 
     <!-- Firebase SDK -->
@@ -15,17 +24,20 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="nav-panel">
-            <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="projects.html" class="nav-link active">Projects</a></li>
-                <li><a href="about.html" class="nav-link">About</a></li>
-            </ul>
-            <div class="header-actions">
-                <a href="mailto:ryanjhider@gmail.com" class="cta-btn">Contact</a>
-                <a href="admin.html" class="cta-btn admin-btn">Admin</a>
+    <header class="site-header" id="site-header">
+        <div class="site-header__inner">
+            <a href="index.html" class="site-logo">RYAN<span>//</span>JHIDER</a>
+            <nav class="site-nav" aria-label="Main">
+                <ul class="site-nav__list">
+                    <li><a href="index.html" class="site-nav__link" data-page="home">Home</a></li>
+                    <li><a href="projects.html" class="site-nav__link" data-page="projects">Projects</a></li>
+                    <li><a href="about.html" class="site-nav__link" data-page="about">About</a></li>
+                    <span class="site-nav__indicator" aria-hidden="true"></span>
+                </ul>
+            </nav>
+            <div class="site-header__actions">
+                <a href="admin.html" class="site-admin-link">Admin</a>
+                <a href="mailto:ryanjhider@gmail.com" class="site-cta">Get In Touch</a>
             </div>
         </div>
     </header>
@@ -43,7 +55,7 @@
             <!-- Search + Sort Controls -->
             <div class="projects-controls">
                 <div class="projects-search">
-                    <span class="projects-search-icon">⌕</span>
+                    <span class="projects-search-icon">⌕•</span>
                     <input type="text" id="projects-search-input" placeholder="Search projects, engines, roles..." autocomplete="off">
                     <button type="button" class="projects-search-clear" id="projects-search-clear" aria-label="Clear search">×</button>
                 </div>
@@ -66,15 +78,22 @@
             <button class="filter-btn active" data-filter="all">All</button>
         </div>
 
-        <!-- Featured Strip -->
+        <!-- Active Filters (always visible when filter is applied) -->
+        <div class="active-filters" id="active-filters" hidden>
+            <span class="active-filters-label">// FILTERING_BY</span>
+            <div class="active-filters-pills" id="active-filters-pills"></div>
+            <button type="button" class="active-filters-clear" id="active-filters-clear">CLEAR ×</button>
+        </div>
+
+        <!-- Featured Strip (single card visible, scroll-snap carousel) -->
         <div class="projects-featured-wrap" id="projects-featured-wrap" hidden>
             <div class="projects-section-label">
                 <span class="projects-section-label-dot"></span>
                 <span>FEATURED</span>
                 <span class="projects-section-label-count" id="featured-count">0</span>
                 <div class="featured-nav">
-                    <button type="button" class="featured-nav-btn" id="featured-prev" aria-label="Previous featured">‹</button>
-                    <button type="button" class="featured-nav-btn" id="featured-next" aria-label="Next featured">›</button>
+                    <button type="button" class="featured-nav-btn" id="featured-prev" aria-label="Previous featured">&lsaquo;</button>
+                    <button type="button" class="featured-nav-btn" id="featured-next" aria-label="Next featured">&rsaquo;</button>
                 </div>
             </div>
             <div class="projects-featured-viewport">
@@ -99,7 +118,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p class="footer-copy">Made with coffee & Unity</p>
+            <p class="footer-copy">© 2026 RyanJhider. All rights reserved.</p>
             <div class="footer-links">
                 <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
                 <a href="https://linkedin.com" target="_blank" class="footer-link">LinkedIn</a>
@@ -111,6 +130,7 @@
 
     <script src="js/utils.js"></script>
     <script src="js/profile.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/main.js?v=13"></script>
+    <script src="js/nav-indicator.js"></script>
 </body>
 </html>

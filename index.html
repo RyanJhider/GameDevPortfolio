@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Ryan Jhider | Game Developer Portfolio</title>
     <meta name="description" content="Portfolio of Ryan Jhider - Game Design & Programming Student at ISART Digital">
-    <link rel="stylesheet" href="css/style.css">
+    <script>
+(function () {
+  var html = document.documentElement;
+  html.classList.add('dark');
+  html.setAttribute('data-theme', 'dark');
+  html.style.colorScheme = 'dark';
+})();
+</script>
+    <link rel="stylesheet" href="css/style.css?v=10">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -21,59 +30,44 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
-        <div class="nav-panel">
-            <a href="index.html" class="logo">RYAN<span>//</span>JHIDER</a>
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="projects.html" class="nav-link">Projects</a></li>
-                <li><a href="about.html" class="nav-link">About</a></li>
-            </ul>
-            <div class="header-actions">
-                <a href="mailto:ryanjhider@gmail.com" class="cta-btn">Contact</a>
-                <a href="admin.html" class="cta-btn admin-btn">Admin</a>
+    <header class="site-header" id="site-header">
+        <div class="site-header__inner">
+            <a href="index.html" class="site-logo" data-page="home">RYAN<span>//</span>JHIDER</a>
+            <nav class="site-nav" aria-label="Main">
+                <ul class="site-nav__list">
+                    <li><a href="index.html" class="site-nav__link" data-page="home">Home</a></li>
+                    <li><a href="projects.html" class="site-nav__link" data-page="projects">Projects</a></li>
+                    <li><a href="about.html" class="site-nav__link" data-page="about">About</a></li>
+                    <span class="site-nav__indicator" aria-hidden="true"></span>
+                </ul>
+            </nav>
+            <div class="site-header__actions">
+                <a href="admin.html" class="site-admin-link">Admin</a>
+                <a href="mailto:ryanjhider@gmail.com" class="site-cta">Get In Touch</a>
             </div>
         </div>
     </header>
 
     <!-- Hero - NO 3 Cards -->
     <section class="hero">
-        <span class="hero-badge">ISART DIGITAL // <span class="profile-school">3RD YEAR</span></span>
-        <h1 class="hero-title">Building Games<br><span class="highlight">That Matter</span></h1>
-        <p class="hero-subtitle profile-description">Game Design & Programming student specializing in Unity, multiplayer networking, AI behavior systems, and horror game design.</p>
+        <h1 class="hero-title"><span class="profile-name">Ryan Jhider</span></h1>
+        <p class="hero-subtitle profile-title">3rd year <span class="accent">Game Design &amp; Programming</span> student at ISART Digital. Specialized in Unity, C#, multiplayer systems, and horror game design.</p>
+        <p class="hero-bio profile-description">Game Design &amp; Programming student specializing in Unity, multiplayer networking, AI behavior systems, and horror game design.</p>
         <div class="hero-ctas">
             <a href="projects.html" class="btn btn-primary">View Projects</a>
             <a href="about.html" class="btn btn-outline">About Me</a>
         </div>
     </section>
 
-    <!-- Stats -->
-    <section class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-value" id="projects-count">0</span>
-                <span class="stat-label">Projects</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="featured-count">0</span>
-                <span class="stat-label">Featured</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="years-experience">0</span>
-                <span class="stat-label">Years</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value profile-school">ISART</span>
-                <span class="stat-label">School</span>
-            </div>
-        </div>
-    </section>
-
     <!-- Projects -->
     <section class="projects-section">
         <div class="section-header">
-            <h2 class="section-title">Featured Projects</h2>
-            <a href="projects.html" class="section-link">View All →</a>
+            <div class="section-header-inner">
+                <span class="section-kicker">// Featured Work</span>
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-subtitle">A selection of projects I've designed and developed.</p>
+            </div>
+            <a href="projects.html" class="section-link">View All Projects →</a>
         </div>
         <div class="filter-bar" id="filter-bar">
             <button class="filter-btn active" data-tag="__clear">All</button>
@@ -93,36 +87,36 @@
                 <div class="skill-group">
                     <h3>Engines</h3>
                     <div class="skills-engines">
-                        <div class="skill-item">Unity</div>
-                        <div class="skill-item">Unreal Engine</div>
-                        <div class="skill-item">Godot</div>
+                        <a class="skill-item" href="projects.html?tag=Unity">Unity</a>
+                        <a class="skill-item" href="projects.html?tag=Unreal%20Engine">Unreal Engine</a>
+                        <a class="skill-item" href="projects.html?tag=Godot">Godot</a>
                     </div>
                 </div>
                 <div class="skill-group">
                     <h3>Languages</h3>
                     <div class="skills-languages">
-                        <div class="skill-item">C#</div>
-                        <div class="skill-item">C++</div>
-                        <div class="skill-item">Python</div>
-                        <div class="skill-item">JavaScript</div>
+                        <a class="skill-item" href="projects.html?tag=C%23">C#</a>
+                        <a class="skill-item" href="projects.html?tag=C%2B%2B">C++</a>
+                        <a class="skill-item" href="projects.html?tag=Python">Python</a>
+                        <a class="skill-item" href="projects.html?tag=JavaScript">JavaScript</a>
                     </div>
                 </div>
                 <div class="skill-group">
                     <h3>Tools</h3>
                     <div class="skills-tools">
-                        <div class="skill-item">Blender</div>
-                        <div class="skill-item">Git</div>
-                        <div class="skill-item">FMOD</div>
-                        <div class="skill-item">Aseprite</div>
+                        <a class="skill-item" href="projects.html?tag=Blender">Blender</a>
+                        <a class="skill-item" href="projects.html?tag=Git">Git</a>
+                        <a class="skill-item" href="projects.html?tag=FMOD">FMOD</a>
+                        <a class="skill-item" href="projects.html?tag=Aseprite">Aseprite</a>
                     </div>
                 </div>
                 <div class="skill-group">
                     <h3>Specialties</h3>
                     <div class="skills-soft">
-                        <div class="skill-item">Multiplayer</div>
-                        <div class="skill-item">AI Behavior</div>
-                        <div class="skill-item">Horror Design</div>
-                        <div class="skill-item">Networking</div>
+                        <a class="skill-item" href="projects.html?tag=Multiplayer">Multiplayer</a>
+                        <a class="skill-item" href="projects.html?tag=AI%20Behavior">AI Behavior</a>
+                        <a class="skill-item" href="projects.html?tag=Horror%20Design">Horror Design</a>
+                        <a class="skill-item" href="projects.html?tag=Networking">Networking</a>
                     </div>
                 </div>
             </div>
@@ -132,7 +126,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p class="footer-copy">Made with coffee & Unity</p>
+            <p class="footer-copy">© 2026 RyanJhider. All rights reserved.</p>
             <div class="footer-links">
                 <a href="https://github.com" target="_blank" class="footer-link social-github" rel="noopener noreferrer">GitHub</a>
                 <a href="https://linkedin.com" target="_blank" class="footer-link social-linkedin" rel="noopener noreferrer">LinkedIn</a>
@@ -144,6 +138,7 @@
 
     <script src="js/utils.js"></script>
     <script src="js/profile.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/main.js?v=13"></script>
+    <script src="js/nav-indicator.js"></script>
 </body>
 </html>

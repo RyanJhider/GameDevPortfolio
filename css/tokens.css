@@ -1,0 +1,149 @@
+/* ==========================================================================
+   DESIGN TOKENS — source de verite (dark-only theme)
+   Palette : bg #111, surfaces degradees, accent ambre chaud (#ffe0c2).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root,
+.dark,
+[data-theme="dark"] {
+  --color-bg:           #111111;
+  --color-fg:           #eeeeee;
+  --color-surface:      #191919;
+  --color-surface-fg:   #eeeeee;
+  --color-surface-2:    #222222;
+  --color-surface-3:    #2a2a2a;
+
+  --color-text:         var(--color-fg);
+  --color-text-muted:   #a1a1aa;
+  --color-text-dim:     #71717a;
+  --color-border:       #201e18;
+  --color-border-strong:#484848;
+  --color-input:        #484848;
+
+  --color-accent:        #ffe0c2;
+  --color-accent-hover:  #ffffff;
+  --color-accent-soft:   rgba(255, 224, 194, 0.12);
+  --color-accent-fg:     #1a1410;
+
+  --color-secondary:      #393028;
+  --color-secondary-fg:   #ffe0c2;
+  --color-secondary-soft: #4a3d31;
+
+  --color-danger:        #e54d2e;
+  --color-danger-soft:   rgba(229, 77, 46, 0.18);
+  --color-success:       #4ade80;
+  --color-warning:       #f59e0b;
+  --color-info:          #60a5fa;
+
+  /* ---- Typo (Inter + JetBrains Mono) ---- */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  --fs-xs:   0.75rem;   /* 12 */
+  --fs-sm:   0.875rem;  /* 14 */
+  --fs-base: 1rem;      /* 16 */
+  --fs-lg:   1.125rem;  /* 18 */
+  --fs-xl:   1.25rem;   /* 20 */
+  --fs-2xl:  1.5rem;    /* 24 */
+  --fs-3xl:  1.875rem;  /* 30 */
+  --fs-4xl:  2.25rem;   /* 36 */
+  --fs-5xl:  3rem;      /* 48 */
+  --fs-6xl:  3.75rem;   /* 60 */
+  --fs-7xl:  4.5rem;    /* 72 */
+  --fs-8xl:  6rem;      /* 96 */
+
+  --lh-tight:  1.15;
+  --lh-snug:   1.3;
+  --lh-base:   1.5;
+  --lh-relax:  1.65;
+  --lh-loose:  1.8;
+
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-extrabold:800;
+  --fw-black:    900;
+
+  --tracking-tight:  -0.025em;
+  --tracking-tighter:-0.05em;
+  --tracking-wide:   0.025em;
+  --tracking-wider:  0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ---- Espacements (multiples de 4px) ---- */
+  --sp-0:  0;
+  --sp-1:  0.25rem;
+  --sp-2:  0.5rem;
+  --sp-3:  0.75rem;
+  --sp-4:  1rem;
+  --sp-5:  1.25rem;
+  --sp-6:  1.5rem;
+  --sp-8:  2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+  --sp-24: 6rem;
+  --sp-32: 8rem;
+
+  /* ---- Radius (hezaerd = 8px global) ---- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg:  0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ---- Shadows (subtiles, coherentes) ---- */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+
+  /* ---- Transitions ---- */
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 350ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Layout ---- */
+  --container:        1200px;
+  --container-wide:   1400px;
+  --container-prose:  65ch;
+  --nav-height:       64px;
+
+  /* ---- Z-index ---- */
+  --z-header:  100;
+  --z-overlay: 900;
+  --z-modal:   1000;
+  --z-toast:   1100;
+
+  color-scheme: dark;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Smooth color transitions */
+html {
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+body, .site-header, .site-card, .project-card, .card, .section-card,
+input, button, select, textarea, [class*="border"] {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}

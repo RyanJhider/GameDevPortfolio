@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>Admin - Gestion des Projets</title>
-    <link rel="stylesheet" href="css/style.css">
+    <script>
+(function () {
+  var html = document.documentElement;
+  html.classList.add('dark');
+  html.setAttribute('data-theme', 'dark');
+  html.style.colorScheme = 'dark';
+})();
+</script>
+    <link rel="stylesheet" href="css/style.css?v=8">
     <link rel="stylesheet" href="css/admin.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -310,7 +319,7 @@
                             </div>
                         </div>
 
-                        <!-- Advanced : collapsible -->
+<!-- Advanced : collapsible -->
                         <div class="form-section accordion">
                             <button type="button" class="accordion-header" data-accordion="advanced">
                                 <span class="section-num">06</span>
@@ -319,10 +328,30 @@
                             </button>
                             <div class="accordion-body" id="advanced-body">
                                 <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="project-platform">Plateforme</label>
-                                        <input type="text" id="project-platform" placeholder="PC, Mobile, Steam...">
+                                <div class="form-group">
+                                    <label>Plateforme</label>
+                                    <div id="platform-display" class="chips-container">
+                                        <span class="chips-empty">Aucune plateforme. Ajoutez un tag <code>platform</code> ci-dessous ou utilisez le select.</span>
                                     </div>
+                                    <div class="tag-input-row" style="margin-top:8px;">
+                                        <select id="platform-quick-select" class="tag-cat-select">
+                                            <option value="">Selection rapide...</option>
+                                            <option value="PC">PC</option>
+                                            <option value="Mobile">Mobile</option>
+                                            <option value="Android">Android</option>
+                                            <option value="iOS">iOS</option>
+                                            <option value="Steam">Steam</option>
+                                            <option value="PC (Windows)">PC (Windows)</option>
+                                            <option value="PC (Steam)">PC (Steam)</option>
+                                            <option value="Console">Console</option>
+                                            <option value="Web">Web</option>
+                                        </select>
+                                        <button type="button" class="btn btn-primary btn-sm" id="platform-quick-add">Ajouter</button>
+                                    </div>
+                                    <small style="color:var(--text-muted);font-size:0.78rem;">
+                                        Stocke comme tag de categorie <code>platform</code>. Modifiable aussi depuis la section Tags.
+                                    </small>
+                                </div>
                                 <div class="form-group">
                                     <label>Equipe</label>
                                     <div id="team-display" class="chips-container"></div>
@@ -417,6 +446,17 @@
                         </button>
                         <button class="btn btn-primary" onclick="window.importProfileFromJSON()">
                             Importer le profil
+                        </button>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h2>Migration : Platform -&gt; tag platform</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 12px;">
+                        Convertit l'ancien champ texte <code>platform</code> de chaque projet en tag de categorie <code>platform</code>, puis supprime le champ. Operation idempotente : les projets deja migres sont ignores.
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="migratePlatformToTag()">
+                            Migrer les projets
                         </button>
                     </div>
                 </div>
@@ -567,5 +607,6 @@
 
     <script src="js/utils.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/nav-indicator.js"></script>
 </body>
 </html>

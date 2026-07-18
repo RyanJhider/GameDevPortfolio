@@ -77,7 +77,7 @@
     setText('pdp-buybox-title', p.title || 'Untitled');
 
     var year = p.year || p.date || '';
-    var platform = p.platform || 'PC';
+    var platform = U.getProjectPlatform(p);
     var subtitleParts = [year, platform];
     if (p.status === 'draft') subtitleParts.push('IN DEV');
     else if (p.status === 'wishlist') subtitleParts.push('WISHLIST');
@@ -333,17 +333,38 @@
     var wrap = document.getElementById('pdp-hero-image');
     if (!wrap) return;
     wrap.innerHTML = '';
+    wrap.classList.remove('is-portrait', 'is-landscape', 'is-square');
 
     var thumb = p.thumbnail ? U.safeUrl(p.thumbnail) : null;
     if (thumb) {
       wrap.classList.add('has-image');
-      var img = document.createElement('img');
-      img.src = U.escapeAttr(thumb);
-      img.alt = U.escapeAttr(p.title || 'Project cover');
-      img.loading = 'eager';
-      wrap.appendChild(img);
+      var probe = new Image();
+      probe.onload = function () {
+        var w = probe.naturalWidth || 0;
+        var h = probe.naturalHeight || 0;
+        var cls;
+        if (w > 0 && h > w * 1.05) cls = 'is-portrait';
+        else if (w > 0 && w > h * 1.05) cls = 'is-landscape';
+        else cls = 'is-square';
+        wrap.classList.add(cls);
+        var img = document.createElement('img');
+        img.src = U.escapeAttr(thumb);
+        img.alt = U.escapeAttr(p.title || 'Project cover');
+        img.loading = 'eager';
+        wrap.appendChild(img);
+      };
+      probe.onerror = function () {
+        wrap.classList.add('is-landscape');
+        var img = document.createElement('img');
+        img.src = U.escapeAttr(thumb);
+        img.alt = U.escapeAttr(p.title || 'Project cover');
+        img.loading = 'eager';
+        wrap.appendChild(img);
+      };
+      probe.src = thumb;
     } else {
       wrap.classList.remove('has-image');
+      wrap.classList.add('is-landscape');
       var ph = document.createElement('div');
       ph.className = 'pdp-hero-image-placeholder';
       ph.textContent = '🎮';
@@ -434,7 +455,11 @@
     var rows = [];
     var release = p.date || p.year;
     if (release) rows.push({ label: 'Release', value: release });
-    if (p.platform) rows.push({ label: 'Platform', value: p.platform });
+    var platformNames = (p.tags || [])
+      .filter(function (t) { return U.getTagCategory(t) === 'platform'; })
+      .map(function (t) { return U.getTagName(t); })
+      .filter(Boolean);
+    if (platformNames.length > 0) rows.push({ label: 'Platform', value: platformNames.join(', ') });
     if (p.status) {
       var statusLabel;
       if (p.status === 'draft') statusLabel = 'In Development';

@@ -72,17 +72,32 @@
     return map[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Link');
   }
 
+  var TAG_PALETTE = {
+    // Palette harmoniee pour fond sombre #191919 : teintes claires et
+    // saturées (entre 200 et 300 Tailwind), suffisantes pour rester
+    // lisibles comme texte de pill sans flou. Cohabite avec l'accent
+    // ambre #ffe0c2 sans le concurrencer. Mappage identique dans
+    // .tag--* (CSS) pour les backgrounds.
+    engine:   '#38bdf8', // sky-400      (moteurs : Unity, Godot, Unreal...)
+    language: '#2dd4bf', // teal-400     (langages : C#, C++, Python...)
+    role:     '#c084fc', // purple-400   (role : Game Designer, Prog...)
+    genre:    '#f87171', // red-400      (genres : Horror, RPG, FPS...)
+    platform: '#fb923c', // orange-400   (platformes : PC, Steam, Mobile...)
+    tool:     '#4ade80', // green-400    (outils : Blender, FMOD, Git...)
+    other:    '#d4d4d8'  // zinc-300     (tags non classifies)
+  };
+
   function getTagColor(category) {
-    var colors = {
-      engine: '#3dff5e',
-      language: '#4ecdc4',
-      role: '#a855f7',
-      genre: '#ef4444',
-      platform: '#f59e0b',
-      tool: '#10b981',
-      other: '#6b7280'
-    };
-    return colors[category] || colors.other;
+    return TAG_PALETTE[category] || TAG_PALETTE.other;
+  }
+
+  // Renvoie la couleur avec une composante alpha (utile pour les fonds
+  // inline). Accepte soit '40'/'60' (hex 2-digit Tailwind-like) soit '0.25'.
+  function getTagSoft(category, alphaHex) {
+    var hex = getTagColor(category);
+    var a = (alphaHex == null) ? '26' : String(alphaHex);
+    if (a.length === 1) a = a + a;
+    return hex + a;
   }
 
   function formatDate(value) {
@@ -266,6 +281,23 @@
     }).join(' \u00b7 ');
   }
 
+  // Renvoie le nom du tag de categorie 'platform' d'un projet (utilise par
+  // hero subtitle, buybox, meta cartes, recherche). Defaut 'PC' si aucun
+  // tag platform defini (cas legacy ou nouveau projet non renseigne).
+  // Accepte aussi un fallback sur l'ancien champ p.platform (string) pour
+  // la migration progressive.
+  function getProjectPlatform(project, fallback) {
+    if (!project) return fallback || 'PC';
+    var fromTags = (project.tags || []).find(function (t) {
+      return getTagCategory(t) === 'platform';
+    });
+    if (fromTags) return getTagName(fromTags) || (fallback || 'PC');
+    if (typeof project.platform === 'string' && project.platform.trim()) {
+      return project.platform.trim();
+    }
+    return fallback || 'PC';
+  }
+
   global.PortfolioUtils = {
     escapeHtml: escapeHtml,
     escapeAttr: escapeAttr,
@@ -275,12 +307,14 @@
     normalizeLinks: normalizeLinks,
     linkLabel: linkLabel,
     getTagColor: getTagColor,
+    getTagSoft: getTagSoft,
     formatDate: formatDate,
     extractVideoId: extractVideoId,
     sortProjectsByDateDesc: sortProjectsByDateDesc,
     sortProjectsByOrder: sortProjectsByOrder,
     renderMarkdown: renderMarkdown,
     normalizeTeam: normalizeTeam,
-    formatTeam: formatTeam
+    formatTeam: formatTeam,
+    getProjectPlatform: getProjectPlatform
   };
 })(window);

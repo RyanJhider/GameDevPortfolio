@@ -23,12 +23,12 @@
         {"name": "Unity", "category": "engine"},
         {"name": "C#", "category": "language"},
         {"name": "Game Design", "category": "tool"},
-        {"name": "UI/UX", "category": "tool"}
+        {"name": "UI/UX", "category": "tool"},
+        {"name": "Android", "category": "platform"}
       ],
       "links": [
         {"type": "googleplay", "url": "https://play.google.com/store/apps/details?id=com.Rakemy.RocketLanding"}
-      ],
-      "platform": "Android"
+      ]
     },
     {
       "id": "silent-pit",
@@ -53,12 +53,12 @@
         {"name": "Shader Graph", "category": "tool"},
         {"name": "AI Behavior", "category": "tool"},
         {"name": "Lighting", "category": "tool"},
-        {"name": "FMOD", "category": "tool"}
+        {"name": "FMOD", "category": "tool"},
+        {"name": "PC (Windows)", "category": "platform"}
       ],
       "links": [
         {"type": "itchio", "url": "https://ryanjhider.itch.io/silentpit"}
       ],
-      "platform": "PC (Windows)",
       "genre": "Horror, Survival"
     },
     {
@@ -82,12 +82,12 @@
         {"name": "Mirror Networking", "category": "tool"},
         {"name": "Steamworks API", "category": "tool"},
         {"name": "MultiPlayer", "category": "tool"},
-        {"name": "Custom Shaders", "category": "tool"}
+        {"name": "Custom Shaders", "category": "tool"},
+        {"name": "PC (Steam)", "category": "platform"}
       ],
       "links": [
         {"type": "steam", "url": ""}
       ],
-      "platform": "PC (Steam)",
       "mode": "Online Multiplayer (4 players)"
     },
     {
@@ -113,12 +113,12 @@
         {"name": "Post-processing", "category": "tool"},
         {"name": "Cinematics", "category": "tool"},
         {"name": "Audio", "category": "tool"},
-        {"name": "Level Design", "category": "tool"}
+        {"name": "Level Design", "category": "tool"},
+        {"name": "PC (Steam)", "category": "platform"}
       ],
       "links": [
         {"type": "itchio", "url": "https://labriquerouge.itch.io/heistg"}
       ],
-      "platform": "PC (Steam)",
       "team": "12 developers",
       "duration": "2-month school project"
     },
@@ -145,12 +145,12 @@
         {"name": "Steam Integration", "category": "tool"},
         {"name": "Proximity Chat", "category": "tool"},
         {"name": "MultiPlayer", "category": "tool"},
-        {"name": "AI Behavior", "category": "tool"}
+        {"name": "AI Behavior", "category": "tool"},
+        {"name": "PC (Steam)", "category": "platform"}
       ],
       "links": [
         {"type": "steam", "url": ""}
       ],
-      "platform": "PC (Steam)",
       "team": "Solo project"
     },
     {
@@ -175,10 +175,10 @@
         {"name": "Proximity Chat", "category": "tool"},
         {"name": "MultiPlayer", "category": "tool"},
         {"name": "AI Behavior", "category": "tool"},
-        {"name": "Procedural Generation", "category": "tool"}
+        {"name": "Procedural Generation", "category": "tool"},
+        {"name": "PC", "category": "platform"}
       ],
       "links": [],
-      "platform": "PC",
       "team": "Solo project"
     }
   ],
@@ -197,9 +197,9 @@
       "softSkills": ["Teamwork", "Problem Solving", "Time Management"]
     },
     "social": {
-      "github": "",
-      "linkedin": "linkedin.com/in/ryan-jhider",
-      "itchio": "",
+      "github": "https://github.com/RyanJhider",
+      "linkedin": "https://www.linkedin.com/in/ryan-jhider-8bb22a1ba/",
+      "itchio": "https://ryanjhider.itch.io/",
       "twitter": "",
       "email": "ryanjhider@gmail.com"
     },

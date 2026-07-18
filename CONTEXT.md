@@ -1,5 +1,5 @@
 # PORTFOLIO ISART - CONTEXTE TECHNIQUE
-# Derniere mise a jour: 15 Juin 2026
+# Derniere mise a jour: 18 Juillet 2026
 
 ## Structure du Projet
 ```
@@ -169,6 +169,7 @@ Layout deux colonnes:
 - `normalizeLinks(links)` : accepte tableau OU objet, retourne `[{type, url}]`
 - `linkLabel(type)` : 'Itch.io', 'Steam', 'GitHub', etc.
 - `getTagColor(category)` : couleur par categorie
+- `getProjectPlatform(project, fallback)` : renvoie le tag `platform` (defaut `PC`). **Le champ `p.platform` texte n'existe plus** : la plateforme est uniquement stockee comme tag de categorie `platform`.
 - `extractVideoId(video)` : extrait ID YouTube depuis watch/embed/youtu.be/raw
 - `sortProjectsByDateDesc(list)` : tri stable (fallback si pas d'`order`)
 - `sortProjectsByOrder(list)` : tri par `order` asc, fallback date desc pour projets sans `order`
@@ -211,13 +212,14 @@ Layout deux colonnes:
 - `doLogin()` / `doLogout()` / `checkAuth()` : Firebase Auth
 - `loadProjects()` / `renderProjects()` : liste admin
 - `editProject(id)` / `deleteProject(id)` : CRUD
-- `showCreateForm(project?)` : formulaire
-- `saveProject()` : Firestore set (avec rename = delete old)
+- `showCreateForm(project?)` : formulaire (le champ texte `platform` a ete supprime, on utilise un tag de categorie `platform` a la place)
+- `saveProject()` : Firestore set (avec rename = delete old). Le champ `platform` n'est plus ecrit.
 - `getTags()` / `getLinks()` : extraction form -> data (avec dedup tags, normalisation links en array)
 - `compressImage(file, opts)` : canvas resize + JPEG quality
 - `handleImage(file, target)` / `handleImages(files, target)` : upload avec compression
 - `loadProfile()` / `saveProfile()` : profil
 - `importProjectsFromJSON()` / `importProfileFromJSON()` : migration
+- `migratePlatformToTag()` : migration one-shot, convertit l'ancien champ `platform` (string) en tag de categorie `platform` sur tous les projets Firestore, puis supprime le champ. Idempotente. Declenchable depuis Parametres Firebase > "Migrer les projets".
 
 ---
 

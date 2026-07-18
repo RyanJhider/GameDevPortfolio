@@ -243,6 +243,55 @@
     return window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && typeof firebase !== 'undefined' && firebase.firestore;
   }
 
+  // ============== MIGRATION: platform (string) -> tag platform ==============
+  // Idempotent. Pour chaque projet Firestore :
+  //   1. Si `platform` est une string non vide, on l'ajoute comme tag
+  //      `{ name, category: 'platform' }` (si pas deja present par nom).
+  //   2. On supprime le champ `platform`.
+  // Les projets deja migres (pas de champ `platform`, ou tag platform deja
+  // renseigne) sont laisses tels quels.
+  function migratePlatformToTag() {
+    if (!firebaseReady()) { showToast('Firebase non configure', 'error'); return; }
+    if (!window.confirm('Convertir le champ "platform" de chaque projet en tag de categorie "platform" ? Cette operation est idempotente mais ecrit dans Firestore.')) return;
+    showToast('Migration en cours...');
+    firebase.firestore().collection('projects').get()
+      .then(function (snapshot) {
+        var batch = firebase.firestore().batch();
+        var updates = 0;
+        snapshot.forEach(function (doc) {
+          var data = doc.data();
+          var platformStr = (typeof data.platform === 'string') ? data.platform.trim() : '';
+          var tags = Array.isArray(data.tags) ? data.tags.slice() : [];
+          var alreadyHasPlatformTag = tags.some(function (t) { return U.getTagCategory(t) === 'platform'; });
+          var update = {};
+          if (platformStr && !alreadyHasPlatformTag) {
+            tags.push({ name: platformStr, category: 'platform' });
+            update.tags = tags;
+          }
+          if (platformStr) {
+            update.platform = firebase.firestore.FieldValue.delete();
+          }
+          if (Object.keys(update).length > 0) {
+            batch.update(doc.ref, update);
+            updates++;
+          }
+        });
+        if (updates === 0) {
+          showToast('Rien a migrer (deja a jour).');
+          return null;
+        }
+        return batch.commit().then(function () {
+          showToast(updates + ' projet(s) migre(s) vers tag platform.');
+        });
+      })
+      .then(function () {
+        if (firebaseReady()) loadProjects();
+      })
+      .catch(function (e) { showToast('Erreur migration: ' + e.message, 'error'); });
+  }
+
+  window.migratePlatformToTag = migratePlatformToTag;
+
   function renderProjects(list) {
     var grid = document.getElementById('projects-list');
     if (!grid) return;
@@ -579,6 +628,25 @@
       });
     }
 
+    // Platform quick-select (inside Details avances) - adds a new
+    // platform tag (multiple are allowed). Reuses addTag() so dedup
+    // and existing-tag registry stay consistent.
+    var platformSelect = document.getElementById('platform-quick-select');
+    var platformAddBtn = document.getElementById('platform-quick-add');
+    function addPlatformFromQuickSelect() {
+      if (!platformSelect) return;
+      var value = platformSelect.value;
+      if (!value) { showToast('Selectionnez une plateforme', 'error'); return; }
+      addTag(value, 'platform');
+      platformSelect.value = '';
+    }
+    if (platformAddBtn) platformAddBtn.addEventListener('click', addPlatformFromQuickSelect);
+    if (platformSelect) {
+      platformSelect.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addPlatformFromQuickSelect(); }
+      });
+    }
+
     // Link input
     var linkTypeSel = document.getElementById('link-type-select');
     var linkUrlInput = document.getElementById('link-url-input');
@@ -688,7 +756,7 @@
     }, true);
 
     // Live preview
-    var previewFields = ['project-title', 'project-description', 'project-date', 'project-platform', 'project-status', 'project-video'];
+    var previewFields = ['project-title', 'project-description', 'project-date', 'project-status', 'project-video'];
     previewFields.forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', updateLivePreview);
@@ -765,6 +833,7 @@
     currentTeam = [];
     renderGalleryPreview();
     renderTagChips();
+    renderExistingTags();
     renderLinkChips();
     renderContributionCards();
     renderTeamChips();
@@ -779,7 +848,6 @@
       setVal('project-description-long', project.descriptionLong);
       setVal('project-role', project.role);
       setVal('project-date', project.date || project.year);
-      setVal('project-platform', project.platform);
       var statusEl = document.getElementById('project-status');
       if (statusEl) {
         // Legacy: old projects had 'published' value. Map it to 'released'.
@@ -810,6 +878,7 @@
           return { name: U.getTagName(t), category: U.getTagCategory(t) || 'other' };
         });
         renderTagChips();
+        renderExistingTags();
       }
       if (project.links) {
         currentLinks = U.normalizeLinks(project.links);
@@ -844,7 +913,38 @@
     if (el && value !== undefined && value !== null) el.value = value;
   }
 
+  function sortExistingTags() {
+    existingTags.sort(function (a, b) {
+      var categoryCompare = a.category.toLowerCase().localeCompare(b.category.toLowerCase());
+      if (categoryCompare !== 0) return categoryCompare;
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+  }
+
   function loadExistingTags() {
+    if (firebaseReady()) {
+      firebase.firestore().collection('projects').get()
+        .then(function (snapshot) {
+          var map = {};
+          snapshot.forEach(function (doc) {
+            var data = doc.data();
+            (data.tags || []).forEach(function (t) {
+              var name = U.getTagName(t);
+              var cat = U.getTagCategory(t);
+              if (name) map[name.toLowerCase()] = { name: name, category: cat };
+            });
+          });
+          existingTags = Object.keys(map).map(function (k) { return map[k]; });
+          sortExistingTags();
+          renderExistingTags();
+        })
+        .catch(function () { loadExistingTagsFromJSON(); });
+    } else {
+      loadExistingTagsFromJSON();
+    }
+  }
+
+  function loadExistingTagsFromJSON() {
     fetch('data/projects.json?t=' + Date.now())
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -858,6 +958,7 @@
           });
         });
         existingTags = Object.keys(map).map(function (k) { return map[k]; });
+        sortExistingTags();
         renderExistingTags();
       })
       .catch(function () {});
@@ -867,10 +968,33 @@
     var container = document.getElementById('existing-tags-list');
     if (!container) return;
     if (existingTags.length === 0) { container.innerHTML = ''; return; }
-    container.innerHTML = '<span class="existing-tags-label">Suggestions :</span>' +
-      existingTags.map(function (t) {
-        return '<button type="button" class="suggest-tag" data-name="' + U.escapeAttr(t.name) + '" data-cat="' + U.escapeAttr(t.category) + '">' + U.escapeHtml(t.name) + '</button>';
-      }).join('');
+    var labels = {
+      role: 'Roles',
+      engine: 'Moteurs',
+      language: 'Langages',
+      genre: 'Genres',
+      platform: 'Plateformes',
+      tool: 'Outils',
+      other: 'Autres'
+    };
+    var groups = {};
+    existingTags.forEach(function (t) {
+      var category = t.category || 'other';
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(t);
+    });
+    container.innerHTML = Object.keys(groups).map(function (category) {
+      return '<div class="existing-tags-group">' +
+        '<span class="existing-tags-label">' + U.escapeHtml(labels[category] || category) + ' :</span>' +
+        groups[category].map(function (t) {
+          var isUsed = currentTags.some(function (currentTag) {
+            return currentTag.name.toLowerCase() === t.name.toLowerCase();
+          });
+          var usedClass = isUsed ? ' suggest-tag-used' : '';
+          return '<button type="button" class="suggest-tag' + usedClass + '" data-name="' + U.escapeAttr(t.name) + '" data-cat="' + U.escapeAttr(t.category) + '" aria-pressed="' + (isUsed ? 'true' : 'false') + '">' + U.escapeHtml(t.name) + '</button>';
+        }).join('') +
+      '</div>';
+    }).join('');
     container.querySelectorAll('.suggest-tag').forEach(function (el) {
       el.addEventListener('click', function () {
         addTag(this.getAttribute('data-name'), this.getAttribute('data-cat'));
@@ -896,14 +1020,26 @@
         return;
       }
     }
-    currentTags.push({ name: name, category: category || 'other' });
+    var categoryName = category || 'other';
+    currentTags.push({ name: name, category: categoryName });
+    var exists = false;
+    for (var j = 0; j < existingTags.length; j++) {
+      if (existingTags[j].name.toLowerCase() === key) { exists = true; break; }
+    }
+    if (!exists) {
+      existingTags.push({ name: name, category: categoryName });
+      sortExistingTags();
+      renderExistingTags();
+    }
     renderTagChips();
+    renderExistingTags();
     updateLivePreview();
   }
 
   function removeTag(idx) {
     currentTags.splice(idx, 1);
     renderTagChips();
+    renderExistingTags();
     updateLivePreview();
   }
 
@@ -912,6 +1048,7 @@
     if (!container) return;
     if (currentTags.length === 0) {
       container.innerHTML = '<span class="chips-empty">Aucun tag. Ajoutez-en ci-dessous.</span>';
+      renderPlatformDisplay();
       return;
     }
     container.innerHTML = currentTags.map(function (t, i) {
@@ -920,6 +1057,36 @@
         '<span class="chip-dot"></span>' +
         U.escapeHtml(t.name) +
         '<button type="button" class="chip-x" data-tag-remove="' + i + '" aria-label="Retirer">&times;</button>' +
+      '</span>';
+    }).join('');
+    renderPlatformDisplay();
+  }
+
+  // ---- PLATFORM : quick display inside Details avances ----
+  // Plusieurs tags platform peuvent coexister (ex: "PC" + "Steam",
+  // "Mobile" + "Android"). Source de truth = `currentTags` (memes chips
+  // que la section Tags). Ce bloc ne fait que re-rendre les chips
+  // platform dans la section Avancee pour les voir/retirer rapidement.
+
+  function renderPlatformDisplay() {
+    var container = document.getElementById('platform-display');
+    if (!container) return;
+    var platformTags = [];
+    for (var i = 0; i < currentTags.length; i++) {
+      if (currentTags[i].category === 'platform') {
+        platformTags.push({ tag: currentTags[i], index: i });
+      }
+    }
+    if (platformTags.length === 0) {
+      container.innerHTML = '<span class="chips-empty">Aucune plateforme. Ajoutez un tag <code>platform</code> ci-dessous ou utilisez le select.</span>';
+      return;
+    }
+    container.innerHTML = platformTags.map(function (entry) {
+      var color = U.getTagColor(entry.tag.category);
+      return '<span class="chip" style="--chip-color:' + color + '">' +
+        '<span class="chip-dot"></span>' +
+        U.escapeHtml(entry.tag.name) +
+        '<button type="button" class="chip-x" data-platform-remove="' + entry.index + '" aria-label="Retirer">&times;</button>' +
       '</span>';
     }).join('');
   }
@@ -1084,7 +1251,12 @@
     for (var k = 0; k < existingRoles.length; k++) {
       if (existingRoles[k].toLowerCase() === key) { exists = true; break; }
     }
-    if (!exists) existingRoles.push(role);
+    if (!exists) {
+      existingRoles.push(role);
+      existingRoles.sort(function (a, b) {
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+      });
+    }
     renderTeamChips();
     renderExistingRoles();
     updateLivePreview();
@@ -1129,6 +1301,9 @@
             });
           });
           existingRoles = Object.keys(seen).map(function (k) { return seen[k]; });
+          existingRoles.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+          });
           renderExistingRoles();
         })
         .catch(function () { loadExistingRolesFromJSON(); });
@@ -1151,6 +1326,9 @@
           });
         });
         existingRoles = Object.keys(seen).map(function (k) { return seen[k]; });
+        existingRoles.sort(function (a, b) {
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
         renderExistingRoles();
       })
       .catch(function () {});
@@ -1214,6 +1392,21 @@
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-tag-remove]');
     if (t) { removeTag(parseInt(t.getAttribute('data-tag-remove'), 10)); return; }
+    var pr = e.target.closest('[data-platform-remove]');
+    if (pr) {
+      // Find the chip by name (indexes shift after any tag add/remove).
+      var chipEl = pr.closest('.chip');
+      if (chipEl) {
+        var chipName = chipEl.textContent.replace(/\s*×\s*$/, '').trim();
+        for (var pi = 0; pi < currentTags.length; pi++) {
+          if (currentTags[pi].category === 'platform' && currentTags[pi].name === chipName) {
+            removeTag(pi);
+            break;
+          }
+        }
+      }
+      return;
+    }
     var l = e.target.closest('[data-link-remove]');
     if (l) { removeLink(parseInt(l.getAttribute('data-link-remove'), 10)); return; }
     var c = e.target.closest('[data-contrib-remove]');
@@ -1441,9 +1634,11 @@
     var title = getVal('project-title') || 'Titre du projet';
     var desc = getVal('project-description') || 'Description courte';
     var date = getVal('project-date') || '';
-    var platform = getVal('project-platform') || '';
     var status = getVal('project-status') || 'draft';
     var featured = !!(document.getElementById('project-featured') || {}).checked;
+    // Platform: derive from the platform tag chips (single source of truth)
+    var platformTag = currentTags.find(function (t) { return t.category === 'platform'; });
+    var platform = platformTag ? platformTag.name : '';
 
     var titleEl = document.getElementById('preview-title');
     var subEl = document.getElementById('preview-subtitle');
@@ -1546,7 +1741,6 @@
       role: (getVal('project-role') || '').trim(),
       date: dateVal,
       year: dateVal,
-      platform: (getVal('project-platform') || '').trim(),
       status: (function () {
         var v = getVal('project-status');
         return v === 'released' || v === 'wishlist' || v === 'draft' ? v : 'draft';

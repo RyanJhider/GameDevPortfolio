@@ -12,7 +12,21 @@
   var searchQuery = '';
   var sortMode = 'order';
 
+  // Pre-charge le tag depuis l'URL des le top-level (avant meme le
+  // DOMContentLoaded). Sert aussi de backup si jamais DOMContentLoaded
+  // est en retard.
+  (function captureTagAtTop() {
+    try {
+      var raw = new URLSearchParams(window.location.search).get('tag');
+      if (raw && raw.trim() && activeTags.indexOf(raw.trim()) === -1) {
+        activeTags.push(raw.trim());
+      }
+    } catch (e) { /* noop */ }
+  })();
+
   document.addEventListener('DOMContentLoaded', function () {
+    // Re-capture au cas ou la premiere capture avait echoue (race).
+    applyInitialTagFromUrl();
     loadData();
     initProjectsPageControls();
   });
@@ -63,11 +77,29 @@
   }
 
   function afterLoad() {
+    applyInitialTagFromUrl();
     renderProjects();
-    updateStats();
     if (typeof window.loadProfile === 'function') {
       try { window.loadProfile(); } catch (e) { /* noop */ }
     }
+  }
+
+  // Lit ?tag= dans l'URL et pousse dans activeTags. Tourne a
+  // plusieurs moments pour resister a toute race DOM / async :
+  // DOMContentLoaded (avant tout chargement data) ET apres les
+  // donnees chargees via afterLoad.
+  function applyInitialTagFromUrl() {
+    var onProjects = !!document.querySelector('.projects-page');
+    if (!onProjects) return;
+    var raw = null;
+    try {
+      raw = new URLSearchParams(window.location.search).get('tag');
+    } catch (e) { /* noop */ }
+    if (!raw || !raw.trim()) return;
+    var needle = raw.trim();
+    // Evite de doubler si deja applique
+    if (activeTags.indexOf(needle) !== -1) return;
+    activeTags.push(needle);
   }
 
   // ========================================
@@ -150,12 +182,27 @@
     var list = isHome ? projectsData.filter(function (p) { return p.featured; }) : projectsData;
     list = list.filter(function (p) { return p.hidden !== true; });
 
-    // Tag filter (OR logic)
+    // Tag filter (OR logic). Match exact sur nom de tag OU presence du
+    // terme dans titre / description / role (pour les skills cliques
+    // depuis la home qui ne sont pas des tags formels).
     if (activeTags.length > 0) {
       list = list.filter(function (p) {
-        if (!p.tags) return false;
-        var names = p.tags.map(function (t) { return U.getTagName(t).toLowerCase(); });
-        return activeTags.some(function (tag) { return names.indexOf(tag.toLowerCase()) !== -1; });
+        var haystack = [];
+        haystack.push(p.title || '');
+        haystack.push(p.description || '');
+        haystack.push(p.descriptionLong || '');
+        haystack.push(p.role || '');
+        haystack.push(U.getProjectPlatform(p, ''));
+        if (p.tags) {
+          p.tags.forEach(function (t) { haystack.push(U.getTagName(t)); });
+        }
+        return activeTags.some(function (tag) {
+          var t = tag.toLowerCase();
+          // Match exact dans tags (categorie formelle)
+          if (p.tags && p.tags.some(function (x) { return U.getTagName(x).toLowerCase() === t; })) return true;
+          // Fallback: presence du terme dans le haystack (skills non-tag)
+          return haystack.join(' ').toLowerCase().indexOf(t) !== -1;
+        });
       });
     }
 
@@ -184,6 +231,16 @@
     return file === '' || file === 'index.html';
   }
 
+  // Vrai si on est sur la page projets (et non la home). Utilise le
+  // DOM comme source de verite, plus fiable que pathname (cas d'une URL
+  // type file:///.../index.html?tag=Unity passee a isHomePage()).
+  function isProjectsPage() {
+    var list = document.getElementById('projects-list');
+    if (!list) return false;
+    var sec = document.querySelector('.projects-page');
+    return !!sec && !isHomePage();
+  }
+
   function buildFilterBar() {
     var bar = document.getElementById('filter-bar');
     if (!bar) return;
@@ -195,22 +252,88 @@
         var cat = U.getTagCategory(t);
         if (!name) return;
         if (!tagsByCategory[cat]) tagsByCategory[cat] = {};
-        tagsByCategory[cat][name] = true;
+        if (!tagsByCategory[cat][name]) tagsByCategory[cat][name] = { count: 0 };
+        tagsByCategory[cat][name].count += 1;
       });
     });
 
     var categoryOrder = ['engine', 'language', 'role', 'genre', 'platform', 'tool', 'other'];
     var html = '<button class="filter-btn" data-tag="__clear" data-active="' + (activeTags.length === 0) + '">All</button>';
+
+    // Injecter les activeTags qui n'existent pas comme tag reel
+    // (ex: skill "Unreal Engine" clique depuis la home) pour qu'ils
+    // apparaissent visuellement actifs dans la barre.
+    var existingNames = {};
     categoryOrder.forEach(function (cat) {
       if (!tagsByCategory[cat]) return;
-      Object.keys(tagsByCategory[cat]).sort().forEach(function (name) {
-        var isActive = activeTags.indexOf(name) !== -1;
-        html += '<button class="filter-btn" data-tag="' + U.escapeAttr(name) + '" data-active="' + isActive + '" style="border-color:' + U.getTagColor(cat) + '40;">' + U.escapeHtml(name) + '</button>';
+      Object.keys(tagsByCategory[cat]).forEach(function (n) { existingNames[n.toLowerCase()] = true; });
+    });
+    var ghostTags = activeTags.filter(function (t) { return !existingNames[t.toLowerCase()]; });
+    if (ghostTags.length > 0) {
+      if (!tagsByCategory.other) tagsByCategory.other = {};
+      ghostTags.forEach(function (t) {
+        if (!tagsByCategory.other[t]) tagsByCategory.other[t] = { count: 0 };
+      });
+    }
+
+    var visibleLimit = 4;
+    var overflowCount = 0;
+    var hasOverflow = false;
+
+    // If the user has any active tag that's normally hidden, force-open
+    // the overflow so the active state stays visible after re-render.
+    var activeForcesOpen = false;
+    categoryOrder.forEach(function (cat) {
+      if (!tagsByCategory[cat]) return;
+      var tagsArr = Object.keys(tagsByCategory[cat]).map(function (n) {
+        return { name: n, count: tagsByCategory[cat][n].count };
+      }).sort(function (a, b) {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.name.localeCompare(b.name);
+      });
+      tagsArr.forEach(function (t, idx) {
+        if (idx >= visibleLimit && activeTags.indexOf(t.name) !== -1) activeForcesOpen = true;
       });
     });
 
+    categoryOrder.forEach(function (cat) {
+      if (!tagsByCategory[cat]) return;
+      var tagsArr = Object.keys(tagsByCategory[cat]).map(function (n) {
+        return { name: n, count: tagsByCategory[cat][n].count };
+      }).sort(function (a, b) {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.name.localeCompare(b.name);
+      });
+
+      var overflowOpen = false;
+      tagsArr.forEach(function (t, idx) {
+        var isActive = activeTags.indexOf(t.name) !== -1;
+        var needsOverflow = idx >= visibleLimit;
+        if (needsOverflow && !overflowOpen) {
+          html += '<span class="filter-bar-overflow" data-cat="' + U.escapeAttr(cat) + '">';
+          overflowOpen = true;
+          hasOverflow = true;
+        }
+        html += '<button class="filter-btn" data-tag="' + U.escapeAttr(t.name) + '" data-active="' + isActive + '" data-overflow="' + needsOverflow + '" style="border-color:' + U.getTagColor(cat) + '40;">' + U.escapeHtml(t.name) + '</button>';
+        if (needsOverflow) overflowCount++;
+      });
+      if (overflowOpen) html += '</span>';
+    });
+
+    // Force-open the overflow if an active tag lives there.
+    if (activeForcesOpen) {
+      var _b = document.getElementById('filter-bar');
+      if (_b) _b.classList.add('is-overflow-open');
+    }
+
+    if (hasOverflow) {
+      html += '<button type="button" class="filter-btn filter-btn-toggle" data-action="toggle-overflow" aria-expanded="' + (activeForcesOpen ? 'true' : 'false') + '">Show more (+' + overflowCount + ')</button>';
+    }
+
     bar.innerHTML = html;
+
     bar.querySelectorAll('.filter-btn').forEach(function (btn) {
+      if (btn.getAttribute('data-action') === 'toggle-overflow') return;
       btn.addEventListener('click', function () {
         var tag = this.getAttribute('data-tag');
         if (tag === '__clear') {
@@ -224,6 +347,16 @@
         renderProjects();
       });
     });
+
+    var toggleBtn = bar.querySelector('[data-action="toggle-overflow"]');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        var opened = bar.classList.toggle('is-overflow-open');
+        this.setAttribute('aria-expanded', opened ? 'true' : 'false');
+        var hiddenCount = bar.querySelectorAll('.filter-btn[data-overflow="true"]').length;
+        this.textContent = opened ? 'Show less (' + hiddenCount + ')' : 'Show more (+' + hiddenCount + ')';
+      });
+    }
 
     bar.querySelectorAll('.filter-btn').forEach(function (btn) {
       if (btn.getAttribute('data-active') === 'true') btn.classList.add('active');
@@ -262,6 +395,47 @@
     var gridCount = document.getElementById('grid-count');
     var grid = document.getElementById('projects-list');
     var countLine = document.getElementById('projects-count-line');
+    var activeWrap = document.getElementById('active-filters');
+    var activePills = document.getElementById('active-filters-pills');
+    var activeClear = document.getElementById('active-filters-clear');
+
+    if (activeWrap && activePills) {
+      if (activeTags.length > 0) {
+        activeWrap.hidden = false;
+        activePills.innerHTML = activeTags.map(function (t) {
+          return '<span class="active-filter-pill" data-tag="' + U.escapeAttr(t) + '">' +
+            U.escapeHtml(t) +
+            '<button type="button" class="active-filter-remove" data-remove="' + U.escapeAttr(t) + '" aria-label="Retirer ' + U.escapeAttr(t) + '">×</button>' +
+          '</span>';
+        }).join('');
+        activePills.querySelectorAll('.active-filter-remove').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var t = this.getAttribute('data-remove');
+            var idx = activeTags.indexOf(t);
+            if (idx !== -1) activeTags.splice(idx, 1);
+            buildFilterBar();
+            renderProjects();
+          });
+        });
+      } else {
+        activeWrap.hidden = true;
+        activePills.innerHTML = '';
+      }
+    }
+
+    if (activeClear && !activeClear._wired) {
+      activeClear._wired = true;
+      activeClear.addEventListener('click', function () {
+        activeTags = [];
+        searchQuery = '';
+        var si = document.getElementById('projects-search-input');
+        if (si) si.value = '';
+        var sc = document.getElementById('projects-search-clear');
+        if (sc) sc.classList.remove('visible');
+        buildFilterBar();
+        renderProjects();
+      });
+    }
 
     var total = projectsData.filter(function (p) { return p.hidden !== true; }).length;
     if (countLine) {
@@ -281,16 +455,19 @@
       return;
     }
 
-    // Split featured vs others (only when no search/tag filter active, to keep the section meaningful)
+    // En mode "All" : tous les featured restent dans le carousel, ET
+    // ils reapparaissent aussi dans la grille "Other projects" avec le
+    // reste (les non-featured) pour qu'aucun projet ne soit cache.
     var showFeaturedSplit = !searchQuery && activeTags.length === 0;
     var featured = showFeaturedSplit ? list.filter(function (p) { return p.featured; }) : [];
+    var others = list.slice();
 
     if (featuredWrap && featuredEl) {
       if (featured.length > 0) {
         featuredWrap.hidden = false;
         if (featuredCount) featuredCount.textContent = featured.length;
         featuredEl.innerHTML = featured.map(function (p, i) { return renderFeaturedCard(p, i); }).join('');
-        refreshFeaturedCarousel();
+        initFeaturedCarousel();
       } else {
         featuredWrap.hidden = true;
         featuredEl.innerHTML = '';
@@ -299,15 +476,21 @@
     }
 
     if (gridLabel && gridLabelText && gridCount) {
-      gridLabel.hidden = false;
-      gridLabelText.textContent = 'ALL PROJECTS';
-      gridCount.textContent = list.length;
+      var isFiltered = activeTags.length > 0 || searchQuery.length > 0;
+      var hasContent = isFiltered ? list.length > 0 : others.length > 0;
+      if (hasContent) {
+        gridLabel.hidden = false;
+        gridLabelText.textContent = isFiltered ? 'MATCHES' : 'OTHER PROJECTS';
+        gridCount.textContent = isFiltered ? list.length : others.length;
+      } else {
+        gridLabel.hidden = true;
+      }
     }
 
-    if (list.length === 0) {
+    if (others.length === 0) {
       grid.innerHTML = '';
     } else {
-      grid.innerHTML = list.map(function (p, i) { return renderCard(p, i); }).join('');
+      grid.innerHTML = others.map(function (p, i) { return renderCard(p, i); }).join('');
     }
   }
 
@@ -479,6 +662,10 @@
     if (c) c.refresh();
   }
 
+  function initFeaturedCarousel() {
+    return initFeaturedCarouselOnce();
+  }
+
   function destroyFeaturedCarousel() {
     if (featuredCarousel) {
       featuredCarousel.destroy();
@@ -490,6 +677,7 @@
   // ========================================
 
   function renderFeaturedCard(p, i) {
+    // Legacy carousel card (non utilise en mode hero, garde pour compat)
     var thumb = p.thumbnail
       ? '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="' + U.escapeAttr(p.title || 'Project') + '" class="featured-thumb-img" loading="lazy">'
       : '<div class="featured-thumb-img featured-thumb-empty">NO MEDIA</div>';
@@ -507,7 +695,8 @@
 
     var metaBits = [];
     if (p.year || p.date) metaBits.push(U.escapeHtml(p.year || p.date));
-    if (p.platform) metaBits.push(U.escapeHtml(p.platform));
+    var platformName = U.getProjectPlatform(p, '');
+    if (platformName) metaBits.push(U.escapeHtml(platformName));
     if (p.role) metaBits.push(U.escapeHtml(p.role));
     var metaLine = metaBits.join(' <span class="meta-sep">//</span> ');
 
@@ -527,50 +716,134 @@
     '</a>';
   }
 
-  function renderCard(p, i) {
-    var thumb = p.thumbnail
-      ? '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="' + U.escapeAttr(p.title || 'Project') + '" class="project-thumb" loading="lazy">'
-      : '<div class="project-thumb project-thumb-empty">NO MEDIA</div>';
+  function renderFeaturedHero(p) {
+    // Format "stage hero" : un seul featured project, en grand (2 colonnes)
+    // Video/image a gauche, contenu a droite.
+    var hero = p.video
+      ? '<div class="featured-hero-media">' +
+          '<iframe src="' + U.escapeAttr(p.video) +
+            '" frameborder="0" allowfullscreen loading="lazy"></iframe>' +
+        '</div>'
+      : (p.thumbnail
+        ? '<div class="featured-hero-media">' +
+            '<img src="' + U.escapeAttr(p.thumbnail) + '" alt="' + U.escapeAttr(p.title || 'Project') + '" loading="lazy">' +
+          '</div>'
+        : '<div class="featured-hero-media featured-hero-media--empty">NO MEDIA</div>');
+
+    var metaBits = [];
+    if (p.year || p.date) metaBits.push(U.escapeHtml(p.year || p.date));
+    var platformName = U.getProjectPlatform(p, '');
+    if (platformName) metaBits.push(U.escapeHtml(platformName));
+    if (p.role) metaBits.push(U.escapeHtml(p.role));
+    var metaLine = metaBits.join(' <span class="featured-hero-sep">//</span> ');
 
     var tagsHtml = '';
     if (p.tags && p.tags.length > 0) {
-      tagsHtml = '<div class="project-tags">';
-      p.tags.slice(0, 4).forEach(function (t) {
+      tagsHtml = '<div class="featured-hero-tags">';
+      p.tags.slice(0, 6).forEach(function (t) {
         var name = U.getTagName(t);
         var cat = U.getTagCategory(t);
-        tagsHtml += '<span class="project-tag" style="color:' + U.getTagColor(cat) + ';">' + U.escapeHtml(name) + '</span>';
+        tagsHtml += '<span class="featured-hero-tag" style="color:' + U.getTagColor(cat) + ';border-color:' + U.getTagColor(cat) + '40;">' + U.escapeHtml(name) + '</span>';
       });
       tagsHtml += '</div>';
     }
 
-    var yearLabel = (p.year || p.date) ? '<span class="project-card-year">' + U.escapeHtml(p.year || p.date) + '</span>' : '';
-    var roleLabel = p.role ? '<span class="project-card-role">' + U.escapeHtml(p.role) + '</span>' : '';
+    var linksHtml = '';
+    if (p.links && p.links.length) {
+      linksHtml = '<div class="featured-hero-links">';
+      p.links.slice(0, 3).forEach(function (l) {
+        var url = (typeof l === 'string') ? l : (l.url || l.href || '');
+        var type = (typeof l === 'string') ? 'link' : (l.type || 'link');
+        var label = U.linkLabel(type);
+        if (url) {
+          linksHtml += '<a class="featured-hero-link" href="' + U.escapeAttr(url) + '" target="_blank" rel="noopener noreferrer">' + U.escapeHtml(label) + ' ↗</a>';
+        }
+      });
+      linksHtml += '</div>';
+    }
 
-    return '<a href="project.html?id=' + U.escapeAttr(p.id) + '" class="project-card" style="animation-delay:' + (i * 0.04) + 's">' +
-      '<div class="project-card-media">' +
-        thumb +
-        (p.featured ? '<div class="project-card-star">★</div>' : '') +
-      '</div>' +
-      '<div class="card-info">' +
-        '<div class="project-card-head">' +
-          '<h3 class="project-title">' + U.escapeHtml(p.title || 'Untitled') + '</h3>' +
-          yearLabel +
-        '</div>' +
-        roleLabel +
-        '<p class="project-desc">' + U.escapeHtml(p.description || '') + '</p>' +
+    return '<a class="featured-hero-card" href="project.html?id=' + U.escapeAttr(p.id) + '">' +
+      hero +
+      '<div class="featured-hero-body">' +
+        '<div class="featured-hero-eyebrow">★ FEATURED PROJECT</div>' +
+        '<h2 class="featured-hero-title">' + U.escapeHtml(p.title || 'Untitled') + '</h2>' +
+        (metaLine ? '<div class="featured-hero-meta">' + metaLine + '</div>' : '') +
+        '<p class="featured-hero-desc">' + U.escapeHtml(p.description || p.descriptionLong || '') + '</p>' +
         tagsHtml +
+        linksHtml +
+        '<div class="featured-hero-cta">VIEW PROJECT DETAILS <span>→</span></div>' +
       '</div>' +
     '</a>';
   }
 
-  function updateStats() {
-    var total = projectsData.length;
-    var featured = projectsData.filter(function (p) { return p.featured; }).length;
-    var years = Math.max(1, new Date().getFullYear() - 2022);
+  function renderCard(p, i) {
+    var title = U.escapeHtml(p.title || 'Untitled');
+    var desc = U.escapeHtml(p.description || '');
+    var href = 'project.html?id=' + U.escapeAttr(p.id);
 
-    setText('projects-count', total);
-    setText('featured-count', featured);
-    setText('years-experience', years);
+    // Media : image fixe + video en overlay (crossfade au hover hezaerd-style).
+    // La video peut etre une URL .mp4 externe (rare) ou une URL YouTube
+    // convertie en embed iframe via U.extractVideoId.
+    var mediaInner = '';
+    if (p.thumbnail) {
+      mediaInner += '<img class="project-media-img" src="' + U.escapeAttr(p.thumbnail) + '" alt="' + title + '" loading="lazy">';
+    } else {
+      mediaInner += '<div class="project-media-img project-media-empty">🎮</div>';
+    }
+    var videoEmbedUrl = '';
+    if (p.video) {
+      var vid = U.extractVideoId(p.video);
+      if (vid) videoEmbedUrl = 'https://www.youtube.com/embed/' + U.escapeAttr(vid) + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + U.escapeAttr(vid) + '&showinfo=0&rel=0&playsinline=1';
+    }
+    if (videoEmbedUrl) {
+      mediaInner += '<iframe class="project-media-video" src="' + videoEmbedUrl + '" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy" tabindex="-1"></iframe>';
+    }
+
+    // Tags : hezaerd affiche 1 pill "categorie" + 1 pill "engine+user" max.
+    // On prend la categorie de genre/role du projet + l'engine principal.
+    var tagsHtml = '';
+    var firstCat = null;
+    var engine = null;
+    (p.tags || []).forEach(function (t) {
+      var cat = U.getTagCategory(t);
+      var name = U.getTagName(t);
+      if (!name) return;
+      if (!firstCat && (cat === 'genre' || cat === 'role')) firstCat = name;
+      if (!engine && cat === 'engine') engine = name;
+    });
+    if (firstCat) tagsHtml += '<span class="project-tag">' + U.escapeHtml(firstCat) + '</span>';
+    if (engine) {
+      tagsHtml += '<span class="project-tag project-tag--engine">' +
+        '<svg class="project-tag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>' +
+          '<circle cx="12" cy="7" r="4"/>' +
+        '</svg>' +
+        U.escapeHtml(engine) +
+      '</span>';
+    }
+
+    var ribbon = p.featured
+      ? '<span class="project-card-ribbon" aria-label="Featured project">★ FEATURED</span>'
+      : '';
+
+    return '<a href="' + href + '" class="project-card' + (p.featured ? ' is-featured' : '') + '">' +
+      '<div class="project-card-media">' +
+        mediaInner +
+        ribbon +
+      '</div>' +
+      '<div class="project-card-body">' +
+        '<h3 class="project-card-title">' +
+          '<svg class="project-card-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>' +
+            '<circle cx="12" cy="13" r="2"/>' +
+          '</svg>' +
+          title +
+        '</h3>' +
+        '<p class="project-card-desc">' + desc + '</p>' +
+        (tagsHtml ? '<div class="project-card-tags">' + tagsHtml + '</div>' : '') +
+        '<span class="project-card-cta">Click to view details <span class="project-card-cta-arrow" aria-hidden="true">→</span></span>' +
+      '</div>' +
+    '</a>';
   }
 
   function setText(id, value) {

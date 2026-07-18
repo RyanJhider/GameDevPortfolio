@@ -36,7 +36,7 @@
   function applyProfile(p) {
     if (!p) return;
     applyText('.profile-name', p.name);
-    applyText('.profile-title', p.title);
+    applyTitle('.profile-title', p.title);
     applyText('.profile-school', p.school);
     applyText('.profile-location', p.location);
     applyText('.profile-bio', p.bio);
@@ -166,6 +166,46 @@
     if (value == null) return;
     document.querySelectorAll(selector).forEach(function (el) {
       el.textContent = value;
+    });
+  }
+
+  function applyTitle(selector, value) {
+    if (value == null) return;
+    document.querySelectorAll(selector).forEach(function (el) {
+      el.textContent = value;
+      var pattern = /Game Design & Programming/i;
+      var match = pattern.exec(el.textContent);
+      if (match) {
+        var before = el.textContent.slice(0, match.index);
+        var matchText = el.textContent.slice(match.index, match.index + match[0].length);
+        var after = el.textContent.slice(match.index + match[0].length);
+        el.textContent = before;
+        var span = document.createElement('span');
+        span.className = 'accent';
+        span.textContent = matchText;
+        el.appendChild(span);
+        el.appendChild(document.createTextNode(after));
+      }
+    });
+  }
+
+  function applyDescription(selector, value) {
+    if (value == null) return;
+    document.querySelectorAll(selector).forEach(function (el) {
+      el.textContent = value;
+      var pattern = /Game Design & Programming/i;
+      var match = pattern.exec(el.textContent);
+      if (match) {
+        var before = el.textContent.slice(0, match.index);
+        var matchText = el.textContent.slice(match.index, match.index + match[0].length);
+        var after = el.textContent.slice(match.index + match[0].length);
+        el.textContent = before;
+        var span = document.createElement('span');
+        span.className = 'accent';
+        span.textContent = matchText;
+        el.appendChild(span);
+        el.appendChild(document.createTextNode(after));
+      }
     });
   }
 
